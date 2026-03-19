@@ -1,0 +1,213 @@
+Build a small standalone web app prototype called “Quinnja Letters” for a 5-year-old child learning early phonics and letter formation.
+
+IMPORTANT CONTEXT
+- This is a pilot only, not a polished full app
+- It should be built as a simple local prototype using plain HTML, CSS, and JavaScript
+- Use a modular structure with separate files, not one giant HTML file
+- Keep it lightweight and easy for a non-coder parent to edit later
+- It must run by simply opening index.html in a browser
+- No frameworks, no build tools, no npm, no backend
+- All assets should be optional and replaceable later
+- Design it so it can later be integrated into another app called ReadyQuest
+
+PROJECT GOAL
+Create a personalised literacy mini-app for a child named Quinn, themed around a mascot bear called Quinnja. The app should help him practise the 6 prep-class letters:
+S, A, T, P, I, N
+
+The focus is on:
+1. identifying the LETTER NAME correctly
+2. identifying the LETTER SOUND correctly
+3. forming letters correctly from the TOP, not from the bottom
+4. making the experience warm and encouraging, without over-gamifying it
+
+EDUCATIONAL DESIGN RULES
+- Keep the experience calm, simple, and low-clutter
+- No coins, shops, XP systems, or distracting game mechanics
+- Quinnja should act as a gentle guide, not the centre of attention
+- Sessions should feel short and achievable
+- The app must clearly separate:
+  - letter name
+  - letter sound
+  - picture cue
+- Example: if showing A, the correct letter name is “A”, not “apple”
+- Use picture cues only as helpers, not as the main answer
+- Letter formation must visually emphasise the correct TOP starting point
+
+TECH REQUIREMENTS
+Create these files:
+- index.html
+- styles.css
+- app.js
+- data.js
+- audio.js
+
+Optional:
+- assets folder for future images/audio, but do not require external assets for v1
+
+APP STRUCTURE
+Create a single-page app with 4 main screens/modes:
+
+1. Home screen
+- Title: Quinnja Letters
+- Subtitle: SATPIN practice
+- Friendly Quinnja area with simple placeholder illustration or emoji-based mascot if needed
+- Buttons:
+  - Start Practice
+  - Parent Settings
+- Small text showing which letters are currently active
+
+2. Letter Name mode
+- Show one large target letter
+- Prompt: “What letter is this?”
+- Show 3 answer buttons
+- One correct answer is the letter name, eg “A”
+- Wrong options should be plausible from the active letter set
+- After answering:
+  - show simple feedback
+  - if correct, optional audio: “That’s the letter A”
+  - if wrong, show correct answer clearly
+- Include Next button
+
+3. Letter Sound mode
+- Show one large target letter
+- Prompt: “What sound does it make?”
+- Show 3 answer buttons
+- Keep sound display child-friendly, eg “sss”, “a”, “t”
+- After answering:
+  - simple feedback
+  - optional audio: “A says a”
+- Include Next button
+
+4. Letter Formation mode
+- Show one large practice letter
+- Display a start dot at the TOP
+- Show arrows or numbered stroke hints
+- Include a simple trace area using SVG or canvas
+- Goal is not handwriting recognition, just guided formation
+- Include clear instruction such as:
+  - “Start at the top”
+  - “Go down”
+  - “Around”
+- Provide buttons:
+  - Show guide
+  - Clear
+  - Next
+- The guide should make it visually obvious where the child should begin
+
+5. Parent Settings screen
+- Toggle which letters are active from SATPIN
+- Toggle audio on/off
+- Toggle uppercase / lowercase / both
+- Toggle picture cues on/off for future use
+- Toggle formation guide visibility default on/off
+- Include a simple reset progress button
+- Keep settings stored in localStorage
+
+FUTURE-PROOFING
+Design the code so these can be expanded later:
+- more letters beyond SATPIN
+- custom words
+- real recorded voice audio replacing browser speech
+- printable worksheets
+- progress tracking
+- integration into ReadyQuest
+- mascot artwork replacement
+- additional practice modes
+
+DATA MODEL
+In data.js create a clear data structure for letters, eg each letter should support:
+- id
+- uppercase
+- lowercase
+- name
+- sound
+- pictureCueWord
+- simple formationSteps
+- optional audioLabel
+Populate only the 6 letters S, A, T, P, I, N for now
+
+AUDIO
+In audio.js:
+- create a simple speech helper using browser speech synthesis
+- it must be optional and controlled by settings
+- it must fail gracefully if speech synthesis is unsupported
+- all spoken phrases should come from reusable functions so later they can be replaced with recorded audio playback
+Examples:
+- speakLetterName(letter)
+- speakLetterSound(letter)
+- speakPraise()
+- speakInstruction(text)
+
+UI/STYLE
+In styles.css:
+- make it child-friendly but not chaotic
+- large buttons
+- very clear typography
+- lots of spacing
+- rounded cards
+- responsive layout suitable for tablet or laptop
+- no need for fancy animation
+- use a warm, gentle color palette
+- include a clear visual distinction for correct vs incorrect feedback
+
+APP LOGIC
+In app.js:
+- implement screen switching
+- randomise questions from active letters
+- avoid repeating the same exact letter too many times in a row
+- keep a simple session state
+- track basic progress only in memory for now, with optional localStorage hooks
+- organise code into small functions with comments
+- do not write everything inline in one giant block
+
+FORMATION MODE DETAILS
+This part matters a lot.
+For each letter, create a guided visual representation that helps the child start from the TOP.
+Do not attempt OCR or true handwriting analysis.
+Instead:
+- show the letter shape large
+- show a start dot
+- show directional hints
+- allow the child to trace roughly over it with mouse/touch if practical in plain JS
+- if touch tracing is too complex for this version, provide a “guided stroke demo” instead and structure code so tracing can be improved later
+
+IMPORTANT UX RULES
+- Keep wording simple
+- One main task per screen
+- No dense text
+- No unnecessary menus
+- Make feedback immediate and reassuring
+- Keep Quinnja present but subtle
+- Include a “Back to Home” button on non-home screens
+
+IMPLEMENTATION PRIORITIES
+Priority 1:
+- clean file structure
+- home screen
+- letter name mode
+- letter sound mode
+- parent settings with localStorage
+- optional speech synthesis
+
+Priority 2:
+- formation mode with visual start-point guidance
+- basic trace or guided stroke demo
+
+Priority 3:
+- simple progress summary on home screen
+
+CODE QUALITY
+- Use plain modern JavaScript
+- Keep the code readable for a beginner
+- Add comments explaining the main sections
+- Avoid clever or over-engineered patterns
+- No TypeScript
+- No external dependencies
+- No CDN dependencies unless absolutely necessary
+
+FINAL OUTPUT
+Please generate all required files with full contents.
+After generating the code, also provide:
+1. a very short explanation of each file
+2. exact steps to run it locally in browser
+3. a short list of the easiest places to customise later
