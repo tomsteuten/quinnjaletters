@@ -73,6 +73,7 @@
 
     openSettingsHomeBtn: document.getElementById("btn-open-settings-home"),
     openSettingsCompleteBtn: document.getElementById("btn-open-settings-complete"),
+    globalHomeBtn: document.getElementById("btn-global-home"),
 
     settingChildName: document.getElementById("setting-child-name"),
     settingsLetterToggles: document.getElementById("settings-letter-toggles"),
@@ -140,6 +141,8 @@
     dom.homeBtn.addEventListener("click", function () {
       goHome();
     });
+
+    dom.globalHomeBtn.addEventListener("click", handleGlobalHomeClick);
 
     dom.saveSettingsBtn.addEventListener("click", saveSettingsFromForm);
     dom.resetProgressBtn.addEventListener("click", resetProgress);
@@ -248,7 +251,7 @@
     }
 
     if (!queue.length) {
-      queue = shuffle(activeLetters.slice());
+      queue = activeLetters.slice();
       state.nfcSingleLetterSession = false;
     }
 
@@ -490,6 +493,7 @@
 
     state.currentStage = stageName;
     dom.stageStatus.textContent = "Stage: " + stageName;
+    dom.globalHomeBtn.hidden = stageName === "home" || stageName === "settings";
 
     if (stageName === "home") {
       applyStageBackground("");
@@ -510,6 +514,17 @@
 
   function goHome() {
     showStage("home");
+  }
+
+  function handleGlobalHomeClick() {
+    if (requiresHomeExitConfirm() && !window.confirm("Go back to Home? This will end the current letter task.")) {
+      return;
+    }
+    goHome();
+  }
+
+  function requiresHomeExitConfirm() {
+    return ["meet", "pick", "trace", "celebrate"].includes(state.currentStage);
   }
 
   function buildPickOptions(correctLetter) {

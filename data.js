@@ -317,10 +317,10 @@
     },
 
     defaultSettings: {
-      childName: "",
+      childName: "Quinn",
       activeLetterIds: ["s", "a", "t", "p", "i", "n"],
       displayCase: "uppercase",
-      traceCase: "uppercase",
+      traceCase: "lowercase",
       audioEnabled: true,
       soundEffectsEnabled: true,
       formationGuideDefaultOn: true,
