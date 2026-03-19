@@ -179,7 +179,7 @@
             startPoint: "midline",
             steps: ["Start in the middle", "Dive down below the line", "Swim back up", "Curve over", "Come back down"],
             audioInstruction: "Start in the middle. Dive down below the line. Swim back up. Curve over. Come back down.",
-            ghostPath: "M96 88 L96 205 L96 88 C126 88, 142 104, 142 126 L142 165",
+            ghostPath: "M96 88 L96 205 M96 88 C126 88, 142 104, 142 126 L142 165",
             arrows: [
               { from: { x: 96, y: 88 }, to: { x: 96, y: 205 }, label: "1", labelPos: { x: 104, y: 116 } },
               { from: { x: 96, y: 205 }, to: { x: 96, y: 88 }, label: "2", labelPos: { x: 80, y: 154 } },
@@ -281,7 +281,7 @@
             startPoint: "midline",
             steps: ["Down to the bottom", "Swim back up", "Over the hump", "Back down"],
             audioInstruction: "Start in the middle. Down to the bottom. Swim back up. Over one hump. Back down.",
-            ghostPath: "M82 88 L82 165 L82 88 Q112 88 132 112 L132 165",
+            ghostPath: "M82 88 L82 165 M82 88 Q112 88 132 112 L132 165",
             arrows: [
               { from: { x: 82, y: 88 }, to: { x: 82, y: 165 }, label: "1", labelPos: { x: 90, y: 114 } },
               { from: { x: 82, y: 165 }, to: { x: 82, y: 88 }, label: "2", labelPos: { x: 66, y: 152 } },

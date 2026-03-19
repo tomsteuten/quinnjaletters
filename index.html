@@ -30,6 +30,8 @@
 
         <div class="active-letters-row" id="home-active-letters" aria-hidden="true"></div>
 
+        <div class="home-progress-dots" id="home-progress-dots" aria-label="Letter progress"></div>
+
         <button id="btn-start-session" class="start-btn" aria-label="Start session">
           <img src="assets/icons/play.svg" alt="" />
           <span>Start</span>
@@ -51,6 +53,17 @@
           <span class="meet-letter-upper" id="meet-letter-upper">S</span>
           <span class="meet-letter-lower" id="meet-letter-lower">s</span>
         </div>
+        <div class="meet-cue" id="meet-cue"></div>
+      </div>
+      <div class="meet-actions" id="meet-actions" hidden>
+        <button id="btn-meet-replay" class="icon-btn meet-action-btn" aria-label="Hear again">
+          <img src="assets/icons/ear.svg" alt="" />
+          <span class="action-label">Hear it</span>
+        </button>
+        <button id="btn-meet-continue" class="icon-btn meet-action-btn action-icon-go" aria-label="Continue">
+          <img src="assets/icons/play.svg" alt="" />
+          <span class="action-label">Go!</span>
+        </button>
       </div>
     </section>
 
@@ -61,7 +74,7 @@
             <div class="mascot-wrap mascot-encouraging" id="pick-mascot-wrap">
               <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-pick" />
             </div>
-            <div class="pick-letter" id="pick-target-letter" aria-live="polite">S</div>
+            <div class="pick-letter" id="pick-target-letter" role="button" tabindex="0" aria-live="polite">S</div>
           </div>
         </div>
 
@@ -188,6 +201,20 @@
         <p id="settings-message" class="settings-message" aria-live="polite"></p>
       </div>
     </section>
+
+    <div id="confirm-overlay" class="confirm-overlay" hidden>
+      <div class="confirm-card">
+        <p class="confirm-text">Go back to Home?</p>
+        <div class="confirm-actions">
+          <button id="btn-confirm-stay" class="icon-btn confirm-btn" aria-label="Stay here">
+            <span class="confirm-x">&times;</span>
+          </button>
+          <button id="btn-confirm-leave" class="icon-btn confirm-btn confirm-btn-yes" aria-label="Go home">
+            <img src="assets/icons/home.svg" alt="" />
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="data.js"></script>

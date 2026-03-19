@@ -18,8 +18,10 @@
     sessionResults: [],
     currentPickState: null,
     currentPickCase: "uppercase",
+    currentPickMode: "visual",
     currentTraceCase: "uppercase",
     pickCaseQueue: [],
+    pickModeQueue: [],
     sessionTraceCase: "uppercase",
     settings: loadSettings(),
     progress: loadProgress(),
@@ -84,12 +86,23 @@
     settingsProgress: document.getElementById("settings-progress"),
     settingsMessage: document.getElementById("settings-message"),
     saveSettingsBtn: document.getElementById("btn-save-settings"),
-    resetProgressBtn: document.getElementById("btn-reset-progress")
+    resetProgressBtn: document.getElementById("btn-reset-progress"),
+
+    meetCue: document.getElementById("meet-cue"),
+    meetActions: document.getElementById("meet-actions"),
+    meetReplayBtn: document.getElementById("btn-meet-replay"),
+    meetContinueBtn: document.getElementById("btn-meet-continue"),
+    pickReplayBtn: null,
+    homeProgressDots: document.getElementById("home-progress-dots"),
+    confirmOverlay: document.getElementById("confirm-overlay"),
+    confirmStayBtn: document.getElementById("btn-confirm-stay"),
+    confirmLeaveBtn: document.getElementById("btn-confirm-leave")
   };
 
   const traceState = {
     ctx: null,
     isDrawing: false,
+    hasStrokes: false,
     width: 220,
     height: 220
   };
@@ -102,6 +115,7 @@
     setupTraceCanvas();
     syncAudioSettings();
     updateHomeLettersRow();
+    updateHomeProgressDots();
     updateSettingsProgressSummary();
 
     if (!audio.isSoundEffectsSupported()) {
@@ -131,7 +145,21 @@
 
     dom.traceClearBtn.addEventListener("click", clearTraceCanvas);
     dom.traceDoneBtn.addEventListener("click", function () {
+      if (!traceState.hasStrokes) return;
       showCelebrateStage();
+    });
+
+    dom.meetReplayBtn.addEventListener("click", replayMeetAudio);
+    dom.meetContinueBtn.addEventListener("click", function () {
+      advanceStage();
+    });
+
+    dom.pickTargetLetter.addEventListener("click", replayPickAudio);
+
+    dom.confirmStayBtn.addEventListener("click", hideConfirmOverlay);
+    dom.confirmLeaveBtn.addEventListener("click", function () {
+      hideConfirmOverlay();
+      goHome();
     });
 
     dom.replayBtn.addEventListener("click", function () {
@@ -168,7 +196,12 @@
   }
 
   function setupTraceCanvas() {
+    var dpr = window.devicePixelRatio || 1;
+    dom.traceCanvas.width = traceState.width * dpr;
+    dom.traceCanvas.height = traceState.height * dpr;
+
     traceState.ctx = dom.traceCanvas.getContext("2d");
+    traceState.ctx.scale(dpr, dpr);
     traceState.ctx.lineCap = "round";
     traceState.ctx.lineJoin = "round";
     traceState.ctx.lineWidth = 11;
@@ -185,6 +218,9 @@
 
   function tracePointerDown(event) {
     traceState.isDrawing = true;
+    traceState.hasStrokes = true;
+    dom.traceDoneBtn.disabled = false;
+    dom.traceDoneBtn.classList.remove("trace-done-disabled");
     dom.traceCanvas.setPointerCapture(event.pointerId);
     const point = getTracePoint(event);
     traceState.ctx.beginPath();
@@ -219,6 +255,11 @@
     }
 
     traceState.ctx.clearRect(0, 0, traceState.width, traceState.height);
+    traceState.hasStrokes = false;
+    if (dom.traceDoneBtn) {
+      dom.traceDoneBtn.disabled = true;
+      dom.traceDoneBtn.classList.add("trace-done-disabled");
+    }
   }
 
   function getTracePoint(event) {
@@ -252,12 +293,14 @@
 
     if (!queue.length) {
       queue = activeLetters.slice();
+      queue = prioritiseWeakLetters(queue);
       state.nfcSingleLetterSession = false;
     }
 
     state.sessionTraceCase = resolveSessionTraceCase();
     state.letterQueue = queue;
     state.pickCaseQueue = buildPickCaseQueue(queue.length);
+    state.pickModeQueue = buildPickModeQueue(queue.length);
     state.currentLetterIndex = 0;
     state.sessionResults = [];
     state.currentPickState = null;
@@ -296,21 +339,24 @@
     loadLetter(state.currentLetter);
     showStage("meet");
     setMascotState(dom.meetMascotWrap, "mascot-presenting");
+    dom.meetActions.hidden = true;
+
+    dom.meetCue.textContent = state.currentLetter.uppercase + " is for " + state.currentLetter.pictureCueWord;
 
     const meetFile = state.currentLetter.audio.meet;
     const soundFile = state.currentLetter.audio.sound;
 
     const fallbackTimer = window.setTimeout(function () {
       if (state.currentStage === "meet") {
-        advanceStage();
+        dom.meetActions.hidden = false;
       }
-    }, 6000);
+    }, 10000);
 
     audio.playMp3Sequence([meetFile, soundFile], function () {
       window.clearTimeout(fallbackTimer);
-      state.autoTimerId = window.setTimeout(function () {
-        advanceStage();
-      }, 600);
+      if (state.currentStage === "meet") {
+        dom.meetActions.hidden = false;
+      }
     });
   }
 
@@ -318,13 +364,21 @@
     showStage("pick");
     setMascotState(dom.pickMascotWrap, "mascot-encouraging");
     state.currentPickCase = getPickCaseForCurrentLetter();
+    state.currentPickMode = state.pickModeQueue[state.currentLetterIndex] || "visual";
 
     state.currentPickState = {
       solved: false,
       correctFirstTry: true
     };
 
-    dom.pickTargetLetter.textContent = getLetterCharacter(state.currentLetter, state.currentPickCase);
+    if (state.currentPickMode === "sound") {
+      dom.pickTargetLetter.innerHTML = '<img src="assets/icons/ear.svg" alt="Listen" class="pick-sound-icon" />';
+      dom.pickTargetLetter.setAttribute("aria-label", "Which letter makes this sound?");
+    } else {
+      dom.pickTargetLetter.textContent = getLetterCharacter(state.currentLetter, state.currentPickCase);
+      dom.pickTargetLetter.removeAttribute("aria-label");
+    }
+
     dom.pickOptions.innerHTML = "";
     dom.pickFeedback.textContent = "";
 
@@ -344,7 +398,11 @@
       dom.pickOptions.appendChild(button);
     });
 
-    audio.playMp3(state.currentLetter.audio.pick);
+    if (state.currentPickMode === "sound") {
+      audio.playMp3(state.currentLetter.audio.sound);
+    } else {
+      audio.playMp3(state.currentLetter.audio.pick);
+    }
   }
 
   function handlePickSelection(letterId, button) {
@@ -380,7 +438,6 @@
     button.classList.add("is-wrong", "flash-wrong");
     setMascotState(dom.pickMascotWrap, "mascot-tryagain");
     dom.pickFeedback.textContent = "Try again";
-    audio.playTryAgainTone();
     audio.playMp3(data.sharedAudio.tryAgain);
 
     window.setTimeout(function () {
@@ -396,6 +453,9 @@
     state.currentTraceCase = getTraceCaseForCurrentLetter();
     dom.traceLetter.textContent = getLetterCharacter(state.currentLetter, state.currentTraceCase);
     clearTraceCanvas();
+    traceState.hasStrokes = false;
+    dom.traceDoneBtn.disabled = true;
+    dom.traceDoneBtn.classList.add("trace-done-disabled");
     renderTraceGuide(state.currentLetter);
     audio.playMp3(data.sharedAudio.tracePrompt);
   }
@@ -423,7 +483,7 @@
       audio.playRandomMp3(data.sharedAudio.celebrate, function () {
         state.autoTimerId = window.setTimeout(function () {
           advanceStage();
-        }, 800);
+        }, 3000);
       });
     }, 400);
   }
@@ -498,6 +558,7 @@
     if (stageName === "home") {
       applyStageBackground("");
       updateHomeLettersRow();
+      updateHomeProgressDots();
       syncNfcState();
     } else {
       stopNfcIfRunning();
@@ -517,10 +578,19 @@
   }
 
   function handleGlobalHomeClick() {
-    if (requiresHomeExitConfirm() && !window.confirm("Go back to Home? This will end the current letter task.")) {
+    if (requiresHomeExitConfirm()) {
+      showConfirmOverlay();
       return;
     }
     goHome();
+  }
+
+  function showConfirmOverlay() {
+    dom.confirmOverlay.hidden = false;
+  }
+
+  function hideConfirmOverlay() {
+    dom.confirmOverlay.hidden = true;
   }
 
   function requiresHomeExitConfirm() {
@@ -606,6 +676,9 @@
       "<path d='" +
       guide.ghostPath +
       "' class='guide-path'></path>" +
+      "<path d='" +
+      guide.ghostPath +
+      "' class='guide-anim-path'></path>" +
       hintDots +
       "<circle cx='" +
       guide.startDot.x +
@@ -618,6 +691,27 @@
       guide.startDot.y +
       "' r='10' class='guide-start-dot'></circle>" +
       optionalDot;
+
+    var animPathEl = dom.traceGuide.querySelector(".guide-anim-path");
+    if (animPathEl) {
+      requestAnimationFrame(function () {
+        var len = animPathEl.getTotalLength();
+        animPathEl.style.strokeDasharray = len;
+        animPathEl.style.strokeDashoffset = len;
+        animPathEl.animate(
+          [
+            { strokeDashoffset: len + "px", opacity: 0.35, offset: 0, easing: "ease-in-out" },
+            { strokeDashoffset: "0px", opacity: 0.35, offset: 0.5 },
+            { strokeDashoffset: "0px", opacity: 0.35, offset: 0.7 },
+            { strokeDashoffset: "0px", opacity: 0, offset: 0.8 },
+            { strokeDashoffset: len + "px", opacity: 0, offset: 0.81 },
+            { strokeDashoffset: len + "px", opacity: 0.35, offset: 0.95 },
+            { strokeDashoffset: len + "px", opacity: 0.35, offset: 1 }
+          ],
+          { duration: 5000, iterations: Infinity }
+        );
+      });
+    }
   }
 
   function setMascotState(element, stateClass) {
@@ -972,6 +1066,63 @@
 
   function saveProgress() {
     localStorage.setItem(storageKeys.progress, JSON.stringify(state.progress));
+  }
+
+  function replayMeetAudio() {
+    if (!state.currentLetter) return;
+    var meetFile = state.currentLetter.audio.meet;
+    var soundFile = state.currentLetter.audio.sound;
+    audio.playMp3Sequence([meetFile, soundFile]);
+  }
+
+  function replayPickAudio() {
+    if (!state.currentLetter) return;
+    if (state.currentPickMode === "sound") {
+      audio.playMp3(state.currentLetter.audio.sound);
+    } else {
+      audio.playMp3(state.currentLetter.audio.pick);
+    }
+  }
+
+  function prioritiseWeakLetters(queue) {
+    if (queue.length <= 1) return queue;
+
+    var weak = [];
+    var strong = [];
+
+    queue.forEach(function (letter) {
+      var stats = state.progress.letterStats[letter.id];
+      if (!stats || stats.seen < 2 || (stats.correctFirstTry / stats.seen) < 0.5) {
+        weak.push(letter);
+      } else {
+        strong.push(letter);
+      }
+    });
+
+    shuffle(weak);
+    shuffle(strong);
+    return weak.concat(strong);
+  }
+
+  function buildPickModeQueue(length) {
+    var queue = [];
+    for (var i = 0; i < length; i++) {
+      queue.push(Math.random() < 0.5 ? "sound" : "visual");
+    }
+    return queue;
+  }
+
+  function updateHomeProgressDots() {
+    dom.homeProgressDots.innerHTML = "";
+
+    getActiveLetters().forEach(function (letter) {
+      var dot = document.createElement("span");
+      var stats = state.progress.letterStats[letter.id];
+      var mastered = stats && stats.seen >= 2 && (stats.correctFirstTry / stats.seen) >= 0.5;
+      dot.className = "progress-dot" + (mastered ? " progress-dot-filled" : "");
+      dot.textContent = letter.uppercase;
+      dom.homeProgressDots.appendChild(dot);
+    });
   }
 
   function shuffle(array) {
