@@ -519,7 +519,11 @@
     setMascotState(dom.completeMascotWrap, "mascot-celebrating");
 
     dom.completeLetters.innerHTML = "";
-    state.sessionResults.forEach(function (result) {
+    var letterOrder = data.letters.map(function (l) { return l.id; });
+    var sortedResults = state.sessionResults.slice().sort(function (a, b) {
+      return letterOrder.indexOf(a.letterId) - letterOrder.indexOf(b.letterId);
+    });
+    sortedResults.forEach(function (result) {
       const letter = data.letters.find(function (item) {
         return item.id === result.letterId;
       });
@@ -655,32 +659,45 @@
       ? "<circle cx='" + guide.dot.x + "' cy='" + guide.dot.y + "' r='5' class='guide-optional-dot'></circle>"
       : "";
 
-    var outlinePaths = [];
-    if (guide.ghostPath) {
-      outlinePaths = guide.ghostPath
-        .split(/(?=M)/)
-        .map(function (segment) {
-          return segment.trim();
-        })
-        .filter(Boolean);
-    }
-    if (!outlinePaths.length && guide.ghostPaths) {
-      outlinePaths = guide.ghostPaths.slice();
+    // Determine which character to show
+    var traceChar = getLetterCharacter(letter, state.currentTraceCase);
+
+    // Font-rendered ghost letter — replaces the old dashed guide-path.
+    // The font gives us a pixel-perfect letter on every device.
+    var ghostText = "";
+    if (state.currentTraceCase === "lowercase") {
+      if (guide.showDescender) {
+        // Letters with descenders (p) need more room below baseline
+        ghostText = "<text x='110' y='155' text-anchor='middle'"
+          + " font-family='Fredoka, sans-serif' font-weight='600'"
+          + " font-size='120px' fill='#d4c0a8' opacity='0.5'"
+          + ">" + traceChar + "</text>";
+      } else {
+        ghostText = "<text x='110' y='158' text-anchor='middle'"
+          + " font-family='Fredoka, sans-serif' font-weight='600'"
+          + " font-size='120px' fill='#d4c0a8' opacity='0.5'"
+          + ">" + traceChar + "</text>";
+      }
+    } else {
+      ghostText = "<text x='110' y='160' text-anchor='middle'"
+        + " font-family='Fredoka, sans-serif' font-weight='600'"
+        + " font-size='150px' fill='#d4c0a8' opacity='0.5'"
+        + ">" + traceChar + "</text>";
     }
 
-    var animPathsData = guide.ghostPaths && guide.ghostPaths.length ? guide.ghostPaths : outlinePaths;
-    var outlineHtml = "";
+    // Build animated direction paths from ghostPaths — SAME AS BEFORE.
+    // These are the orange looping stroke-order lines. Do not change
+    // the animation logic that follows this section.
+    var paths = guide.ghostPaths || [guide.ghostPath];
     var animHtml = "";
-    outlinePaths.forEach(function (d) {
-      outlineHtml += "<path d='" + d + "' class='guide-path'></path>";
-    });
-    animPathsData.forEach(function (d, idx) {
-      animHtml += "<path d='" + d + "' class='guide-anim-path' data-stroke-index='" + idx + "'></path>";
+    paths.forEach(function (d, idx) {
+      animHtml += "<path d='" + d + "' class='guide-anim-path'"
+        + " data-stroke-index='" + idx + "'></path>";
     });
 
     dom.traceGuide.innerHTML =
       lines +
-      outlineHtml +
+      ghostText +
       animHtml +
       hintDots +
       "<circle cx='" +

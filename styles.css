@@ -520,6 +520,7 @@ body {
 
 #stage-complete {
   align-items: center;
+  min-height: calc(100dvh - 2.4rem);
 }
 
 .complete-wrap {
@@ -538,24 +539,29 @@ body {
 }
 
 .complete-chip {
-  min-width: 56px;
-  min-height: 56px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 2px solid #cfe6c2;
+  min-width: 60px;
+  min-height: 60px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border: 3px solid #6abf73;
   display: grid;
   place-items: center;
   position: relative;
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   font-weight: 700;
+  color: var(--text);
+  box-shadow: 0 4px 12px rgba(106, 191, 115, 0.25);
 }
 
 .complete-chip img {
   position: absolute;
-  width: 18px;
-  height: 18px;
-  right: 5px;
-  bottom: 5px;
+  width: 22px;
+  height: 22px;
+  right: -4px;
+  bottom: -4px;
+  background: white;
+  border-radius: 50%;
+  padding: 2px;
 }
 
 .complete-actions {
@@ -675,15 +681,6 @@ body {
 
 .settings-message.ok {
   color: #2a6a2f;
-}
-
-.guide-path {
-  fill: none;
-  stroke: var(--guide-path);
-  stroke-width: 14;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 12 5;
 }
 
 .guide-anim-path {

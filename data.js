@@ -38,13 +38,13 @@
             startPoint: "top",
             steps: ["Little curve", "Little curve"],
             audioInstruction: "Start at the top. Little curve. Little curve.",
-            ghostPath: "M122 92 C95 92, 90 121, 114 130 C137 139, 134 165, 101 165",
-            ghostPaths: ["M122 92 C95 92, 90 121, 114 130 C137 139, 134 165, 101 165"],
+            ghostPath: "M122 95 C100 95, 90 128, 110 133 C130 138, 128 165, 100 165",
+            ghostPaths: ["M122 95 C100 95, 90 128, 110 133 C130 138, 128 165, 100 165"],
             arrows: [
-              { from: { x: 122, y: 92 }, to: { x: 101, y: 130 }, label: "1", labelPos: { x: 132, y: 108 } },
-              { from: { x: 101, y: 130 }, to: { x: 101, y: 165 }, label: "2", labelPos: { x: 90, y: 146 } }
+              { from: { x: 122, y: 95 }, to: { x: 100, y: 130 }, label: "1", labelPos: { x: 130, y: 108 } },
+              { from: { x: 100, y: 130 }, to: { x: 100, y: 165 }, label: "2", labelPos: { x: 88, y: 148 } }
             ],
-            startDot: { x: 122, y: 92 }
+            startDot: { x: 122, y: 95 }
           }
         }
       },
@@ -91,14 +91,17 @@
             startPoint: "two-oclock",
             steps: ["Magic c", "Go all the way around", "Then straight down"],
             audioInstruction: "Start just under the top on the right. Magic c. Go all the way around. Then straight down.",
-            ghostPath: "M132 98 C120 86, 96 86, 90 108 C84 132, 99 154, 124 152 C136 151, 142 142, 142 131 L142 165",
-            ghostPaths: ["M132 98 C120 86, 96 86, 90 108 C84 132, 99 154, 124 152 C136 151, 142 142, 142 131 L142 165"],
-            arrows: [
-              { from: { x: 132, y: 98 }, to: { x: 92, y: 112 }, label: "1", labelPos: { x: 138, y: 94 } },
-              { from: { x: 92, y: 112 }, to: { x: 126, y: 152 }, label: "2", labelPos: { x: 88, y: 136 } },
-              { from: { x: 142, y: 131 }, to: { x: 142, y: 165 }, label: "3", labelPos: { x: 150, y: 152 } }
+            ghostPath: "M132 100 C115 88, 88 95, 88 125 C88 150, 110 162, 135 155 M135 100 L135 165",
+            ghostPaths: [
+              "M132 100 C115 88, 88 95, 88 125 C88 150, 110 162, 135 155",
+              "M135 100 L135 165"
             ],
-            startDot: { x: 132, y: 98 }
+            arrows: [
+              { from: { x: 132, y: 100 }, to: { x: 88, y: 130 }, label: "1", labelPos: { x: 138, y: 96 } },
+              { from: { x: 88, y: 130 }, to: { x: 135, y: 155 }, label: "2", labelPos: { x: 85, y: 148 } },
+              { from: { x: 135, y: 100 }, to: { x: 135, y: 165 }, label: "3", labelPos: { x: 143, y: 140 } }
+            ],
+            startDot: { x: 132, y: 100 }
           }
         }
       },
@@ -139,13 +142,16 @@
             startPoint: "top",
             steps: ["Start at the top", "Go straight down", "Cross through the middle"],
             audioInstruction: "Start at the top. Go straight down. Cross through the middle.",
-            ghostPath: "M110 60 L110 165 M92 106 L128 106",
-            ghostPaths: ["M110 60 L110 165 M92 106 L128 106"],
-            arrows: [
-              { from: { x: 110, y: 60 }, to: { x: 110, y: 165 }, label: "1", labelPos: { x: 118, y: 86 } },
-              { from: { x: 92, y: 106 }, to: { x: 128, y: 106 }, label: "2", labelPos: { x: 96, y: 98 } }
+            ghostPath: "M110 65 L110 165 M92 108 L128 108",
+            ghostPaths: [
+              "M110 65 L110 165",
+              "M92 108 L128 108"
             ],
-            startDot: { x: 110, y: 60 }
+            arrows: [
+              { from: { x: 110, y: 65 }, to: { x: 110, y: 165 }, label: "1", labelPos: { x: 118, y: 90 } },
+              { from: { x: 92, y: 108 }, to: { x: 128, y: 108 }, label: "2", labelPos: { x: 96, y: 100 } }
+            ],
+            startDot: { x: 110, y: 65 }
           }
         }
       },
@@ -186,15 +192,19 @@
             startPoint: "midline",
             steps: ["Start in the middle", "Dive down below the line", "Swim back up", "Curve over", "Come back down"],
             audioInstruction: "Start in the middle. Dive down below the line. Swim back up. Curve over. Come back down.",
-            ghostPath: "M96 88 L96 205 M96 88 C126 88, 142 104, 142 126 L142 165",
-            ghostPaths: ["M96 88 L96 205", "M96 205 L96 88", "M96 88 C126 88, 142 104, 142 126 L142 165"],
-            arrows: [
-              { from: { x: 96, y: 88 }, to: { x: 96, y: 205 }, label: "1", labelPos: { x: 104, y: 116 } },
-              { from: { x: 96, y: 205 }, to: { x: 96, y: 88 }, label: "2", labelPos: { x: 80, y: 154 } },
-              { from: { x: 96, y: 88 }, to: { x: 142, y: 126 }, label: "3", labelPos: { x: 108, y: 96 } },
-              { from: { x: 142, y: 126 }, to: { x: 142, y: 165 }, label: "4", labelPos: { x: 150, y: 148 } }
+            ghostPath: "M96 95 L96 200 M96 200 L96 95 M96 95 C130 95, 148 115, 148 132 C148 150, 130 165, 96 165",
+            ghostPaths: [
+              "M96 95 L96 200",
+              "M96 200 L96 95",
+              "M96 95 C130 95, 148 115, 148 132 C148 150, 130 165, 96 165"
             ],
-            startDot: { x: 96, y: 88 },
+            arrows: [
+              { from: { x: 96, y: 95 }, to: { x: 96, y: 200 }, label: "1", labelPos: { x: 104, y: 130 } },
+              { from: { x: 96, y: 200 }, to: { x: 96, y: 95 }, label: "2", labelPos: { x: 80, y: 150 } },
+              { from: { x: 96, y: 95 }, to: { x: 148, y: 132 }, label: "3", labelPos: { x: 110, y: 100 } },
+              { from: { x: 148, y: 132 }, to: { x: 96, y: 165 }, label: "4", labelPos: { x: 150, y: 152 } }
+            ],
+            startDot: { x: 96, y: 95 },
             showDescender: true
           }
         }
@@ -235,14 +245,14 @@
             startPoint: "midline",
             steps: ["Start in the middle", "Go straight down", "Pick up", "Dot on top"],
             audioInstruction: "Start in the middle. Go straight down. Pick up. Dot on top.",
-            ghostPath: "M110 88 L110 165",
-            ghostPaths: ["M110 88 L110 165"],
+            ghostPath: "M110 95 L110 165",
+            ghostPaths: ["M110 95 L110 165"],
             arrows: [
-              { from: { x: 110, y: 88 }, to: { x: 110, y: 165 }, label: "1", labelPos: { x: 118, y: 114 } },
-              { from: { x: 110, y: 62 }, to: { x: 110, y: 62 }, label: "2", labelPos: { x: 118, y: 66 } }
+              { from: { x: 110, y: 95 }, to: { x: 110, y: 165 }, label: "1", labelPos: { x: 118, y: 120 } },
+              { from: { x: 110, y: 68 }, to: { x: 110, y: 68 }, label: "2", labelPos: { x: 118, y: 72 } }
             ],
-            startDot: { x: 110, y: 88 },
-            dot: { x: 110, y: 62 }
+            startDot: { x: 110, y: 95 },
+            dot: { x: 110, y: 68 }
           }
         }
       },
@@ -290,15 +300,19 @@
             startPoint: "midline",
             steps: ["Down to the bottom", "Swim back up", "Over the hump", "Back down"],
             audioInstruction: "Start in the middle. Down to the bottom. Swim back up. Over one hump. Back down.",
-            ghostPath: "M82 88 L82 165 M82 88 Q112 88 132 112 L132 165",
-            ghostPaths: ["M82 88 L82 165", "M82 165 L82 88", "M82 88 Q112 88 132 112 L132 165"],
-            arrows: [
-              { from: { x: 82, y: 88 }, to: { x: 82, y: 165 }, label: "1", labelPos: { x: 90, y: 114 } },
-              { from: { x: 82, y: 165 }, to: { x: 82, y: 88 }, label: "2", labelPos: { x: 66, y: 132 } },
-              { from: { x: 82, y: 88 }, to: { x: 132, y: 112 }, label: "3", labelPos: { x: 96, y: 96 } },
-              { from: { x: 132, y: 112 }, to: { x: 132, y: 165 }, label: "4", labelPos: { x: 140, y: 140 } }
+            ghostPath: "M88 95 L88 165 M88 165 L88 95 M88 95 C88 95, 120 88, 135 110 L135 165",
+            ghostPaths: [
+              "M88 95 L88 165",
+              "M88 165 L88 95",
+              "M88 95 C88 95, 120 88, 135 110 L135 165"
             ],
-            startDot: { x: 82, y: 88 }
+            arrows: [
+              { from: { x: 88, y: 95 }, to: { x: 88, y: 165 }, label: "1", labelPos: { x: 96, y: 120 } },
+              { from: { x: 88, y: 165 }, to: { x: 88, y: 95 }, label: "2", labelPos: { x: 72, y: 140 } },
+              { from: { x: 88, y: 95 }, to: { x: 135, y: 110 }, label: "3", labelPos: { x: 102, y: 92 } },
+              { from: { x: 135, y: 110 }, to: { x: 135, y: 165 }, label: "4", labelPos: { x: 143, y: 140 } }
+            ],
+            startDot: { x: 88, y: 95 }
           }
         }
       }
