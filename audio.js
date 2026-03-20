@@ -1,19 +1,11 @@
 (function () {
-  const synth = window.speechSynthesis;
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   let audioContext = null;
-  let voicesChangedHandler = null;
+  let currentAudio = null;
 
   const audioState = {
     speechEnabled: true,
-    soundEffectsEnabled: true,
-    selectedVoiceURI: "",
-    speechRate: 0.9,
-    speechPitch: 1
-  };
-
-  function isSpeechSupported() {
-    return Boolean(synth && window.SpeechSynthesisUtterance);
+    soundEffectsEnabled: true
   }
 
   function isSoundEffectsSupported() {
@@ -23,152 +15,6 @@
   function configureAudio(settings) {
     audioState.speechEnabled = Boolean(settings.audioEnabled);
     audioState.soundEffectsEnabled = Boolean(settings.soundEffectsEnabled);
-  }
-
-  function getAvailableVoices() {
-    if (!isSpeechSupported()) {
-      return [];
-    }
-
-    return synth.getVoices().slice().sort(function (first, second) {
-      return first.name.localeCompare(second.name);
-    });
-  }
-
-  function onVoicesChanged(callback) {
-    if (!isSpeechSupported()) {
-      return;
-    }
-
-    if (voicesChangedHandler) {
-      synth.removeEventListener("voiceschanged", voicesChangedHandler);
-    }
-
-    voicesChangedHandler = function () {
-      callback(getAvailableVoices());
-    };
-
-    synth.addEventListener("voiceschanged", voicesChangedHandler);
-  }
-
-  function getSelectedVoice() {
-    const voices = getAvailableVoices();
-    if (!voices.length) {
-      return null;
-    }
-
-    if (!audioState.selectedVoiceURI) {
-      return voices[0];
-    }
-
-    return voices.find(function (voice) {
-      return voice.voiceURI === audioState.selectedVoiceURI;
-    }) || voices[0];
-  }
-
-  function speakText(text) {
-    if (!audioState.speechEnabled || !text || !isSpeechSupported()) {
-      return;
-    }
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = audioState.speechRate;
-    utterance.pitch = audioState.speechPitch;
-    utterance.volume = 1;
-
-    const selectedVoice = getSelectedVoice();
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    }
-
-    try {
-      synth.cancel();
-      synth.speak(utterance);
-    } catch (error) {
-      console.warn("Speech synthesis unavailable:", error);
-    }
-  }
-
-  function speakTextWithCallback(text, onDone) {
-    if (!audioState.speechEnabled || !text || !isSpeechSupported()) {
-      if (onDone) {
-        onDone();
-      }
-      return;
-    }
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = audioState.speechRate;
-    utterance.pitch = audioState.speechPitch;
-    utterance.volume = 1;
-
-    const selectedVoice = getSelectedVoice();
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    }
-
-    if (onDone) {
-      utterance.onend = function () {
-        onDone();
-      };
-      utterance.onerror = function () {
-        onDone();
-      };
-    }
-
-    try {
-      synth.cancel();
-      synth.speak(utterance);
-    } catch (error) {
-      console.warn("Speech synthesis unavailable:", error);
-      if (onDone) {
-        onDone();
-      }
-    }
-  }
-
-  function speakLetterName(letter) {
-    const label = letter.audioLabel || letter.uppercase;
-    speakText(label);
-  }
-
-  function speakLetterSound(letter) {
-    speakText(letter.sound);
-  }
-
-  function speakMeetIntro(letter) {
-    const label = letter.audioLabel || letter.uppercase;
-    speakText("This is the letter " + label + ". It says " + letter.sound + ".");
-  }
-
-  function speakPickPrompt(letter) {
-    const label = letter.audioLabel || letter.uppercase;
-    speakText("Can you find " + label + "?");
-  }
-
-  function speakTracePrompt() {
-    speakText("Now trace the letter! Start at the dot.");
-  }
-
-  function speakPraise() {
-    const list = (window.QuinnjaData && window.QuinnjaData.praiseCorrect) || ["Well done!"];
-    const phrase = list[Math.floor(Math.random() * list.length)];
-    speakText(phrase);
-  }
-
-  function speakCelebration(childName) {
-    if (childName) {
-      speakText(childName + ", great job!");
-      return;
-    }
-
-    const list = (window.QuinnjaData && window.QuinnjaData.praiseCelebrate) || ["Amazing!"];
-    const phrase = list[Math.floor(Math.random() * list.length)];
-    speakText(phrase);
-  }
-
-  function speakSessionComplete() {
-    speakText("Amazing! You practised all your letters!");
   }
 
   function getAudioContext() {
@@ -252,7 +98,20 @@
     ]);
   }
 
+  function stopCurrentAudio() {
+    if (currentAudio) {
+      currentAudio.onended = null;
+      currentAudio.onerror = null;
+      currentAudio.pause();
+      currentAudio.removeAttribute("src");
+      currentAudio.load();
+      currentAudio = null;
+    }
+  }
+
   function playMp3(src, onDone) {
+    stopCurrentAudio();
+
     if (!audioState.speechEnabled) {
       if (onDone) {
         onDone();
@@ -268,8 +127,12 @@
     }
 
     var audioEl = new Audio(src);
+    currentAudio = audioEl;
 
     audioEl.onended = function () {
+      if (currentAudio === audioEl) {
+        currentAudio = null;
+      }
       if (onDone) {
         onDone();
       }
@@ -277,6 +140,9 @@
 
     audioEl.onerror = function () {
       console.warn("Audio file not found or failed to load:", src);
+      if (currentAudio === audioEl) {
+        currentAudio = null;
+      }
       if (onDone) {
         onDone();
       }
@@ -284,6 +150,9 @@
 
     audioEl.play().catch(function (err) {
       console.warn("Audio play failed:", err);
+      if (currentAudio === audioEl) {
+        currentAudio = null;
+      }
       if (onDone) {
         onDone();
       }
@@ -335,21 +204,9 @@
   }
 
   const moduleApi = {
+    stopCurrentAudio,
     configureAudio,
-    isSpeechSupported,
     isSoundEffectsSupported,
-    getAvailableVoices,
-    onVoicesChanged,
-    speakText,
-    speakTextWithCallback,
-    speakLetterName,
-    speakLetterSound,
-    speakMeetIntro,
-    speakPickPrompt,
-    speakTracePrompt,
-    speakPraise,
-    speakCelebration,
-    speakSessionComplete,
     playCorrectChime,
     playTryAgainTone,
     playButtonTap,

@@ -67,6 +67,7 @@
     celebrateMascotWrap: document.getElementById("celebrate-mascot-wrap"),
     celebrateLetterMain: document.getElementById("celebrate-letter-main"),
     celebrateLetterSide: document.getElementById("celebrate-letter-side"),
+    celebrateNextBtn: document.getElementById("btn-celebrate-next"),
 
     completeMascotWrap: document.getElementById("complete-mascot-wrap"),
     completeLetters: document.getElementById("complete-letters"),
@@ -133,6 +134,9 @@
       if (!button || button.disabled) {
         return;
       }
+      if (button.classList.contains("trace-done-disabled")) {
+        return;
+      }
       audio.playButtonTap();
     });
 
@@ -155,6 +159,10 @@
     });
 
     dom.pickTargetLetter.addEventListener("click", replayPickAudio);
+
+    dom.celebrateNextBtn.addEventListener("click", function () {
+      advanceStage();
+    });
 
     dom.confirmStayBtn.addEventListener("click", hideConfirmOverlay);
     dom.confirmLeaveBtn.addEventListener("click", function () {
@@ -341,8 +349,6 @@
     setMascotState(dom.meetMascotWrap, "mascot-presenting");
     dom.meetActions.hidden = true;
 
-    dom.meetCue.textContent = state.currentLetter.uppercase + " is for " + state.currentLetter.pictureCueWord;
-
     const meetFile = state.currentLetter.audio.meet;
     const soundFile = state.currentLetter.audio.sound;
 
@@ -372,7 +378,7 @@
     };
 
     if (state.currentPickMode === "sound") {
-      dom.pickTargetLetter.innerHTML = '<img src="assets/icons/ear.svg" alt="Listen" class="pick-sound-icon" />';
+      dom.pickTargetLetter.innerHTML = '<img src="assets/icons/speaker.svg" alt="Listen" class="pick-sound-icon" />';
       dom.pickTargetLetter.setAttribute("aria-label", "Which letter makes this sound?");
     } else {
       dom.pickTargetLetter.textContent = getLetterCharacter(state.currentLetter, state.currentPickCase);
@@ -406,6 +412,8 @@
   }
 
   function handlePickSelection(letterId, button) {
+    audio.stopCurrentAudio();
+
     if (!state.currentPickState || state.currentPickState.solved) {
       return;
     }
@@ -483,7 +491,7 @@
       audio.playRandomMp3(data.sharedAudio.celebrate, function () {
         state.autoTimerId = window.setTimeout(function () {
           advanceStage();
-        }, 3000);
+        }, 6000);
       });
     }, 400);
   }
@@ -545,6 +553,7 @@
   }
 
   function showStage(stageName) {
+    audio.stopCurrentAudio();
     clearAutoTimer();
 
     Object.keys(dom.stages).forEach(function (name) {
@@ -640,45 +649,39 @@
       }
     }
 
-    let hintDots = "";
-    if (guide.arrows && guide.arrows.length > 0) {
-      const firstArrow = guide.arrows[0];
-      const fx = firstArrow.from.x;
-      const fy = firstArrow.from.y;
-      const tx = firstArrow.to.x;
-      const ty = firstArrow.to.y;
-
-      const opacities = [0.5, 0.28, 0.16];
-      const sizes = [5, 4, 3.5];
-      for (let i = 0; i < 3; i += 1) {
-        const t = (i + 1) * 0.25;
-        const dx = fx + (tx - fx) * t;
-        const dy = fy + (ty - fy) * t;
-        hintDots +=
-          "<circle cx='" +
-          dx +
-          "' cy='" +
-          dy +
-          "' r='" +
-          sizes[i] +
-          "' fill='#ff7f2a' opacity='" +
-          opacities[i] +
-          "'></circle>";
-      }
-    }
+    var hintDots = "";
 
     const optionalDot = guide.dot
       ? "<circle cx='" + guide.dot.x + "' cy='" + guide.dot.y + "' r='5' class='guide-optional-dot'></circle>"
       : "";
 
+    var outlinePaths = [];
+    if (guide.ghostPath) {
+      outlinePaths = guide.ghostPath
+        .split(/(?=M)/)
+        .map(function (segment) {
+          return segment.trim();
+        })
+        .filter(Boolean);
+    }
+    if (!outlinePaths.length && guide.ghostPaths) {
+      outlinePaths = guide.ghostPaths.slice();
+    }
+
+    var animPathsData = guide.ghostPaths && guide.ghostPaths.length ? guide.ghostPaths : outlinePaths;
+    var outlineHtml = "";
+    var animHtml = "";
+    outlinePaths.forEach(function (d) {
+      outlineHtml += "<path d='" + d + "' class='guide-path'></path>";
+    });
+    animPathsData.forEach(function (d, idx) {
+      animHtml += "<path d='" + d + "' class='guide-anim-path' data-stroke-index='" + idx + "'></path>";
+    });
+
     dom.traceGuide.innerHTML =
       lines +
-      "<path d='" +
-      guide.ghostPath +
-      "' class='guide-path'></path>" +
-      "<path d='" +
-      guide.ghostPath +
-      "' class='guide-anim-path'></path>" +
+      outlineHtml +
+      animHtml +
       hintDots +
       "<circle cx='" +
       guide.startDot.x +
@@ -692,24 +695,79 @@
       "' r='10' class='guide-start-dot'></circle>" +
       optionalDot;
 
-    var animPathEl = dom.traceGuide.querySelector(".guide-anim-path");
-    if (animPathEl) {
+    var animPaths = dom.traceGuide.querySelectorAll(".guide-anim-path");
+    if (animPaths.length > 0) {
       requestAnimationFrame(function () {
-        var len = animPathEl.getTotalLength();
-        animPathEl.style.strokeDasharray = len;
-        animPathEl.style.strokeDashoffset = len;
-        animPathEl.animate(
-          [
-            { strokeDashoffset: len + "px", opacity: 0.35, offset: 0, easing: "ease-in-out" },
-            { strokeDashoffset: "0px", opacity: 0.35, offset: 0.5 },
-            { strokeDashoffset: "0px", opacity: 0.35, offset: 0.7 },
-            { strokeDashoffset: "0px", opacity: 0, offset: 0.8 },
-            { strokeDashoffset: len + "px", opacity: 0, offset: 0.81 },
-            { strokeDashoffset: len + "px", opacity: 0.35, offset: 0.95 },
-            { strokeDashoffset: len + "px", opacity: 0.35, offset: 1 }
-          ],
-          { duration: 5000, iterations: Infinity }
-        );
+        var lengths = [];
+        var totalLength = 0;
+
+        animPaths.forEach(function (el) {
+          var len = el.getTotalLength();
+          lengths.push(len);
+          totalLength += len;
+          el.style.strokeDasharray = len;
+          el.style.strokeDashoffset = len;
+          el.style.opacity = 0;
+        });
+
+        var cycleDuration = 5000;
+        var drawPortion = 0.55;
+        var pausePortion = 0.15;
+        var drawTime = cycleDuration * drawPortion;
+        var pauseTime = cycleDuration * pausePortion;
+        var resetTime = cycleDuration - drawTime - pauseTime;
+
+        function animateCycle() {
+          if (state.currentStage !== "trace") {
+            return;
+          }
+
+          var delay = 0;
+          animPaths.forEach(function (el, idx) {
+            var strokeTime = (lengths[idx] / totalLength) * drawTime;
+            var thisDelay = delay;
+
+            window.setTimeout(function () {
+              if (state.currentStage !== "trace") {
+                return;
+              }
+              el.style.opacity = 0.35;
+              el.style.transition = "stroke-dashoffset " + strokeTime + "ms ease-in-out";
+              el.style.strokeDashoffset = "0";
+            }, thisDelay);
+
+            delay += strokeTime + 80;
+          });
+
+          window.setTimeout(function () {
+            animPaths.forEach(function (el) {
+              el.style.transition = "opacity 300ms ease";
+              el.style.opacity = 0;
+            });
+          }, delay + pauseTime);
+
+          window.setTimeout(function () {
+            if (state.currentStage !== "trace") {
+              return;
+            }
+            animPaths.forEach(function (el) {
+              el.style.transition = "none";
+              el.style.strokeDashoffset = el.getTotalLength();
+              el.style.opacity = 0;
+            });
+            // Double rAF forces the browser to paint the reset state
+            // before the next cycle begins. Without this, single-stroke
+            // letters (S, a, t, i) skip the draw transition because
+            // the browser batches reset + draw into one frame.
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                animateCycle();
+              });
+            });
+          }, delay + pauseTime + resetTime);
+        }
+
+        animateCycle();
       });
     }
   }
@@ -863,15 +921,7 @@
   }
 
   function updateHomeLettersRow() {
-    dom.activeLettersRow.innerHTML = "";
-
-    getActiveLetters().forEach(function (letter) {
-      const bubble = document.createElement("div");
-      bubble.className = "letter-bubble";
-      bubble.textContent = letter.uppercase;
-      bubble.style.background = letter.stageBackground;
-      dom.activeLettersRow.appendChild(bubble);
-    });
+    return; // Active letters display removed from home screen
   }
 
   function updateProgressForCurrentLetter() {
@@ -1072,11 +1122,13 @@
     if (!state.currentLetter) return;
     var meetFile = state.currentLetter.audio.meet;
     var soundFile = state.currentLetter.audio.sound;
+    audio.stopCurrentAudio();
     audio.playMp3Sequence([meetFile, soundFile]);
   }
 
   function replayPickAudio() {
     if (!state.currentLetter) return;
+    audio.stopCurrentAudio();
     if (state.currentPickMode === "sound") {
       audio.playMp3(state.currentLetter.audio.sound);
     } else {
@@ -1106,8 +1158,10 @@
 
   function buildPickModeQueue(length) {
     var queue = [];
+    // Sound mode disabled until speaker icon and audio-cue animation are polished.
+    // Change to Math.random() < 0.5 ? "sound" : "visual" to re-enable.
     for (var i = 0; i < length; i++) {
-      queue.push(Math.random() < 0.5 ? "sound" : "visual");
+      queue.push("visual");
     }
     return queue;
   }
