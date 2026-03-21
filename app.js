@@ -105,7 +105,9 @@
     isDrawing: false,
     hasStrokes: false,
     width: 220,
-    height: 220
+    height: 220,
+    hitmask: null,
+    lastPoint: null
   };
 
   init();
@@ -210,10 +212,6 @@
 
     traceState.ctx = dom.traceCanvas.getContext("2d");
     traceState.ctx.scale(dpr, dpr);
-    traceState.ctx.lineCap = "round";
-    traceState.ctx.lineJoin = "round";
-    traceState.ctx.lineWidth = 11;
-    traceState.ctx.strokeStyle = "#342b22";
 
     dom.traceCanvas.addEventListener("pointerdown", tracePointerDown);
     dom.traceCanvas.addEventListener("pointermove", tracePointerMove);
@@ -230,19 +228,39 @@
     dom.traceDoneBtn.disabled = false;
     dom.traceDoneBtn.classList.remove("trace-done-disabled");
     dom.traceCanvas.setPointerCapture(event.pointerId);
-    const point = getTracePoint(event);
+    var point = getTracePoint(event);
+    traceState.lastPoint = point;
+
+    // Draw a dot at the starting point
+    var onLetter = isPointOnLetter(point.x, point.y);
+    traceState.ctx.save();
+    traceState.ctx.fillStyle = onLetter ? "#342b22" : "rgba(52, 43, 34, 0.12)";
     traceState.ctx.beginPath();
-    traceState.ctx.moveTo(point.x, point.y);
+    traceState.ctx.arc(point.x, point.y, onLetter ? 5.5 : 1.5, 0, Math.PI * 2);
+    traceState.ctx.fill();
+    traceState.ctx.restore();
   }
 
   function tracePointerMove(event) {
-    if (!traceState.isDrawing) {
+    if (!traceState.isDrawing || !traceState.lastPoint) {
       return;
     }
 
-    const point = getTracePoint(event);
+    var point = getTracePoint(event);
+    var onLetter = isPointOnLetter(point.x, point.y);
+
+    traceState.ctx.save();
+    traceState.ctx.lineCap = "round";
+    traceState.ctx.lineJoin = "round";
+    traceState.ctx.lineWidth = onLetter ? 11 : 3;
+    traceState.ctx.strokeStyle = onLetter ? "#342b22" : "rgba(52, 43, 34, 0.12)";
+    traceState.ctx.beginPath();
+    traceState.ctx.moveTo(traceState.lastPoint.x, traceState.lastPoint.y);
     traceState.ctx.lineTo(point.x, point.y);
     traceState.ctx.stroke();
+    traceState.ctx.restore();
+
+    traceState.lastPoint = point;
   }
 
   function tracePointerUp(event) {
@@ -251,7 +269,7 @@
     }
 
     traceState.isDrawing = false;
-    traceState.ctx.closePath();
+    traceState.lastPoint = null;
     if (dom.traceCanvas.hasPointerCapture(event.pointerId)) {
       dom.traceCanvas.releasePointerCapture(event.pointerId);
     }
@@ -264,6 +282,7 @@
 
     traceState.ctx.clearRect(0, 0, traceState.width, traceState.height);
     traceState.hasStrokes = false;
+    traceState.lastPoint = null;
     if (dom.traceDoneBtn) {
       dom.traceDoneBtn.disabled = true;
       dom.traceDoneBtn.classList.add("trace-done-disabled");
@@ -279,6 +298,58 @@
       x: (event.clientX - rect.left) * scaleX,
       y: (event.clientY - rect.top) * scaleY
     };
+  }
+
+  function buildTraceHitmask(letter, traceCase) {
+    var w = traceState.width;
+    var h = traceState.height;
+    var offscreen = document.createElement("canvas");
+    offscreen.width = w;
+    offscreen.height = h;
+    var ctx = offscreen.getContext("2d");
+
+    var ch = getLetterCharacter(letter, traceCase);
+
+    // Draw the letter using the same anchor coordinates as the SVG ghost text
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+    ctx.font = (traceCase === "lowercase") ? "600 120px Fredoka, sans-serif" : "600 150px Fredoka, sans-serif";
+
+    var guide = getActiveFormation(letter);
+    var x = 110;
+    var y = 160;
+    if (traceCase === "lowercase") {
+      y = (guide && guide.showDescender) ? 155 : 158;
+    }
+
+    // Fill the letter shape
+    ctx.fillStyle = "#000000";
+    ctx.fillText(ch, x, y);
+
+    // Also stroke with a narrower line to keep tolerance forgiving but closer to the letter shape
+    ctx.lineWidth = 16;
+    ctx.strokeStyle = "#000000";
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.strokeText(ch, x, y);
+
+    // Extract pixel data as hitmask
+    traceState.hitmask = ctx.getImageData(0, 0, w, h).data;
+  }
+
+  function isPointOnLetter(x, y) {
+    if (!traceState.hitmask) {
+      return true; // no mask = all strokes visible (fallback)
+    }
+    var w = traceState.width;
+    var ix = Math.round(x);
+    var iy = Math.round(y);
+    if (ix < 0 || ix >= w || iy < 0 || iy >= traceState.height) {
+      return false;
+    }
+    // Check the alpha channel of the hitmask pixel
+    var index = (iy * w + ix) * 4 + 3;
+    return traceState.hitmask[index] > 0;
   }
 
   function startSession(optionalLetterId) {
@@ -464,6 +535,7 @@
     traceState.hasStrokes = false;
     dom.traceDoneBtn.disabled = true;
     dom.traceDoneBtn.classList.add("trace-done-disabled");
+    buildTraceHitmask(state.currentLetter, state.currentTraceCase);
     renderTraceGuide(state.currentLetter);
     audio.playMp3(data.sharedAudio.tracePrompt);
   }
@@ -670,18 +742,18 @@
         // Letters with descenders (p) need more room below baseline
         ghostText = "<text x='110' y='155' text-anchor='middle'"
           + " font-family='Fredoka, sans-serif' font-weight='600'"
-          + " font-size='120px' fill='#d4c0a8' opacity='0.5'"
+          + " font-size='120px' fill='#c9b49a' opacity='0.7'"
           + ">" + traceChar + "</text>";
       } else {
         ghostText = "<text x='110' y='158' text-anchor='middle'"
           + " font-family='Fredoka, sans-serif' font-weight='600'"
-          + " font-size='120px' fill='#d4c0a8' opacity='0.5'"
+          + " font-size='120px' fill='#c9b49a' opacity='0.7'"
           + ">" + traceChar + "</text>";
       }
     } else {
       ghostText = "<text x='110' y='160' text-anchor='middle'"
         + " font-family='Fredoka, sans-serif' font-weight='600'"
-        + " font-size='150px' fill='#d4c0a8' opacity='0.5'"
+        + " font-size='150px' fill='#c9b49a' opacity='0.7'"
         + ">" + traceChar + "</text>";
     }
 

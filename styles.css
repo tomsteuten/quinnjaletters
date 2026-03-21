@@ -423,6 +423,8 @@ body {
 
 .action-icon-primary img {
   filter: brightness(0) invert(1);
+  width: 40px;
+  height: 40px;
 }
 
 .action-icon-primary .action-label {
@@ -479,14 +481,17 @@ body {
 
 .celebrate-next-btn {
   margin-top: 0.6rem;
-  min-width: 80px;
-  min-height: 80px;
+  min-width: 110px;
+  min-height: 110px;
   background: linear-gradient(135deg, #43a047 0%, #66bb6a 100%);
+  box-shadow: 0 12px 28px rgba(67, 160, 71, 0.35);
   opacity: 0;
-  animation: fadeInUp 0.4s ease 2s forwards;
+  animation: fadeInUp 0.5s ease 1s forwards, attentionPulse 1.2s ease-in-out 1.5s infinite;
 }
 
 .celebrate-next-btn img {
+  width: 48px;
+  height: 48px;
   filter: brightness(0) invert(1);
 }
 
@@ -734,8 +739,9 @@ body {
 
 .meet-actions {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
   margin-top: 0.5rem;
 }
 
@@ -743,18 +749,39 @@ body {
   display: none;
 }
 
-.meet-action-btn {
-  min-width: 80px;
-  min-height: 80px;
-  display: grid;
-  justify-items: center;
-  align-content: center;
-  gap: 0.2rem;
+.meet-go-btn {
+  min-width: 120px;
+  min-height: 120px;
+  background: linear-gradient(135deg, #43a047 0%, #66bb6a 100%);
+  box-shadow: 0 12px 28px rgba(67, 160, 71, 0.35);
+  animation: attentionPulse 1.2s ease-in-out infinite;
+}
+
+.meet-go-btn img {
+  width: 52px;
+  height: 52px;
+  filter: brightness(0) invert(1);
+}
+
+.meet-hear-btn {
+  min-width: 56px;
+  min-height: 56px;
+  opacity: 0.6;
+}
+
+.meet-hear-btn img {
+  width: 24px;
+  height: 24px;
 }
 
 .trace-done-disabled {
   opacity: 0.35;
   cursor: default;
+}
+
+.action-icon-primary:not(.trace-done-disabled) {
+  animation: attentionPulse 1.4s ease-in-out infinite;
+  box-shadow: 0 8px 22px rgba(255, 107, 53, 0.35);
 }
 
 .home-progress-dots {
@@ -902,6 +929,12 @@ body {
   0%,
   100% { transform: scale(1); }
   50% { transform: scale(1.18); }
+}
+
+@keyframes attentionPulse {
+  0%,
+  100% { transform: scale(1); }
+  50% { transform: scale(1.09); }
 }
 
 @keyframes flashCorrect {
