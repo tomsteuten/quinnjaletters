@@ -117,6 +117,7 @@
 
   function init() {
     setupButtons();
+    setupDevShortcuts();
     setupSettingsUI();
     setupTraceCanvas();
     syncAudioSettings();
@@ -187,6 +188,52 @@
 
     dom.saveSettingsBtn.addEventListener("click", saveSettingsFromForm);
     dom.resetProgressBtn.addEventListener("click", resetProgress);
+  }
+
+  function setupDevShortcuts() {
+    document.addEventListener("keydown", function (event) {
+      if (!event.ctrlKey || !event.altKey || event.shiftKey || event.metaKey) {
+        return;
+      }
+
+      if (String(event.key).toLowerCase() !== "n") {
+        return;
+      }
+
+      if (isTypingTarget(event.target)) {
+        return;
+      }
+
+      event.preventDefault();
+      advanceStageForDevShortcut();
+    });
+  }
+
+  function isTypingTarget(target) {
+    if (!target || !(target instanceof Element)) {
+      return false;
+    }
+
+    if (target.isContentEditable) {
+      return true;
+    }
+
+    const tag = target.tagName;
+    return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+  }
+
+  function advanceStageForDevShortcut() {
+    if (["home", "settings", "complete"].includes(state.currentStage)) {
+      startSession();
+      return;
+    }
+
+    if (!state.currentLetter) {
+      startSession();
+      return;
+    }
+
+    advanceStage();
   }
 
   function setupSettingsUI() {

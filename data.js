@@ -215,7 +215,7 @@
         lowercase: "i",
         name: "I",
         sound: "i",
-        pictureCueWord: "insect",
+        pictureCueWord: "igloo",
         audioLabel: "I",
         colour: "#F3E5F5",
         colourDark: "#CEB1D8",

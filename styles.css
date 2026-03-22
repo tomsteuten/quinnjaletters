@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light;
+  color-scheme: only light;
   --cream: #fff8e7;
   --peach: #ffe5b4;
   --text: #3c2c1a;
@@ -584,6 +584,11 @@ textarea {
 .complete-btn {
   min-width: 92px;
   min-height: 92px;
+}
+
+#btn-replay img {
+  width: 38px;
+  height: 38px;
 }
 
 #stage-settings {
