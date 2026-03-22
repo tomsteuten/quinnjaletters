@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quinnja Letters</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell" id="app-shell">
+    <div id="stage-status" class="sr-only" aria-live="polite"></div>
+    <button id="btn-global-home" class="icon-btn global-home-btn" aria-label="Go to home screen" hidden>
+      <img src="assets/icons/home.svg" alt="" />
+    </button>
+
+    <section id="stage-home" class="stage active" aria-label="Home">
+      <button id="btn-open-settings-home" class="icon-btn settings-launch" aria-label="Open parent settings">
+        <img src="assets/icons/gear.svg" alt="" />
+      </button>
+
+      <div class="home-wrap">
+        <h1 class="home-title">Quinnja Letters</h1>
+
+        <div class="home-mascot-area">
+          <div class="speech-bubble home-bubble" id="home-speech-bubble" aria-hidden="true">Ready to practise?</div>
+          <div class="mascot-wrap mascot-idle" id="home-mascot-wrap">
+            <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-home" />
+          </div>
+        </div>
+
+        <div class="active-letters-row" id="home-active-letters" aria-hidden="true" hidden></div>
+
+        <div class="home-progress-dots" id="home-progress-dots" aria-label="Letter progress"></div>
+
+        <button id="btn-start-session" class="start-btn" aria-label="Start session">
+          <img src="assets/icons/play.svg" alt="" />
+          <span>Start</span>
+        </button>
+
+        <div id="nfc-prompt" class="nfc-prompt" hidden>
+          <img src="assets/icons/phone-tap.svg" alt="" />
+          <span>Scan a letter tag</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="stage-meet" class="stage" aria-label="Meet letter">
+      <div class="meet-layout">
+        <div class="mascot-wrap mascot-presenting" id="meet-mascot-wrap">
+          <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-meet" />
+        </div>
+        <div class="meet-letter-card">
+          <div class="meet-letter-pair" aria-live="polite">
+            <span class="meet-letter-upper" id="meet-letter-upper">S</span>
+            <span class="meet-letter-lower" id="meet-letter-lower">s</span>
+          </div>
+        </div>
+        <div class="meet-cue" id="meet-cue" hidden></div>
+      </div>
+      <div class="meet-picture-cue" id="meet-picture-cue" hidden>
+        <img id="meet-picture-cue-img" class="meet-picture-cue-img" alt="" />
+        <span class="meet-picture-cue-word" id="meet-picture-cue-word"></span>
+      </div>
+      <div class="meet-actions" id="meet-actions" hidden>
+        <button id="btn-meet-continue" class="icon-btn meet-go-btn" aria-label="Continue">
+          <img src="assets/icons/arrow-right.svg" alt="" />
+        </button>
+        <button id="btn-meet-replay" class="icon-btn meet-hear-btn" aria-label="Hear again">
+          <img src="assets/icons/speaker.svg" alt="" />
+        </button>
+      </div>
+    </section>
+
+    <section id="stage-pick" class="stage" aria-label="Pick letter">
+      <div class="pick-layout">
+        <div class="pick-top">
+          <div class="pick-target-wrap">
+            <div class="mascot-wrap mascot-encouraging" id="pick-mascot-wrap">
+              <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-pick" />
+            </div>
+            <div class="pick-letter" id="pick-target-letter" role="button" tabindex="0" aria-live="polite">S</div>
+          </div>
+        </div>
+
+        <div class="pick-bottom">
+          <div id="pick-options" class="pick-options" role="group" aria-label="Letter choices"></div>
+          <div id="pick-feedback" class="sr-only" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="stage-trace" class="stage" aria-label="Trace letter">
+      <div class="trace-stage-layout">
+        <div class="trace-header">
+          <div class="trace-letter" id="trace-letter" aria-live="polite">S</div>
+          <div class="mascot-wrap mascot-encouraging" id="trace-mascot-wrap">
+            <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-trace" />
+          </div>
+        </div>
+
+        <div class="trace-board" id="trace-board">
+          <svg id="trace-guide" viewBox="0 0 220 220" aria-hidden="true"></svg>
+          <canvas id="trace-canvas" width="220" height="220" role="img" aria-label="Letter tracing canvas"></canvas>
+        </div>
+
+        <div class="trace-controls">
+          <button id="btn-trace-clear" class="icon-btn action-icon" aria-label="Clear drawing">
+            <img src="assets/icons/clear.svg" alt="" />
+            <span class="action-label">Clear</span>
+          </button>
+          <button id="btn-trace-done" class="icon-btn action-icon action-icon-primary" aria-label="Done tracing">
+            <img src="assets/icons/done.svg" alt="" />
+            <span class="action-label">Done</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="stage-celebrate" class="stage" aria-label="Celebrate">
+      <div class="celebrate-wrap">
+        <div class="sparkles" aria-hidden="true">
+          <span class="sparkle"></span>
+          <span class="sparkle"></span>
+          <span class="sparkle"></span>
+          <span class="sparkle"></span>
+          <span class="sparkle"></span>
+          <span class="sparkle"></span>
+          <span class="sparkle"></span>
+          <span class="sparkle"></span>
+        </div>
+        <div class="mascot-wrap mascot-celebrating" id="celebrate-mascot-wrap">
+          <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-celebrate" />
+        </div>
+        <div class="celebrate-letter-pair">
+          <span class="celebrate-letter-main" id="celebrate-letter-main">S</span>
+          <span class="celebrate-letter-side" id="celebrate-letter-side">s</span>
+        </div>
+        <button id="btn-celebrate-next" class="icon-btn celebrate-next-btn" aria-label="Next letter">
+          <img src="assets/icons/arrow-right.svg" alt="" />
+        </button>
+      </div>
+    </section>
+
+    <section id="stage-complete" class="stage" aria-label="Session complete">
+      <button id="btn-open-settings-complete" class="icon-btn settings-launch" aria-label="Open parent settings">
+        <img src="assets/icons/gear.svg" alt="" />
+      </button>
+
+      <div class="complete-wrap">
+        <div class="mascot-wrap mascot-celebrating" id="complete-mascot-wrap">
+          <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-celebrate" />
+        </div>
+
+        <div id="complete-letters" class="complete-letters" aria-label="Letters practised"></div>
+
+        <div class="complete-actions">
+          <button id="btn-replay" class="icon-btn complete-btn" aria-label="Replay session">
+            <img src="assets/icons/replay.svg" alt="" />
+          </button>
+          <button id="btn-home" class="icon-btn complete-btn" aria-label="Go to home screen">
+            <img src="assets/icons/home.svg" alt="" />
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="stage-settings" class="stage" aria-label="Parent settings">
+      <div class="settings-card">
+        <h2>Parent Settings</h2>
+
+        <label class="settings-label" for="setting-child-name">Child name</label>
+        <input id="setting-child-name" class="settings-input" type="text" maxlength="30" />
+
+        <fieldset class="settings-group">
+          <legend>Active letters</legend>
+          <div id="settings-letter-toggles" class="letter-toggle-grid"></div>
+        </fieldset>
+
+        <fieldset class="settings-group">
+          <legend>Display case</legend>
+          <label><input name="display-case" type="radio" value="uppercase" /> Uppercase</label>
+          <label><input name="display-case" type="radio" value="lowercase" /> Lowercase</label>
+          <label><input name="display-case" type="radio" value="both" /> Both</label>
+
+          <div class="settings-subgroup">
+            <span class="settings-label">Trace practice case</span>
+            <label><input name="trace-case" type="radio" value="uppercase" /> Uppercase only (recommended)</label>
+            <label><input name="trace-case" type="radio" value="lowercase" /> Lowercase only</label>
+            <label><input name="trace-case" type="radio" value="alternate" /> Alternate each session</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="settings-group">
+          <legend>Audio</legend>
+          <label><input id="setting-audio" type="checkbox" /> Speech and voice audio</label>
+          <label><input id="setting-sound-effects" type="checkbox" /> Sound effects (chimes, tones)</label>
+        </fieldset>
+
+        <fieldset class="settings-group">
+          <legend>Other</legend>
+          <label><input id="setting-guide-default" type="checkbox" /> Formation guide default on</label>
+          <label><input id="setting-nfc-mode" type="checkbox" /> NFC mode</label>
+        </fieldset>
+
+        <div class="settings-progress" id="settings-progress"></div>
+
+        <div class="settings-actions">
+          <button id="btn-reset-progress" class="settings-btn settings-btn-secondary" type="button">Reset progress</button>
+          <button id="btn-save-settings" class="settings-btn settings-btn-primary" type="button">Save &amp; Close</button>
+        </div>
+
+        <p id="settings-message" class="settings-message" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <div id="confirm-overlay" class="confirm-overlay" hidden>
+      <div class="confirm-card">
+        <p class="confirm-text">Go back to Home?</p>
+        <div class="confirm-actions">
+          <button id="btn-confirm-stay" class="icon-btn confirm-btn" aria-label="Stay here">
+            <span class="confirm-x">&times;</span>
+          </button>
+          <button id="btn-confirm-leave" class="icon-btn confirm-btn confirm-btn-yes" aria-label="Go home">
+            <img src="assets/icons/home.svg" alt="" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="audio.js"></script>
+  <script src="nfc.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
