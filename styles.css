@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light;
   --cream: #fff8e7;
   --peach: #ffe5b4;
   --text: #3c2c1a;
@@ -24,6 +25,12 @@ body {
   font-family: "Fredoka", "Segoe UI", sans-serif;
   color: var(--text);
   background: linear-gradient(135deg, var(--cream) 0%, var(--peach) 100%);
+}
+
+input,
+select,
+textarea {
+  color-scheme: light;
 }
 
 .app-shell {
