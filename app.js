@@ -90,6 +90,9 @@
     resetProgressBtn: document.getElementById("btn-reset-progress"),
 
     meetCue: document.getElementById("meet-cue"),
+    meetPictureCue: document.getElementById("meet-picture-cue"),
+    meetPictureCueImg: document.getElementById("meet-picture-cue-img"),
+    meetPictureCueWord: document.getElementById("meet-picture-cue-word"),
     meetActions: document.getElementById("meet-actions"),
     meetReplayBtn: document.getElementById("btn-meet-replay"),
     meetContinueBtn: document.getElementById("btn-meet-continue"),
@@ -626,6 +629,20 @@
     dom.meetLetterUpper.textContent = letter.uppercase;
     dom.meetLetterLower.textContent = letter.lowercase;
     applyStageBackground(letter.stageBackground);
+
+    const pictureCueSrc = letter.pictureCueSrc || ("assets/images/cues/cue-" + letter.id + ".png");
+    if (letter.pictureCueWord) {
+      dom.meetPictureCueImg.onerror = function () {
+        dom.meetPictureCue.hidden = true;
+        dom.meetPictureCueImg.onerror = null;
+      };
+      dom.meetPictureCueImg.src = pictureCueSrc;
+      dom.meetPictureCueImg.alt = letter.pictureCueWord;
+      dom.meetPictureCueWord.textContent = letter.pictureCueWord;
+      dom.meetPictureCue.hidden = false;
+    } else {
+      dom.meetPictureCue.hidden = true;
+    }
   }
 
   function showStage(stageName) {
