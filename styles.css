@@ -141,6 +141,8 @@ textarea {
 }
 
 .mascot-wrap {
+  position: relative;
+  display: inline-block;
   transition: transform 0.25s ease;
 }
 
@@ -167,6 +169,76 @@ textarea {
 .mascot-celebrate {
   height: clamp(140px, 18vh, 160px);
   width: auto;
+}
+
+
+/* --- Mascot speech bubble --- */
+.mascot-bubble {
+  position: absolute;
+  top: 5%;
+  left: 72%;
+  background: #fffaf0;
+  border: 2px solid #efd8b7;
+  border-radius: 12px;
+  padding: 0.15em 0.45em;
+  font-family: "Fredoka", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 2px 8px rgba(129, 95, 46, 0.12);
+}
+
+.mascot-bubble::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -7px;
+  width: 8px;
+  height: 8px;
+  background: #fffaf0;
+  border-left: 2px solid #efd8b7;
+  border-bottom: 2px solid #efd8b7;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.mascot-bubble.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  animation: bubbleFloat 2.5s ease-in-out infinite;
+}
+
+/* --- Celebration star particles --- */
+.mascot-celebrating::before,
+.mascot-celebrating::after {
+  content: "\2605";
+  position: absolute;
+  font-size: 0.9rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.mascot-celebrating::before {
+  top: 2%;
+  left: -8%;
+  color: var(--accent);
+  animation: celebrateStar 1.4s ease-in-out infinite;
+}
+
+.mascot-celebrating::after {
+  top: 6%;
+  right: -8%;
+  color: var(--accent-2);
+  animation: celebrateStar 1.4s ease-in-out 0.5s infinite;
+}
+
+/* --- Trace stage peeking tilt --- */
+#trace-mascot-wrap.mascot-encouraging {
+  animation: traceEncouraging 2.5s ease-in-out infinite;
 }
 
 .active-letters-row {
@@ -471,6 +543,23 @@ textarea {
   display: flex;
   align-items: flex-end;
   gap: 1rem;
+}
+
+.celebrate-traced-img {
+  width: clamp(80px, 12vh, 120px);
+  height: clamp(80px, 12vh, 120px);
+  object-fit: contain;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.6);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  padding: 6px;
+  animation: traced-pop 0.4s ease-out;
+}
+
+@keyframes traced-pop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  60%  { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .celebrate-letter-main {
@@ -928,9 +1017,9 @@ textarea {
 }
 
 @keyframes breathe {
-  0%,
-  100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-4px) scale(1.02); }
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  30% { transform: translateY(-4px) scale(1.02) rotate(1.5deg); }
+  70% { transform: translateY(-2px) scale(1.01) rotate(-1.5deg); }
 }
 
 @keyframes presenting {
@@ -958,6 +1047,22 @@ textarea {
   75% { transform: translateX(6px); }
 }
 
+@keyframes bubbleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes celebrateStar {
+  0% { opacity: 0; transform: translateY(0) scale(0.6); }
+  50% { opacity: 1; transform: translateY(-10px) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-18px) scale(0.6); }
+}
+
+@keyframes traceEncouraging {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(-4deg) scale(1.03); }
+}
+
 @keyframes sparkleFloat {
   0%,
   100% { transform: translateY(0) scale(1); opacity: 0.9; }
@@ -977,13 +1082,18 @@ textarea {
 }
 
 @keyframes flashCorrect {
-  0% { background: rgba(255, 255, 255, 0.94); }
-  100% { background: #c8e6c9; }
+  0% { background: rgba(255, 255, 255, 0.94); transform: scale(1); }
+  40% { background: #c8e6c9; transform: scale(1.12); }
+  100% { background: #c8e6c9; transform: scale(1); }
 }
 
 @keyframes flashWrong {
-  0% { background: rgba(255, 255, 255, 0.94); }
-  100% { background: #ffcdd2; }
+  0% { background: rgba(255, 255, 255, 0.94); transform: translateX(0); }
+  20% { background: #ffcdd2; transform: translateX(-4px); }
+  40% { background: #ffcdd2; transform: translateX(4px); }
+  60% { background: #ffcdd2; transform: translateX(-2px); }
+  80% { background: #ffcdd2; transform: translateX(2px); }
+  100% { background: #ffcdd2; transform: translateX(0); }
 }
 
 @keyframes stageEnter {
@@ -1030,6 +1140,47 @@ textarea {
 }
 
 @media (max-width: 760px) {
+  #stage-celebrate {
+    place-items: start center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 0.75rem;
+    padding-bottom: 1rem;
+  }
+
+  #stage-celebrate .mascot-celebrate {
+    height: clamp(108px, 14vh, 128px);
+  }
+
+  .celebrate-wrap {
+    width: min(100%, 520px);
+    gap: 0.3rem;
+  }
+
+  .celebrate-traced-img {
+    width: clamp(64px, 10vh, 92px);
+    height: clamp(64px, 10vh, 92px);
+  }
+
+  .celebrate-letter-main {
+    font-size: clamp(74px, 12vh, 116px);
+  }
+
+  .celebrate-letter-side {
+    font-size: clamp(50px, 8vh, 72px);
+  }
+
+  .celebrate-next-btn {
+    min-width: 92px;
+    min-height: 92px;
+    margin-top: 0.4rem;
+  }
+
+  .celebrate-next-btn img {
+    width: 40px;
+    height: 40px;
+  }
+
   .settings-actions {
     justify-content: stretch;
   }
