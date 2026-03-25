@@ -28,8 +28,26 @@
         <h1 class="home-title">Quinnja Letters</h1>
 
         <div class="mascot-wrap mascot-idle" id="home-mascot-wrap">
-          <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-home" />
-
+          <!-- AI note: home mascot video swap is intentionally reversible.
+               Keep the PNG fallback so rollback is one toggle in app.js. -->
+          <video
+            id="home-mascot-video"
+            class="mascot-home"
+            src="assets/processed/idlegreen_alpha_rgb_soft.webm"
+            autoplay
+            loop
+            muted
+            playsinline
+            preload="none"
+            aria-label="Quinnja idle animation"
+          ></video>
+          <img
+            id="home-mascot-fallback"
+            src="assets/quinnja.png"
+            alt="Quinnja bear mascot"
+            class="mascot-home"
+            hidden
+          />
         </div>
 
         <div class="active-letters-row" id="home-active-letters" aria-hidden="true" hidden></div>
@@ -71,8 +89,6 @@
             class="mascot-meet"
             hidden
           />
-
-          <span class="mascot-bubble" aria-hidden="true"></span>
         </div>
         <div class="meet-letter-pair" aria-live="polite">
           <span class="meet-letter-upper" id="meet-letter-upper">S</span>
@@ -100,8 +116,6 @@
           <div class="pick-target-wrap">
             <div class="mascot-wrap mascot-encouraging" id="pick-mascot-wrap">
               <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-pick" />
-    
-              <span class="mascot-bubble" aria-hidden="true"></span>
             </div>
             <div class="pick-letter" id="pick-target-letter" role="button" tabindex="0" aria-live="polite">S</div>
           </div>

@@ -171,47 +171,6 @@ textarea {
   width: auto;
 }
 
-
-/* --- Mascot speech bubble --- */
-.mascot-bubble {
-  position: absolute;
-  top: 5%;
-  left: 72%;
-  background: #fffaf0;
-  border: 2px solid #efd8b7;
-  border-radius: 12px;
-  padding: 0.15em 0.45em;
-  font-family: "Fredoka", sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  box-shadow: 0 2px 8px rgba(129, 95, 46, 0.12);
-}
-
-.mascot-bubble::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: -7px;
-  width: 8px;
-  height: 8px;
-  background: #fffaf0;
-  border-left: 2px solid #efd8b7;
-  border-bottom: 2px solid #efd8b7;
-  transform: translateY(-50%) rotate(45deg);
-}
-
-.mascot-bubble.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-  animation: bubbleFloat 2.5s ease-in-out infinite;
-}
-
 /* --- Celebration star particles --- */
 .mascot-celebrating::before,
 .mascot-celebrating::after {

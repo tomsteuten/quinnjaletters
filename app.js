@@ -37,6 +37,15 @@
     // preferredSource: "assets/processed/tracinggreen_alpha_rgb_balanced.webm"
   };
 
+  // AI note: quick rollback switch for home mascot video.
+  // Set enabled to false to instantly restore the original PNG fallback.
+  const homeMascotVideoConfig = {
+    enabled: true,
+    preferredSource: "assets/processed/idlegreen_alpha_rgb_soft.webm"
+    // Alternative tested-good source:
+    // preferredSource: "assets/processed/idlegreen_alpha_rgb_ultrasoft.webm"
+  };
+
   const state = {
     currentStage: "home",
     currentLetterIndex: 0,
@@ -71,6 +80,8 @@
     stageStatus: document.getElementById("stage-status"),
 
     homeMascotWrap: document.getElementById("home-mascot-wrap"),
+  homeMascotVideo: document.getElementById("home-mascot-video"),
+  homeMascotFallback: document.getElementById("home-mascot-fallback"),
     activeLettersRow: document.getElementById("home-active-letters"),
     nfcPrompt: document.getElementById("nfc-prompt"),
     startSessionBtn: document.getElementById("btn-start-session"),
@@ -159,6 +170,7 @@
     updateHomeLettersRow();
     updateHomeProgressDots();
     updateSettingsProgressSummary();
+    setupHomeMascotMedia();
     setupTraceMascotMedia();
     setupMeetMascotMedia();
     setupCelebrateMascotMedia();
@@ -760,11 +772,16 @@
       updateHomeLettersRow();
       updateHomeProgressDots();
       syncNfcState();
+      playHomeMascotVideo();
     } else {
       stopNfcIfRunning();
       if (stageName === "complete" || stageName === "settings") {
         applyStageBackground("");
       }
+    }
+
+    if (stageName !== "home") {
+      stopHomeMascotVideo();
     }
 
     if (stageName !== "meet") {
@@ -778,6 +795,57 @@
     if (stageName !== "celebrate") {
       stopCelebrateMascotVideo();
     }
+  }
+
+  function setupHomeMascotMedia() {
+    if (!dom.homeMascotVideo || !dom.homeMascotFallback) {
+      return;
+    }
+
+    if (!homeMascotVideoConfig.enabled) {
+      dom.homeMascotVideo.hidden = true;
+      dom.homeMascotFallback.hidden = false;
+      return;
+    }
+
+    if (homeMascotVideoConfig.preferredSource) {
+      dom.homeMascotVideo.src = homeMascotVideoConfig.preferredSource;
+    }
+
+    // If the video fails to decode/load, gracefully fall back to the original PNG.
+    dom.homeMascotVideo.addEventListener("error", function () {
+      dom.homeMascotVideo.hidden = true;
+      dom.homeMascotFallback.hidden = false;
+    });
+
+    dom.homeMascotVideo.hidden = false;
+    dom.homeMascotFallback.hidden = true;
+  }
+
+  function playHomeMascotVideo() {
+    if (!dom.homeMascotVideo || dom.homeMascotVideo.hidden) {
+      return;
+    }
+
+    dom.homeMascotVideo.currentTime = 0;
+    var playPromise = dom.homeMascotVideo.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(function () {
+        dom.homeMascotVideo.hidden = true;
+        if (dom.homeMascotFallback) {
+          dom.homeMascotFallback.hidden = false;
+        }
+      });
+    }
+  }
+
+  function stopHomeMascotVideo() {
+    if (!dom.homeMascotVideo || dom.homeMascotVideo.hidden) {
+      return;
+    }
+
+    dom.homeMascotVideo.pause();
+    dom.homeMascotVideo.currentTime = 0;
   }
 
   function setupTraceMascotMedia() {
@@ -1154,22 +1222,6 @@
       "mascot-tryagain"
     );
     element.classList.add(stateClass);
-
-    var bubble = element.querySelector(".mascot-bubble");
-    if (bubble) {
-      if (stateClass === "mascot-presenting") {
-        bubble.textContent = "Hi!";
-        bubble.classList.add("is-visible");
-      } else if (stateClass === "mascot-encouraging") {
-        bubble.textContent = "Hmm\u2026";
-        bubble.classList.add("is-visible");
-      } else if (stateClass === "mascot-celebrating") {
-        bubble.textContent = "Yes!";
-        bubble.classList.add("is-visible");
-      } else {
-        bubble.classList.remove("is-visible");
-      }
-    }
   }
 
   function applyStageBackground(stageBackground) {
