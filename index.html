@@ -29,6 +29,7 @@
 
         <div class="mascot-wrap mascot-idle" id="home-mascot-wrap">
           <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-home" />
+
         </div>
 
         <div class="active-letters-row" id="home-active-letters" aria-hidden="true" hidden></div>
@@ -50,7 +51,28 @@
     <section id="stage-meet" class="stage" aria-label="Meet letter">
       <div class="meet-layout">
         <div class="mascot-wrap mascot-presenting" id="meet-mascot-wrap">
-          <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-meet" />
+          <!-- AI note: meet mascot video swap is intentionally reversible.
+               Keep the PNG fallback so rollback is one toggle in app.js. -->
+          <video
+            id="meet-mascot-video"
+            class="mascot-meet"
+            src="assets/processed/greenwaving_alpha_rgb_soft.webm"
+            autoplay
+            loop
+            muted
+            playsinline
+            preload="none"
+            aria-label="Quinnja greeting animation"
+          ></video>
+          <img
+            id="meet-mascot-fallback"
+            src="assets/quinnja.png"
+            alt="Quinnja bear mascot"
+            class="mascot-meet"
+            hidden
+          />
+
+          <span class="mascot-bubble" aria-hidden="true"></span>
         </div>
         <div class="meet-letter-pair" aria-live="polite">
           <span class="meet-letter-upper" id="meet-letter-upper">S</span>
@@ -78,6 +100,8 @@
           <div class="pick-target-wrap">
             <div class="mascot-wrap mascot-encouraging" id="pick-mascot-wrap">
               <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-pick" />
+    
+              <span class="mascot-bubble" aria-hidden="true"></span>
             </div>
             <div class="pick-letter" id="pick-target-letter" role="button" tabindex="0" aria-live="polite">S</div>
           </div>
@@ -95,7 +119,27 @@
         <div class="trace-header">
           <div class="trace-letter" id="trace-letter" aria-live="polite">S</div>
           <div class="mascot-wrap mascot-encouraging" id="trace-mascot-wrap">
-            <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-trace" />
+            <!-- AI note: trace mascot video swap is intentionally reversible.
+                 Keep the PNG fallback so rollback is one toggle in app.js. -->
+            <video
+              id="trace-mascot-video"
+              class="mascot-trace"
+              src="assets/processed/tracinggreen_alpha_rgb_soft.webm"
+              autoplay
+              loop
+              muted
+              playsinline
+                preload="none"
+              aria-label="Quinnja trace coach animation"
+            ></video>
+            <img
+              id="trace-mascot-fallback"
+              src="assets/quinnja.png"
+              alt="Quinnja bear mascot"
+              class="mascot-trace"
+              hidden
+            />
+  
           </div>
         </div>
 
@@ -126,9 +170,30 @@
           <span class="sparkle"></span>
         </div>
         <div class="mascot-wrap mascot-celebrating" id="celebrate-mascot-wrap">
-          <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-celebrate" />
+          <!-- AI note: celebrate mascot video swap is intentionally reversible.
+               Keep the PNG fallback in place so rollback is one toggle in app.js. -->
+          <video
+            id="celebrate-mascot-video"
+            class="mascot-celebrate"
+            src="assets/processed/green_trim_alpha_rgbkey_balanced.webm"
+            autoplay
+            loop
+            muted
+            playsinline
+            preload="none"
+            aria-label="Quinnja celebrating animation"
+          ></video>
+          <img
+            id="celebrate-mascot-fallback"
+            src="assets/quinnja.png"
+            alt="Quinnja bear mascot"
+            class="mascot-celebrate"
+            hidden
+          />
+
         </div>
         <div class="celebrate-letter-pair">
+          <img class="celebrate-traced-img" id="celebrate-traced-img" alt="Your traced letter" hidden />
           <span class="celebrate-letter-main" id="celebrate-letter-main">S</span>
           <span class="celebrate-letter-side" id="celebrate-letter-side">s</span>
         </div>
@@ -146,6 +211,7 @@
       <div class="complete-wrap">
         <div class="mascot-wrap mascot-celebrating" id="complete-mascot-wrap">
           <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-celebrate" />
+
         </div>
 
         <div id="complete-letters" class="complete-letters" aria-label="Letters practised"></div>

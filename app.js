@@ -10,6 +10,33 @@
 
   const stageOrder = ["meet", "pick", "trace", "celebrate"];
 
+  // AI note: quick rollback switch for celebrate mascot video.
+  // Set enabled to false to instantly restore the original PNG fallback.
+  const celebrateMascotVideoConfig = {
+    enabled: true,
+    preferredSource: "assets/processed/green_trim_alpha_rgbkey_balanced.webm"
+    // Alternative tested-good source:
+    // preferredSource: "assets/processed/green_trim_alpha_rgbkey_soft.webm"
+  };
+
+  // AI note: quick rollback switch for meet mascot video.
+  // Set enabled to false to instantly restore the original PNG fallback.
+  const meetMascotVideoConfig = {
+    enabled: true,
+    preferredSource: "assets/processed/greenwaving_alpha_rgb_soft.webm"
+    // Alternative tested-good source:
+    // preferredSource: "assets/processed/greenwaving_alpha_rgb_balanced.webm"
+  };
+
+  // AI note: quick rollback switch for trace mascot video.
+  // Set enabled to false to instantly restore the original PNG fallback.
+  const traceMascotVideoConfig = {
+    enabled: true,
+    preferredSource: "assets/processed/tracinggreen_alpha_rgb_soft.webm"
+    // Alternative tested-good source:
+    // preferredSource: "assets/processed/tracinggreen_alpha_rgb_balanced.webm"
+  };
+
   const state = {
     currentStage: "home",
     currentLetterIndex: 0,
@@ -27,7 +54,8 @@
     progress: loadProgress(),
     autoTimerId: null,
     nfcSingleLetterSession: false,
-    nfcListening: false
+    nfcListening: false,
+    lastTracedDataUrl: null
   };
 
   const dom = {
@@ -50,6 +78,8 @@
     meetLetterUpper: document.getElementById("meet-letter-upper"),
     meetLetterLower: document.getElementById("meet-letter-lower"),
     meetMascotWrap: document.getElementById("meet-mascot-wrap"),
+    meetMascotVideo: document.getElementById("meet-mascot-video"),
+    meetMascotFallback: document.getElementById("meet-mascot-fallback"),
 
     pickTargetLetter: document.getElementById("pick-target-letter"),
     pickOptions: document.getElementById("pick-options"),
@@ -61,12 +91,17 @@
     traceCanvas: document.getElementById("trace-canvas"),
     traceBoard: document.getElementById("trace-board"),
     traceMascotWrap: document.getElementById("trace-mascot-wrap"),
+    traceMascotVideo: document.getElementById("trace-mascot-video"),
+    traceMascotFallback: document.getElementById("trace-mascot-fallback"),
     traceClearBtn: document.getElementById("btn-trace-clear"),
     traceDoneBtn: document.getElementById("btn-trace-done"),
 
     celebrateMascotWrap: document.getElementById("celebrate-mascot-wrap"),
+    celebrateMascotVideo: document.getElementById("celebrate-mascot-video"),
+    celebrateMascotFallback: document.getElementById("celebrate-mascot-fallback"),
     celebrateLetterMain: document.getElementById("celebrate-letter-main"),
     celebrateLetterSide: document.getElementById("celebrate-letter-side"),
+    celebrateTracedImg: document.getElementById("celebrate-traced-img"),
     celebrateNextBtn: document.getElementById("btn-celebrate-next"),
 
     completeMascotWrap: document.getElementById("complete-mascot-wrap"),
@@ -124,6 +159,9 @@
     updateHomeLettersRow();
     updateHomeProgressDots();
     updateSettingsProgressSummary();
+    setupTraceMascotMedia();
+    setupMeetMascotMedia();
+    setupCelebrateMascotMedia();
 
     if (!audio.isSoundEffectsSupported()) {
       state.settings.soundEffectsEnabled = false;
@@ -156,6 +194,7 @@
     dom.traceClearBtn.addEventListener("click", clearTraceCanvas);
     dom.traceDoneBtn.addEventListener("click", function () {
       if (!traceState.hasStrokes) return;
+      state.lastTracedDataUrl = dom.traceCanvas.toDataURL("image/png");
       showCelebrateStage();
     });
 
@@ -468,6 +507,7 @@
     loadLetter(state.currentLetter);
     showStage("meet");
     setMascotState(dom.meetMascotWrap, "mascot-presenting");
+    playMeetMascotVideo();
     dom.meetActions.hidden = true;
 
     const meetFile = state.currentLetter.audio.meet;
@@ -552,6 +592,7 @@
       setMascotState(dom.pickMascotWrap, "mascot-celebrating");
       dom.pickFeedback.textContent = "Correct";
       audio.playCorrectChime();
+      if (navigator.vibrate) navigator.vibrate(50);
 
       audio.playRandomMp3(data.sharedAudio.praise, function () {
         state.autoTimerId = window.setTimeout(function () {
@@ -568,6 +609,7 @@
     setMascotState(dom.pickMascotWrap, "mascot-tryagain");
     dom.pickFeedback.textContent = "Try again";
     audio.playMp3(data.sharedAudio.tryAgain);
+    if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
 
     window.setTimeout(function () {
       if (state.currentStage === "pick") {
@@ -579,6 +621,7 @@
   function showTraceStage() {
     showStage("trace");
     setMascotState(dom.traceMascotWrap, "mascot-encouraging");
+    playTraceMascotVideo();
     state.currentTraceCase = getTraceCaseForCurrentLetter();
     dom.traceLetter.textContent = getLetterCharacter(state.currentLetter, state.currentTraceCase);
     clearTraceCanvas();
@@ -593,6 +636,7 @@
   function showCelebrateStage() {
     showStage("celebrate");
     setMascotState(dom.celebrateMascotWrap, "mascot-celebrating");
+    playCelebrateMascotVideo();
     const tracedChar = getLetterCharacter(state.currentLetter, state.currentTraceCase);
     const pairedChar = getLetterCharacter(
       state.currentLetter,
@@ -600,6 +644,13 @@
     );
     dom.celebrateLetterMain.textContent = tracedChar;
     dom.celebrateLetterSide.textContent = pairedChar;
+
+    if (state.lastTracedDataUrl) {
+      dom.celebrateTracedImg.src = state.lastTracedDataUrl;
+      dom.celebrateTracedImg.hidden = false;
+    } else {
+      dom.celebrateTracedImg.hidden = true;
+    }
 
     state.sessionResults.push({
       letterId: state.currentLetter.id,
@@ -715,6 +766,171 @@
         applyStageBackground("");
       }
     }
+
+    if (stageName !== "meet") {
+      stopMeetMascotVideo();
+    }
+
+    if (stageName !== "trace") {
+      stopTraceMascotVideo();
+    }
+
+    if (stageName !== "celebrate") {
+      stopCelebrateMascotVideo();
+    }
+  }
+
+  function setupTraceMascotMedia() {
+    if (!dom.traceMascotVideo || !dom.traceMascotFallback) {
+      return;
+    }
+
+    if (!traceMascotVideoConfig.enabled) {
+      dom.traceMascotVideo.hidden = true;
+      dom.traceMascotFallback.hidden = false;
+      return;
+    }
+
+    if (traceMascotVideoConfig.preferredSource) {
+      dom.traceMascotVideo.src = traceMascotVideoConfig.preferredSource;
+    }
+
+    // If the video fails to decode/load, gracefully fall back to the original PNG.
+    dom.traceMascotVideo.addEventListener("error", function () {
+      dom.traceMascotVideo.hidden = true;
+      dom.traceMascotFallback.hidden = false;
+    });
+
+    dom.traceMascotVideo.hidden = false;
+    dom.traceMascotFallback.hidden = true;
+  }
+
+  function playTraceMascotVideo() {
+    if (!dom.traceMascotVideo || dom.traceMascotVideo.hidden) {
+      return;
+    }
+
+    dom.traceMascotVideo.currentTime = 0;
+    var playPromise = dom.traceMascotVideo.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(function () {
+        dom.traceMascotVideo.hidden = true;
+        if (dom.traceMascotFallback) {
+          dom.traceMascotFallback.hidden = false;
+        }
+      });
+    }
+  }
+
+  function stopTraceMascotVideo() {
+    if (!dom.traceMascotVideo || dom.traceMascotVideo.hidden) {
+      return;
+    }
+
+    dom.traceMascotVideo.pause();
+    dom.traceMascotVideo.currentTime = 0;
+  }
+
+  function setupMeetMascotMedia() {
+    if (!dom.meetMascotVideo || !dom.meetMascotFallback) {
+      return;
+    }
+
+    if (!meetMascotVideoConfig.enabled) {
+      dom.meetMascotVideo.hidden = true;
+      dom.meetMascotFallback.hidden = false;
+      return;
+    }
+
+    if (meetMascotVideoConfig.preferredSource) {
+      dom.meetMascotVideo.src = meetMascotVideoConfig.preferredSource;
+    }
+
+    // If the video fails to decode/load, gracefully fall back to the original PNG.
+    dom.meetMascotVideo.addEventListener("error", function () {
+      dom.meetMascotVideo.hidden = true;
+      dom.meetMascotFallback.hidden = false;
+    });
+
+    dom.meetMascotVideo.hidden = false;
+    dom.meetMascotFallback.hidden = true;
+  }
+
+  function playMeetMascotVideo() {
+    if (!dom.meetMascotVideo || dom.meetMascotVideo.hidden) {
+      return;
+    }
+
+    dom.meetMascotVideo.currentTime = 0;
+    var playPromise = dom.meetMascotVideo.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(function () {
+        dom.meetMascotVideo.hidden = true;
+        if (dom.meetMascotFallback) {
+          dom.meetMascotFallback.hidden = false;
+        }
+      });
+    }
+  }
+
+  function stopMeetMascotVideo() {
+    if (!dom.meetMascotVideo || dom.meetMascotVideo.hidden) {
+      return;
+    }
+
+    dom.meetMascotVideo.pause();
+    dom.meetMascotVideo.currentTime = 0;
+  }
+
+  function setupCelebrateMascotMedia() {
+    if (!dom.celebrateMascotVideo || !dom.celebrateMascotFallback) {
+      return;
+    }
+
+    if (!celebrateMascotVideoConfig.enabled) {
+      dom.celebrateMascotVideo.hidden = true;
+      dom.celebrateMascotFallback.hidden = false;
+      return;
+    }
+
+    if (celebrateMascotVideoConfig.preferredSource) {
+      dom.celebrateMascotVideo.src = celebrateMascotVideoConfig.preferredSource;
+    }
+
+    // If the video fails to decode/load, gracefully fall back to the original PNG.
+    dom.celebrateMascotVideo.addEventListener("error", function () {
+      dom.celebrateMascotVideo.hidden = true;
+      dom.celebrateMascotFallback.hidden = false;
+    });
+
+    dom.celebrateMascotVideo.hidden = false;
+    dom.celebrateMascotFallback.hidden = true;
+  }
+
+  function playCelebrateMascotVideo() {
+    if (!dom.celebrateMascotVideo || dom.celebrateMascotVideo.hidden) {
+      return;
+    }
+
+    dom.celebrateMascotVideo.currentTime = 0;
+    var playPromise = dom.celebrateMascotVideo.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(function () {
+        dom.celebrateMascotVideo.hidden = true;
+        if (dom.celebrateMascotFallback) {
+          dom.celebrateMascotFallback.hidden = false;
+        }
+      });
+    }
+  }
+
+  function stopCelebrateMascotVideo() {
+    if (!dom.celebrateMascotVideo || dom.celebrateMascotVideo.hidden) {
+      return;
+    }
+
+    dom.celebrateMascotVideo.pause();
+    dom.celebrateMascotVideo.currentTime = 0;
   }
 
   function openSettings() {
@@ -938,6 +1154,22 @@
       "mascot-tryagain"
     );
     element.classList.add(stateClass);
+
+    var bubble = element.querySelector(".mascot-bubble");
+    if (bubble) {
+      if (stateClass === "mascot-presenting") {
+        bubble.textContent = "Hi!";
+        bubble.classList.add("is-visible");
+      } else if (stateClass === "mascot-encouraging") {
+        bubble.textContent = "Hmm\u2026";
+        bubble.classList.add("is-visible");
+      } else if (stateClass === "mascot-celebrating") {
+        bubble.textContent = "Yes!";
+        bubble.classList.add("is-visible");
+      } else {
+        bubble.classList.remove("is-visible");
+      }
+    }
   }
 
   function applyStageBackground(stageBackground) {
