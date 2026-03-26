@@ -51,11 +51,14 @@ textarea {
   border: 2px solid rgba(239, 216, 183, 0.82);
   box-shadow: 0 10px 26px rgba(129, 95, 46, 0.09);
   background: linear-gradient(135deg, var(--cream) 0%, var(--peach) 100%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
 
 .stage.active {
   display: grid;
   animation: stageEnter 0.45s ease;
+  opacity: 1;
 }
 
 .sr-only {
@@ -863,11 +866,18 @@ textarea {
 }
 
 .meet-actions {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
   display: flex;
-  flex-direction: column;
+  gap: 0.8rem;
+  justify-content: center;
   align-items: center;
-  gap: 0.6rem;
-  margin-top: 0.5rem;
+}
+
+.meet-actions-visible {
+  visibility: visible;
+  opacity: 1;
 }
 
 .meet-actions[hidden] {
@@ -1241,6 +1251,12 @@ textarea {
 .session-dot-upcoming {
   opacity: 0.4;
   fill: #c9b49a;
+}
+
+.session-dot-upcoming circle,
+.session-dot-upcoming path {
+  stroke: rgba(0, 0, 0, 0.45);
+  stroke-width: 1.1;
 }
 
 @keyframes dotPulse {

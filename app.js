@@ -159,7 +159,10 @@
     width: 220,
     height: 220,
     hitmask: null,
-    lastPoint: null
+    lastPoint: null,
+    coveredCells: new Set(),
+    totalLetterCells: 0,
+    traceAttempts: 0
   };
 
   function renderSessionDots() {
@@ -245,6 +248,22 @@
     dom.traceClearBtn.addEventListener("click", clearTraceCanvas);
     dom.traceDoneBtn.addEventListener("click", function () {
       if (!traceState.hasStrokes) return;
+
+      var coverage = 0;
+      if (traceState.totalLetterCells > 0) {
+        coverage = traceState.coveredCells.size / traceState.totalLetterCells;
+      }
+
+      if (coverage < 0.25 && traceState.traceAttempts < 1) {
+        traceState.traceAttempts++;
+        setMascotState(dom.traceMascotWrap, "mascot-encouraging");
+        // Placeholder: reuse existing trace prompt audio.
+        // Replace with dedicated "keep tracing" audio when available.
+        audio.playMp3(data.sharedAudio.tracePrompt);
+        renderTraceGuide(state.currentLetter);
+        return;
+      }
+
       state.lastTracedDataUrl = dom.traceCanvas.toDataURL("image/png");
       showCelebrateStage();
     });
@@ -379,6 +398,11 @@
     traceState.ctx.arc(point.x, point.y, onLetter ? 5.5 : 1.5, 0, Math.PI * 2);
     traceState.ctx.fill();
     traceState.ctx.restore();
+
+    if (onLetter) {
+      traceState.coveredCells.add(Math.floor(point.x / 4) + "," + Math.floor(point.y / 4));
+    }
+    traceState.lastPoint = point;
   }
 
   function tracePointerMove(event) {
@@ -400,6 +424,9 @@
     traceState.ctx.stroke();
     traceState.ctx.restore();
 
+    if (onLetter) {
+      traceState.coveredCells.add(Math.floor(point.x / 4) + "," + Math.floor(point.y / 4));
+    }
     traceState.lastPoint = point;
   }
 
@@ -422,6 +449,8 @@
 
     traceState.ctx.clearRect(0, 0, traceState.width, traceState.height);
     traceState.hasStrokes = false;
+    traceState.coveredCells = new Set();
+    traceState.traceAttempts = 0;
     traceState.lastPoint = null;
     if (dom.traceDoneBtn) {
       dom.traceDoneBtn.disabled = true;
@@ -475,6 +504,15 @@
 
     // Extract pixel data as hitmask
     traceState.hitmask = ctx.getImageData(0, 0, w, h).data;
+
+    var totalCells = 0;
+    for (var gy = 0; gy < h; gy += 4) {
+      for (var gx = 0; gx < w; gx += 4) {
+        var idx = (gy * w + gx) * 4 + 3;
+        if (traceState.hitmask[idx] > 0) totalCells++;
+      }
+    }
+    traceState.totalLetterCells = totalCells;
   }
 
   function isPointOnLetter(x, y) {
@@ -559,21 +597,21 @@
     showStage("meet");
     setMascotState(dom.meetMascotWrap, "mascot-presenting");
     playMeetMascotVideo();
-    dom.meetActions.hidden = true;
+    dom.meetActions.classList.remove("meet-actions-visible");
 
     const meetFile = state.currentLetter.audio.meet;
     const soundFile = state.currentLetter.audio.sound;
 
     const fallbackTimer = window.setTimeout(function () {
       if (state.currentStage === "meet") {
-        dom.meetActions.hidden = false;
+        dom.meetActions.classList.add("meet-actions-visible");
       }
     }, 10000);
 
     audio.playMp3Sequence([meetFile, soundFile], function () {
       window.clearTimeout(fallbackTimer);
       if (state.currentStage === "meet") {
-        dom.meetActions.hidden = false;
+        dom.meetActions.classList.add("meet-actions-visible");
       }
     });
     renderSessionDots();
@@ -703,6 +741,8 @@
     dom.traceLetter.textContent = getLetterCharacter(state.currentLetter, state.currentTraceCase);
     clearTraceCanvas();
     traceState.hasStrokes = false;
+    traceState.coveredCells = new Set();
+    traceState.traceAttempts = 0;
     dom.traceDoneBtn.disabled = true;
     dom.traceDoneBtn.classList.add("trace-done-disabled");
     buildTraceHitmask(state.currentLetter, state.currentTraceCase);
