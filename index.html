@@ -67,6 +67,7 @@
     </section>
 
     <section id="stage-meet" class="stage" aria-label="Meet letter">
+      <div class="session-dots" id="session-dots-meet"></div>
       <div class="meet-layout">
         <div class="mascot-wrap mascot-presenting" id="meet-mascot-wrap">
           <!-- AI note: meet mascot video swap is intentionally reversible.
@@ -111,11 +112,33 @@
     </section>
 
     <section id="stage-pick" class="stage" aria-label="Pick letter">
+      <div class="session-dots" id="session-dots-pick"></div>
       <div class="pick-layout">
         <div class="pick-top">
           <div class="pick-target-wrap">
             <div class="mascot-wrap mascot-encouraging" id="pick-mascot-wrap">
-              <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-pick" />
+              <video
+                id="pick-mascot-video"
+                class="mascot-pick"
+                src="assets/processed/tracinggreen_alpha_rgb_soft.webm"
+                autoplay
+                loop
+                muted
+                playsinline
+                preload="none"
+                aria-label="Quinnja encouraging animation"
+              ></video>
+              <video
+                id="pick-wrong-video"
+                class="mascot-pick"
+                src="assets/processed/wrong.webm"
+                muted
+                playsinline
+                preload="auto"
+                hidden
+                aria-label="Quinnja wrong answer reaction"
+              ></video>
+              <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-pick" hidden id="pick-mascot-fallback" />
             </div>
             <div class="pick-letter" id="pick-target-letter" role="button" tabindex="0" aria-live="polite">S</div>
           </div>
@@ -129,6 +152,7 @@
     </section>
 
     <section id="stage-trace" class="stage" aria-label="Trace letter">
+      <div class="session-dots" id="session-dots-trace"></div>
       <div class="trace-stage-layout">
         <div class="trace-header">
           <div class="trace-letter" id="trace-letter" aria-live="polite">S</div>
@@ -143,7 +167,7 @@
               loop
               muted
               playsinline
-                preload="none"
+              preload="none"
               aria-label="Quinnja trace coach animation"
             ></video>
             <img
@@ -176,6 +200,7 @@
     </section>
 
     <section id="stage-celebrate" class="stage" aria-label="Celebrate">
+      <div class="session-dots" id="session-dots-celebrate"></div>
       <div class="celebrate-wrap">
         <div class="sparkles" aria-hidden="true">
           <span class="sparkle"></span>
@@ -224,8 +249,24 @@
 
       <div class="complete-wrap">
         <div class="mascot-wrap mascot-celebrating" id="complete-mascot-wrap">
-          <img src="assets/quinnja.png" alt="Quinnja bear mascot" class="mascot-celebrate" />
-
+          <video
+            id="complete-mascot-video"
+            class="mascot-celebrate"
+            src="assets/processed/completegreen_alpha_rgb_balanced.webm"
+            autoplay
+            loop
+            muted
+            playsinline
+            preload="none"
+            aria-label="Quinnja session complete animation"
+          ></video>
+          <img
+            id="complete-mascot-fallback"
+            src="assets/quinnja.png"
+            alt="Quinnja bear mascot"
+            class="mascot-celebrate"
+            hidden
+          />
         </div>
 
         <div id="complete-letters" class="complete-letters" aria-label="Letters practised"></div>

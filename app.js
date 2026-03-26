@@ -96,6 +96,9 @@
     pickOptions: document.getElementById("pick-options"),
     pickFeedback: document.getElementById("pick-feedback"),
     pickMascotWrap: document.getElementById("pick-mascot-wrap"),
+    pickMascotVideo: document.getElementById("pick-mascot-video"),
+    pickMascotFallback: document.getElementById("pick-mascot-fallback"),
+    pickWrongVideo: document.getElementById("pick-wrong-video"),
 
     traceLetter: document.getElementById("trace-letter"),
     traceGuide: document.getElementById("trace-guide"),
@@ -158,6 +161,42 @@
     hitmask: null,
     lastPoint: null
   };
+
+  function renderSessionDots() {
+    var ids = ["session-dots-meet", "session-dots-pick", "session-dots-trace", "session-dots-celebrate"];
+    var html = "";
+
+    for (var i = 0; i < state.letterQueue.length; i++) {
+      var letter = state.letterQueue[i];
+      var dotClass = "session-dot";
+      var style = "";
+
+      if (i < state.currentLetterIndex) {
+        dotClass += " session-dot-done";
+        style = "fill:" + letter.colourDark + ";";
+      } else if (i === state.currentLetterIndex) {
+        dotClass += " session-dot-current";
+        style = "fill:" + letter.colourDark + ";";
+      } else {
+        dotClass += " session-dot-upcoming";
+      }
+
+      html += "<svg class='" + dotClass + "' style='" + style + "' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>"
+        + "<circle cx='7' cy='5.5' r='2.8'/>"
+        + "<circle cx='17' cy='5.5' r='2.8'/>"
+        + "<circle cx='3.2' cy='11' r='2.8'/>"
+        + "<circle cx='20.8' cy='11' r='2.8'/>"
+        + "<path d='M12 22c-3.5 0-5.5-2.2-6.5-4.5-.7-1.5-.2-3.5 1.2-4.5 1.2-.9 2.8-1.5 5.3-1.5s4.1.6 5.3 1.5c1.4 1 1.9 3 1.2 4.5C17.5 19.8 15.5 22 12 22z'/>"
+        + "</svg>";
+    }
+
+    for (var j = 0; j < ids.length; j++) {
+      var el = document.getElementById(ids[j]);
+      if (el) {
+        el.innerHTML = html;
+      }
+    }
+  }
 
   init();
 
@@ -537,6 +576,7 @@
         dom.meetActions.hidden = false;
       }
     });
+    renderSessionDots();
   }
 
   function showPickStage() {
@@ -582,6 +622,7 @@
     } else {
       audio.playMp3(state.currentLetter.audio.pick);
     }
+    renderSessionDots();
   }
 
   function handlePickSelection(letterId, button) {
@@ -619,6 +660,7 @@
     button.disabled = true;
     button.classList.add("is-wrong", "flash-wrong");
     setMascotState(dom.pickMascotWrap, "mascot-tryagain");
+    playPickWrongReaction();
     dom.pickFeedback.textContent = "Try again";
     audio.playMp3(data.sharedAudio.tryAgain);
     if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
@@ -628,6 +670,29 @@
         setMascotState(dom.pickMascotWrap, "mascot-encouraging");
       }
     }, 430);
+  }
+
+  function playPickWrongReaction() {
+    if (!dom.pickWrongVideo || !dom.pickMascotVideo) {
+      return;
+    }
+    // Hide the normal encouraging video, show the wrong-answer video
+    dom.pickMascotVideo.hidden = true;
+    dom.pickWrongVideo.hidden = false;
+    dom.pickWrongVideo.currentTime = 0;
+    var playPromise = dom.pickWrongVideo.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(function () {
+        // If it fails to play, just revert immediately
+        dom.pickWrongVideo.hidden = true;
+        dom.pickMascotVideo.hidden = false;
+      });
+    }
+    // When the wrong-answer clip finishes, revert to the encouraging video
+    dom.pickWrongVideo.onended = function () {
+      dom.pickWrongVideo.hidden = true;
+      dom.pickMascotVideo.hidden = false;
+    };
   }
 
   function showTraceStage() {
@@ -643,6 +708,7 @@
     buildTraceHitmask(state.currentLetter, state.currentTraceCase);
     renderTraceGuide(state.currentLetter);
     audio.playMp3(data.sharedAudio.tracePrompt);
+    renderSessionDots();
   }
 
   function showCelebrateStage() {
@@ -679,6 +745,7 @@
         }, 6000);
       });
     }, 400);
+    renderSessionDots();
   }
 
   function loadNextLetterOrFinish() {
@@ -1571,6 +1638,29 @@
     } else {
       audio.playMp3(state.currentLetter.audio.pick);
     }
+  }
+
+  function playPickWrongReaction() {
+    if (!dom.pickWrongVideo || !dom.pickMascotVideo) {
+      return;
+    }
+    // Hide the normal encouraging video, show the wrong-answer video
+    dom.pickMascotVideo.hidden = true;
+    dom.pickWrongVideo.hidden = false;
+    dom.pickWrongVideo.currentTime = 0;
+    var playPromise = dom.pickWrongVideo.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(function () {
+        // If it fails to play, just revert immediately
+        dom.pickWrongVideo.hidden = true;
+        dom.pickMascotVideo.hidden = false;
+      });
+    }
+    // When the wrong-answer clip finishes, revert to the encouraging video
+    dom.pickWrongVideo.onended = function () {
+      dom.pickWrongVideo.hidden = true;
+      dom.pickMascotVideo.hidden = false;
+    };
   }
 
   function prioritiseWeakLetters(queue) {
