@@ -36,6 +36,7 @@ textarea {
 .app-shell {
   max-width: 1180px;
   margin: 0 auto;
+  min-height: 100vh;
   min-height: 100dvh;
   padding: clamp(0.7rem, 1.5vh, 1.1rem);
   position: relative;
@@ -44,10 +45,12 @@ textarea {
 .stage {
   display: none;
   min-height: 0;
+  max-height: calc(100vh - 1.6rem);
   max-height: calc(100dvh - 1.6rem);
   overflow: hidden;
   border-radius: 24px;
-  padding: clamp(0.9rem, 1.6vh, 1.3rem);
+  padding: clamp(2.8rem, 5vh, 3.2rem) clamp(0.9rem, 1.6vh, 1.3rem) clamp(0.9rem, 1.6vh, 1.3rem);
+  position: relative;
   border: 2px solid rgba(239, 216, 183, 0.82);
   box-shadow: 0 10px 26px rgba(129, 95, 46, 0.09);
   background: linear-gradient(135deg, var(--cream) 0%, var(--peach) 100%);
@@ -175,12 +178,12 @@ textarea {
 }
 
 .mascot-meet {
-  height: clamp(100px, 13vh, 120px);
+  height: clamp(110px, 15vh, 140px);
   width: auto;
 }
 
 .mascot-pick {
-  height: clamp(80px, 11vh, 100px);
+  height: clamp(90px, 12vh, 110px);
   width: auto;
 }
 
@@ -283,16 +286,26 @@ textarea {
 
 #stage-meet {
   align-items: center;
+  justify-items: center;
+  min-height: calc(100vh - 2.4rem);
   min-height: calc(100dvh - 2.4rem);
+  position: relative;
 }
 
 .meet-layout {
   width: min(980px, 100%);
   margin: auto;
-  display: grid;
-  grid-template-columns: auto 1fr;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  position: relative;
+}
+
+.meet-layout .mascot-wrap {
+  position: absolute;
+  left: clamp(0.5rem, 3vw, 2rem);
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .meet-letter-pair {
@@ -317,15 +330,14 @@ textarea {
 
 #stage-pick {
   align-items: stretch;
+  min-height: calc(100vh - 2.4rem);
+  min-height: calc(100dvh - 2.4rem);
 }
 
 .pick-layout {
-  height: auto;
-  max-height: calc(100dvh - 2.4rem);
   display: grid;
-  grid-template-rows: auto auto;
-  gap: clamp(0.55rem, 1.2vh, 0.9rem);
-  align-content: center;
+  grid-template-rows: auto 1fr;
+  gap: clamp(0.8rem, 2vh, 1.4rem);
 }
 
 .pick-top {
@@ -355,17 +367,25 @@ textarea {
 
 .pick-bottom {
   display: grid;
-  align-content: center;
+  align-content: start;
+}
+
+.pick-prompt {
+  text-align: center;
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  font-weight: 600;
+  color: var(--muted);
+  padding: 0.2rem 0;
 }
 
 .pick-options {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: clamp(12px, 2vw, 20px);
 }
 
 .pick-option {
-  min-height: 90px;
+  min-height: clamp(100px, 14vh, 140px);
   border: 2px solid var(--border);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.94);
@@ -400,11 +420,12 @@ textarea {
 
 .trace-stage-layout {
   height: auto;
+  max-height: calc(100vh - 2.4rem);
   max-height: calc(100dvh - 2.4rem);
   display: grid;
-  grid-template-rows: auto auto auto;
+  grid-template-rows: auto 1fr auto;
   align-content: center;
-  gap: clamp(0.35rem, 1vh, 0.7rem);
+  gap: clamp(0.35rem, 0.8vh, 0.6rem);
   justify-items: center;
 }
 
@@ -432,8 +453,10 @@ textarea {
 
 .trace-board {
   position: relative;
-  width: min(64vw, calc(100dvh - 280px));
+  width: min(64vw, calc(100vh - 340px));
+  width: min(64vw, calc(100dvh - 340px));
   max-width: 520px;
+  max-height: 100%;
   aspect-ratio: 1 / 1;
   margin: 0 auto;
   border-radius: 20px;
@@ -603,6 +626,7 @@ textarea {
 
 #stage-complete {
   align-items: center;
+  min-height: calc(100vh - 2.4rem);
   min-height: calc(100dvh - 2.4rem);
 }
 
@@ -844,6 +868,7 @@ textarea {
   align-items: center;
   gap: 0.5rem;
   animation: fadeInUp 0.4s ease;
+  cursor: pointer;
 }
 
 .meet-picture-cue[hidden] {
@@ -870,9 +895,13 @@ textarea {
   opacity: 0;
   transition: opacity 0.35s ease, visibility 0.35s ease;
   display: flex;
-  gap: 0.8rem;
   justify-content: center;
   align-items: center;
+  margin-top: 0.5rem;
+}
+
+.meet-actions > * + * {
+  margin-left: 0.8rem;
 }
 
 .meet-actions-visible {
@@ -1131,17 +1160,16 @@ textarea {
   }
 
   .pick-option {
-    min-height: 96px;
+    min-height: clamp(90px, 12vh, 120px);
   }
 
-  .meet-layout {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
+  .meet-layout .mascot-wrap {
+    left: clamp(0.3rem, 2vw, 1rem);
   }
 
   .trace-board {
-    width: min(68vw, calc(100dvh - 280px));
+    width: min(68vw, calc(100vh - 340px));
+    width: min(68vw, calc(100dvh - 340px));
     max-width: 460px;
   }
 }
@@ -1217,19 +1245,18 @@ textarea {
   display: flex;
   justify-content: center;
   gap: 14px;
-  padding: 10px 20px;
-  position: relative;
+  padding: 6px 0;
+  position: absolute;
+  top: clamp(0.5rem, 1.2vh, 0.9rem);
+  left: 0;
+  right: 0;
   z-index: 5;
   pointer-events: none;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 20px;
-  width: fit-content;
-  margin: 0 auto;
 }
 
 .session-dot {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
   transition: fill 0.4s ease, opacity 0.3s ease, transform 0.3s ease;
   fill: #ccc;

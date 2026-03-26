@@ -269,6 +269,7 @@
     });
 
     dom.meetReplayBtn.addEventListener("click", replayMeetAudio);
+    dom.meetPictureCue.addEventListener("click", replayMeetAudio);
     dom.meetContinueBtn.addEventListener("click", function () {
       advanceStage();
     });
@@ -639,6 +640,15 @@
     dom.pickOptions.innerHTML = "";
     dom.pickFeedback.textContent = "";
 
+    var promptEl = document.getElementById("pick-prompt");
+    if (promptEl) {
+      if (state.currentPickMode === "sound") {
+        promptEl.textContent = "Which letter?";
+      } else {
+        promptEl.textContent = "Find  " + getLetterCharacter(state.currentLetter, state.currentPickCase);
+      }
+    }
+
     const options = buildPickOptions(state.currentLetter);
     options.forEach(function (optionLetter) {
       const button = document.createElement("button");
@@ -700,7 +710,11 @@
     setMascotState(dom.pickMascotWrap, "mascot-tryagain");
     playPickWrongReaction();
     dom.pickFeedback.textContent = "Try again";
-    audio.playMp3(data.sharedAudio.tryAgain);
+    audio.playMp3(data.sharedAudio.tryAgain, function () {
+      if (state.currentStage === "pick") {
+        replayPickAudio();
+      }
+    });
     if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
 
     window.setTimeout(function () {
@@ -779,11 +793,7 @@
     audio.playCelebrationSequence();
 
     window.setTimeout(function () {
-      audio.playRandomMp3(data.sharedAudio.celebrate, function () {
-        state.autoTimerId = window.setTimeout(function () {
-          advanceStage();
-        }, 6000);
-      });
+      audio.playRandomMp3(data.sharedAudio.celebrate);
     }, 400);
     renderSessionDots();
   }
@@ -1725,10 +1735,15 @@
 
   function buildPickModeQueue(length) {
     var queue = [];
-    // Sound mode disabled until speaker icon and audio-cue animation are polished.
-    // Change to Math.random() < 0.5 ? "sound" : "visual" to re-enable.
     for (var i = 0; i < length; i++) {
-      queue.push("visual");
+      var letter = state.letterQueue[i];
+      var stats = letter && state.progress.letterStats[letter.id];
+      // Use sound mode only for letters the child has seen 2+ times
+      if (stats && stats.seen >= 2 && Math.random() < 0.5) {
+        queue.push("sound");
+      } else {
+        queue.push("visual");
+      }
     }
     return queue;
   }

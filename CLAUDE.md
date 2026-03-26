@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+This is the active project directory. Never use or reference `C:\Users\TomSteuten\OneDrive - Dunbrae Group\Desktop\Quinnja Letters` — that is a legacy copy.
+
 ## Development
 
 No build step. Open `index.html` directly in a browser or serve with any static server:
