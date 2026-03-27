@@ -318,8 +318,8 @@
       }
     ],
 
-    praiseCorrect: ["Well done!", "That's right!", "You got it!", "Great work!"],
-    praiseCelebrate: ["Amazing!", "Wonderful!", "Superstar!", "Brilliant!"],
+    praiseCorrect: ["Well done!", "That's right!", "You got it!", "Great work!", "Fantastic!", "Look at you go!", "You're a star!", "Brilliant!"],
+    praiseCelebrate: ["Amazing!", "Wonderful!", "Superstar!", "Brilliant!", "What a champion!", "Incredible!", "Hooray!", "You nailed it!"],
     tryAgainPrompt: "Try again!",
 
     sharedAudio: {
@@ -328,13 +328,21 @@
         "assets/audio/praise-1.mp3",
         "assets/audio/praise-2.mp3",
         "assets/audio/praise-3.mp3",
-        "assets/audio/praise-4.mp3"
+        "assets/audio/praise-4.mp3",
+        "assets/audio/praise-5.mp3",
+        "assets/audio/praise-6.mp3",
+        "assets/audio/praise-7.mp3",
+        "assets/audio/praise-8.mp3"
       ],
       celebrate: [
         "assets/audio/celebrate-1.mp3",
         "assets/audio/celebrate-2.mp3",
         "assets/audio/celebrate-3.mp3",
-        "assets/audio/celebrate-4.mp3"
+        "assets/audio/celebrate-4.mp3",
+        "assets/audio/celebrate-5.mp3",
+        "assets/audio/celebrate-6.mp3",
+        "assets/audio/celebrate-7.mp3",
+        "assets/audio/celebrate-8.mp3"
       ],
       tryAgain: "assets/audio/try-again.mp3",
       sessionComplete: "assets/audio/session-complete.mp3"
@@ -348,7 +356,12 @@
       audioEnabled: true,
       soundEffectsEnabled: true,
       formationGuideDefaultOn: true,
-      nfcModeOn: false
+      nfcModeOn: false,
+      ambientEnabled: false,
+      speechSynthEnabled: false,
+      speechVoiceURI: "",
+      speechRate: 0.9,
+      speechPitch: 1.0
     }
   };
 

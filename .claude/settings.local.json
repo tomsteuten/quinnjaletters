@@ -4,7 +4,8 @@
       "Bash(ls -la \"c:/Users/TomSteuten/OneDrive - Dunbrae Group/Desktop/Quinnja_Letters_R2_fixed/assets/processed/idlegreen\"*)",
       "Bash(python3 -c \":*)",
       "Bash(FFMPEG=\"c:/Users/TomSteuten/OneDrive - Dunbrae Group/Desktop/Quinnja_Letters_R2_fixed/tools/ffmpeg/ffmpeg.exe\" INPUT=\"c:/Users/TomSteuten/OneDrive - Dunbrae Group/Desktop/Quinnja_Letters_R2_fixed/assets/completegreen.mp4\" PROCDIR=\"c:/Users/TomSteuten/OneDrive - Dunbrae Group/Desktop/Quinnja_Letters_R2_fixed/assets/processed\" DIST=\"sqrt\\(pow\\(r\\(X,Y\\)-133,2\\)+pow\\(g\\(X,Y\\)-168,2\\)+pow\\(b\\(X,Y\\)-114,2\\)\\)\" __NEW_LINE_dbfff3efa8ced793__ echo \"=== rgb_balanced \\(T1=40, T2=75\\) ===\" \"$FFMPEG\" -y -i \"$INPUT\" -vf \"format=rgba,geq=r=''''r\\(X,Y\\)'''':g=''''g\\(X,Y\\)'''':b=''''b\\(X,Y\\)'''':a=''''255*clip\\(\\($DIST-40\\)/35,0,1\\)'''',format=yuva420p\" -c:v libvpx-vp9 -b:v 0 -crf 33 -auto-alt-ref 0 -an \"$PROCDIR/completegreen_alpha_rgb_balanced.webm\")",
-      "Read(//c/Users/TomSteuten/OneDrive - Dunbrae Group/Desktop/Quinnja_Letters_R2_fixed/**)"
+      "Read(//c/Users/TomSteuten/OneDrive - Dunbrae Group/Desktop/Quinnja_Letters_R2_fixed/**)",
+      "Bash(python -c \":*)"
     ]
   }
 }

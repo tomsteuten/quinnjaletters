@@ -54,6 +54,8 @@
 
         <div class="home-progress-dots" id="home-progress-dots" aria-label="Letter progress"></div>
 
+        <div id="home-greeting" class="home-greeting" hidden></div>
+
         <button id="btn-start-session" class="start-btn" aria-label="Start session">
           <img src="assets/icons/play.svg" alt="" />
           <span>Start</span>
@@ -192,6 +194,10 @@
             <img src="assets/icons/clear.svg" alt="" />
             <span class="action-label">Clear</span>
           </button>
+          <svg id="trace-progress-ring" class="trace-progress-ring" viewBox="0 0 40 40" aria-label="Trace progress">
+            <circle cx="20" cy="20" r="16" class="trace-progress-bg"></circle>
+            <circle cx="20" cy="20" r="16" id="trace-progress-fill" class="trace-progress-fill"></circle>
+          </svg>
           <button id="btn-trace-done" class="icon-btn action-icon action-icon-primary" aria-label="Done tracing">
             <img src="assets/icons/done.svg" alt="" />
             <span class="action-label">Done</span>
@@ -203,7 +209,14 @@
     <section id="stage-celebrate" class="stage" aria-label="Celebrate">
       <div class="session-dots" id="session-dots-celebrate"></div>
       <div class="celebrate-wrap">
+        <div class="confetti-container" id="confetti-container" aria-hidden="true"></div>
         <div class="sparkles" aria-hidden="true">
+          <span class="sparkle"></span>
+          <span class="sparkle"></span>
+          <span class="sparkle"></span>
+          <span class="sparkle"></span>
+          <span class="sparkle"></span>
+          <span class="sparkle"></span>
           <span class="sparkle"></span>
           <span class="sparkle"></span>
           <span class="sparkle"></span>
@@ -313,6 +326,27 @@
           <legend>Audio</legend>
           <label><input id="setting-audio" type="checkbox" /> Speech and voice audio</label>
           <label><input id="setting-sound-effects" type="checkbox" /> Sound effects (chimes, tones)</label>
+          <label><input id="setting-ambient" type="checkbox" /> Background music (gentle)</label>
+        </fieldset>
+
+        <fieldset class="settings-group" id="settings-speech-group">
+          <legend>Voice personalisation</legend>
+          <label><input id="setting-speech-synth" type="checkbox" /> Say child's name during praise</label>
+          <div class="settings-subgroup" id="speech-synth-options" hidden>
+            <label class="settings-label" for="setting-speech-voice">Voice</label>
+            <select id="setting-speech-voice" class="settings-input"></select>
+            <label class="settings-label" for="setting-speech-rate">Speed</label>
+            <input id="setting-speech-rate" type="range" min="0.7" max="1.3" step="0.1" value="0.9" />
+            <label class="settings-label" for="setting-speech-pitch">Pitch</label>
+            <input id="setting-speech-pitch" type="range" min="0.7" max="1.4" step="0.1" value="1.0" />
+            <button id="btn-test-speech" class="settings-btn settings-btn-secondary" type="button">Test voice</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="settings-group" id="settings-recording-group">
+          <legend>Record your voice</legend>
+          <p class="settings-hint">Record praise or celebration messages in your own voice (max 3 seconds each).</p>
+          <div id="recording-slots" class="recording-slots"></div>
         </fieldset>
 
         <fieldset class="settings-group">
@@ -349,6 +383,7 @@
 
   <script src="data.js"></script>
   <script src="audio.js"></script>
+  <script src="speech.js"></script>
   <script src="nfc.js"></script>
   <script src="app.js"></script>
 </body>

@@ -49,7 +49,7 @@ textarea {
   max-height: calc(100dvh - 1.6rem);
   overflow: hidden;
   border-radius: 24px;
-  padding: clamp(2.8rem, 5vh, 3.2rem) clamp(0.9rem, 1.6vh, 1.3rem) clamp(0.9rem, 1.6vh, 1.3rem);
+  padding: clamp(0.9rem, 1.6vh, 1.3rem);
   position: relative;
   border: 2px solid rgba(239, 216, 183, 0.82);
   box-shadow: 0 10px 26px rgba(129, 95, 46, 0.09);
@@ -62,6 +62,13 @@ textarea {
   display: grid;
   animation: stageEnter 0.45s ease;
   opacity: 1;
+}
+
+.stage.stage-exiting {
+  display: grid;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 .sr-only {
@@ -101,6 +108,11 @@ textarea {
 .pick-option:active,
 .start-btn:active {
   transform: scale(0.96);
+}
+
+.pick-option:active:not(:disabled) {
+  background: #fff3e0;
+  border-color: #f0c78a;
 }
 
 .icon-btn:focus-visible,
@@ -226,6 +238,13 @@ textarea {
   animation: traceEncouraging 2.5s ease-in-out infinite;
 }
 
+.home-greeting {
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: 600;
+  color: var(--muted);
+  animation: fadeInUp 0.4s ease;
+}
+
 .active-letters-row {
   display: flex;
   gap: 0.55rem;
@@ -282,6 +301,14 @@ textarea {
 .nfc-prompt img {
   width: 20px;
   height: 20px;
+}
+
+/* Stages with session-dots need top clearance for the absolutely-positioned paws */
+#stage-meet,
+#stage-pick,
+#stage-trace,
+#stage-celebrate {
+  padding-top: clamp(2.6rem, 4.5vh, 3rem);
 }
 
 #stage-meet {
@@ -367,6 +394,7 @@ textarea {
 
 .pick-bottom {
   display: grid;
+  grid-template-rows: auto 1fr;
   align-content: start;
 }
 
@@ -404,9 +432,15 @@ textarea {
 }
 
 .pick-option.is-wrong {
-  animation: flashWrong 0.5s ease;
-  background: #ffcdd2;
-  border-color: #e68b96;
+  animation: flashWrong 0.5s ease forwards;
+  background: #fff3e0;
+  border-color: #f0c78a;
+}
+
+.pick-option.hint-glow {
+  animation: hintGlow 1.2s ease-in-out infinite;
+  border-color: #89c88b;
+  box-shadow: 0 0 0 3px rgba(137, 200, 139, 0.35);
 }
 
 .pick-option:disabled {
@@ -475,6 +509,29 @@ textarea {
 
 #trace-canvas {
   touch-action: none;
+}
+
+.trace-progress-ring {
+  width: 40px;
+  height: 40px;
+  transform: rotate(-90deg);
+  opacity: 0.7;
+}
+
+.trace-progress-bg {
+  fill: none;
+  stroke: #e8dcc8;
+  stroke-width: 3;
+}
+
+.trace-progress-fill {
+  fill: none;
+  stroke: #66bb6a;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 100.53;
+  stroke-dashoffset: 100.53;
+  transition: stroke-dashoffset 0.15s ease;
 }
 
 .trace-controls {
@@ -551,19 +608,20 @@ textarea {
 }
 
 .celebrate-traced-img {
-  width: clamp(80px, 12vh, 120px);
-  height: clamp(80px, 12vh, 120px);
+  width: clamp(100px, 16vh, 150px);
+  height: clamp(100px, 16vh, 150px);
   object-fit: contain;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.6);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-  padding: 6px;
-  animation: traced-pop 0.4s ease-out;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.7);
+  box-shadow: 0 0 0 4px #f3c04d, 0 4px 16px rgba(243, 192, 77, 0.3);
+  padding: 8px;
+  animation: traced-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes traced-pop {
-  0%   { transform: scale(0.5); opacity: 0; }
-  60%  { transform: scale(1.08); }
+  0%   { transform: scale(0.3); opacity: 0; }
+  50%  { transform: scale(1.15); }
+  70%  { transform: scale(0.95); }
   100% { transform: scale(1); opacity: 1; }
 }
 
@@ -587,7 +645,7 @@ textarea {
   background: linear-gradient(135deg, #43a047 0%, #66bb6a 100%);
   box-shadow: 0 12px 28px rgba(67, 160, 71, 0.35);
   opacity: 0;
-  animation: fadeInUp 0.5s ease 1s forwards, attentionPulse 1.2s ease-in-out 1.5s infinite;
+  animation: fadeInUp 0.5s ease 2.5s forwards, attentionPulse 1.2s ease-in-out 3s infinite;
 }
 
 .celebrate-next-btn img {
@@ -622,6 +680,37 @@ textarea {
 
 .sparkle:nth-child(4) {
   animation-delay: 0.75s;
+}
+
+.sparkle:nth-child(5) { animation-delay: 0.15s; width: 16px; height: 16px; background: #ff6b35; }
+.sparkle:nth-child(6) { animation-delay: 0.4s; width: 9px; height: 9px; background: #66bb6a; }
+.sparkle:nth-child(7) { animation-delay: 0.6s; width: 14px; height: 14px; background: #f39c12; }
+.sparkle:nth-child(8) { animation-delay: 0.85s; width: 10px; height: 10px; background: #ff6b35; }
+.sparkle:nth-child(9) { animation-delay: 0.3s; width: 8px; height: 8px; background: #66bb6a; }
+.sparkle:nth-child(10) { animation-delay: 0.7s; width: 15px; height: 15px; background: #f3c04d; }
+
+/* --- Confetti burst for celebrate stage --- */
+.confetti-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -10px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: confettiFall 2.2s ease-in forwards;
+}
+
+@keyframes confettiFall {
+  0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(calc(100vh - 40px)) rotate(720deg); }
 }
 
 #stage-complete {
@@ -797,6 +886,69 @@ textarea {
 .settings-btn-secondary {
   background: #eadcc1;
   color: var(--text);
+}
+
+.settings-hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.recording-slots {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.recording-slot {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem;
+  background: rgba(255, 248, 231, 0.6);
+  border-radius: 10px;
+}
+
+.recording-slot-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  min-width: 80px;
+}
+
+.recording-slot button {
+  border: none;
+  border-radius: 8px;
+  padding: 0.3rem 0.5rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 32px;
+}
+
+.btn-record {
+  background: #e57373;
+  color: #fff;
+}
+
+.btn-record.recording {
+  background: #c62828;
+  animation: attentionPulse 0.8s ease-in-out infinite;
+}
+
+.btn-preview-rec {
+  background: #e8dcc8;
+  color: var(--text);
+}
+
+.btn-delete-rec {
+  background: #eee;
+  color: var(--muted);
+}
+
+.recording-status {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-left: auto;
 }
 
 .settings-message {
@@ -1124,12 +1276,15 @@ textarea {
 }
 
 @keyframes flashWrong {
-  0% { background: rgba(255, 255, 255, 0.94); transform: translateX(0); }
-  20% { background: #ffcdd2; transform: translateX(-4px); }
-  40% { background: #ffcdd2; transform: translateX(4px); }
-  60% { background: #ffcdd2; transform: translateX(-2px); }
-  80% { background: #ffcdd2; transform: translateX(2px); }
-  100% { background: #ffcdd2; transform: translateX(0); }
+  0% { background: rgba(255, 255, 255, 0.94); transform: scale(1) rotate(0deg); }
+  30% { background: #fff3e0; transform: scale(0.92) rotate(-2deg); }
+  60% { background: #fff3e0; transform: scale(0.92) rotate(1deg); }
+  100% { background: #fff3e0; transform: scale(0.92) rotate(0deg); opacity: 0.5; }
+}
+
+@keyframes hintGlow {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(137, 200, 139, 0.2); }
+  50% { box-shadow: 0 0 0 6px rgba(137, 200, 139, 0.45); }
 }
 
 @keyframes stageEnter {
@@ -1193,8 +1348,8 @@ textarea {
   }
 
   .celebrate-traced-img {
-    width: clamp(64px, 10vh, 92px);
-    height: clamp(64px, 10vh, 92px);
+    width: clamp(80px, 12vh, 110px);
+    height: clamp(80px, 12vh, 110px);
   }
 
   .celebrate-letter-main {
@@ -1237,7 +1392,119 @@ textarea {
   }
 
   .start-btn {
-    padding: 20px 34px;
+    padding: 16px 28px;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  }
+
+  .home-title {
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+  }
+
+  .mascot-home {
+    height: clamp(100px, 14vh, 130px);
+  }
+
+  .home-wrap {
+    gap: clamp(0.4rem, 1.2vh, 0.7rem);
+  }
+
+  .settings-launch {
+    min-width: 38px;
+    min-height: 38px;
+    padding: 6px;
+  }
+
+  /* Scale down session dots on smaller screens */
+  .session-dots {
+    gap: 10px;
+  }
+
+  .session-dot {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Reduce dot-clearance padding on smaller screens */
+  #stage-meet,
+  #stage-pick,
+  #stage-trace,
+  #stage-celebrate {
+    padding-top: clamp(2rem, 4vh, 2.6rem);
+  }
+
+  /* Meet: stack mascot above letters on narrow screens */
+  .meet-layout .mascot-wrap {
+    position: static;
+    transform: none;
+  }
+
+  .mascot-meet {
+    height: clamp(80px, 10vh, 100px);
+  }
+
+  /* Pick: smaller target letter to leave room for options */
+  .pick-letter {
+    font-size: clamp(64px, 10vh, 100px);
+  }
+
+  .mascot-pick {
+    height: clamp(60px, 8vh, 80px);
+  }
+
+  /* Meet: smaller letters on narrow screens */
+  .meet-letter-upper {
+    font-size: clamp(80px, 14vh, 130px);
+  }
+
+  .meet-letter-lower {
+    font-size: clamp(48px, 8vh, 70px);
+  }
+
+  /* Trace: smaller header letter, more room for board */
+  .trace-letter {
+    font-size: clamp(56px, 10vh, 90px);
+  }
+
+  .trace-stage-layout {
+    align-content: start;
+  }
+
+  .trace-board {
+    width: min(72vw, calc(100vh - 360px));
+    width: min(72vw, calc(100dvh - 360px));
+    max-width: 340px;
+  }
+
+  .action-icon {
+    min-width: 80px;
+    min-height: 80px;
+    padding: 0.3rem 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .session-dots {
+    gap: 6px;
+    left: 50px;
+  }
+
+  .progress-dot {
+    width: 38px;
+    height: 38px;
+    font-size: 0.95rem;
+  }
+
+  .session-dot {
+    width: 20px;
+    height: 20px;
+  }
+
+  .pick-option {
+    min-height: clamp(84px, 11vh, 100px);
+  }
+
+  .meet-picture-cue-img {
+    height: clamp(64px, 10vh, 100px);
   }
 }
 
@@ -1248,7 +1515,7 @@ textarea {
   padding: 6px 0;
   position: absolute;
   top: clamp(0.5rem, 1.2vh, 0.9rem);
-  left: 0;
+  left: 60px;
   right: 0;
   z-index: 5;
   pointer-events: none;
