@@ -60,6 +60,7 @@
     pickCaseQueue: [],
     pickModeQueue: [],
     sessionTraceCase: "uppercase",
+    sessionTraceImages: {},
     settings: loadSettings(),
     progress: loadProgress(),
     autoTimerId: null,
@@ -177,6 +178,8 @@
     traceAttempts: 0
   };
 
+  var preloadedVideos = new Set();
+
   function renderSessionDots() {
     var ids = ["session-dots-meet", "session-dots-pick", "session-dots-trace", "session-dots-celebrate"];
     var html = "";
@@ -185,24 +188,28 @@
       var letter = state.letterQueue[i];
       var dotClass = "session-dot";
       var style = "";
+      var traceImgHtml = "";
+      var traceImgSrc = state.sessionTraceImages[letter.id];
 
       if (i < state.currentLetterIndex) {
         dotClass += " session-dot-done";
-        style = "fill:" + letter.colourDark + ";";
+        style = "border-color:" + letter.colourDark + "; background:" + letter.colourLight + "; color:" + letter.colourDark + ";";
       } else if (i === state.currentLetterIndex) {
         dotClass += " session-dot-current";
-        style = "fill:" + letter.colourDark + ";";
+        style = "border-color:" + letter.colourDark + "; color:" + letter.colourDark + ";";
       } else {
         dotClass += " session-dot-upcoming";
       }
 
-      html += "<svg class='" + dotClass + "' style='" + style + "' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>"
-        + "<circle cx='7' cy='5.5' r='2.8'/>"
-        + "<circle cx='17' cy='5.5' r='2.8'/>"
-        + "<circle cx='3.2' cy='11' r='2.8'/>"
-        + "<circle cx='20.8' cy='11' r='2.8'/>"
-        + "<path d='M12 22c-3.5 0-5.5-2.2-6.5-4.5-.7-1.5-.2-3.5 1.2-4.5 1.2-.9 2.8-1.5 5.3-1.5s4.1.6 5.3 1.5c1.4 1 1.9 3 1.2 4.5C17.5 19.8 15.5 22 12 22z'/>"
-        + "</svg>";
+      if (traceImgSrc) {
+        dotClass += " session-dot-has-trace";
+        traceImgHtml = "<img class='session-dot-trace' src='" + traceImgSrc + "' alt='' aria-hidden='true' />";
+      }
+
+      html += "<span class='" + dotClass + "' style='" + style + "' aria-hidden='true'>"
+        + "<span class='session-dot-letter'>" + letter.uppercase + "</span>"
+        + traceImgHtml
+        + "</span>";
     }
 
     for (var j = 0; j < ids.length; j++) {
@@ -268,7 +275,7 @@
         coverage = traceState.coveredCells.size / traceState.totalLetterCells;
       }
 
-      if (coverage < 0.25 && traceState.traceAttempts < 1) {
+      if (coverage < 0.45 && traceState.traceAttempts < 1) {
         traceState.traceAttempts++;
         setMascotState(dom.traceMascotWrap, "mascot-encouraging");
         // Placeholder: reuse existing trace prompt audio.
@@ -279,6 +286,7 @@
       }
 
       state.lastTracedDataUrl = dom.traceCanvas.toDataURL("image/png");
+      state.sessionTraceImages[state.currentLetter.id] = state.lastTracedDataUrl;
       showCelebrateStage();
     });
 
@@ -415,9 +423,35 @@
     traceState.ctx.restore();
 
     if (onLetter) {
-      traceState.coveredCells.add(Math.floor(point.x / 4) + "," + Math.floor(point.y / 4));
+      registerCoveredCells(point.x, point.y, point.x, point.y);
     }
     traceState.lastPoint = point;
+  }
+
+  /**
+   * Register all 4×4 grid cells along a line from (x0,y0) to (x1,y1),
+   * including cells within the stroke radius. This ensures the progress
+   * ring reflects the full width of the drawn stroke, not just the
+   * pointer's center point.
+   */
+  function registerCoveredCells(x0, y0, x1, y1) {
+    var dx = x1 - x0;
+    var dy = y1 - y0;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    var steps = Math.max(1, Math.ceil(dist / 2));
+    for (var s = 0; s <= steps; s++) {
+      var t = s / steps;
+      var cx = x0 + dx * t;
+      var cy = y0 + dy * t;
+      var gcx = Math.floor(cx / 4);
+      var gcy = Math.floor(cy / 4);
+      // Register a 3×3 neighbourhood to match the ~11px stroke width
+      for (var oy = -1; oy <= 1; oy++) {
+        for (var ox = -1; ox <= 1; ox++) {
+          traceState.coveredCells.add((gcx + ox) + "," + (gcy + oy));
+        }
+      }
+    }
   }
 
   function tracePointerMove(event) {
@@ -440,7 +474,7 @@
     traceState.ctx.restore();
 
     if (onLetter) {
-      traceState.coveredCells.add(Math.floor(point.x / 4) + "," + Math.floor(point.y / 4));
+      registerCoveredCells(traceState.lastPoint.x, traceState.lastPoint.y, point.x, point.y);
       updateTraceProgressRing();
     }
     traceState.lastPoint = point;
@@ -522,11 +556,25 @@
     // Extract pixel data as hitmask
     traceState.hitmask = ctx.getImageData(0, 0, w, h).data;
 
+    // Progress denominator: use a narrower reference (fillText only, no stroke
+    // padding) so coverage reflects the natural letter body the child can reach
+    // with an 11px drawn stroke. The wide hitmask above stays for hit detection.
+    var progressCanvas = document.createElement("canvas");
+    progressCanvas.width = w;
+    progressCanvas.height = h;
+    var pctx = progressCanvas.getContext("2d");
+    pctx.textAlign = "center";
+    pctx.textBaseline = "alphabetic";
+    pctx.font = ctx.font;
+    pctx.fillStyle = "#000000";
+    pctx.fillText(ch, x, y);
+
+    var progressData = pctx.getImageData(0, 0, w, h).data;
     var totalCells = 0;
     for (var gy = 0; gy < h; gy += 4) {
       for (var gx = 0; gx < w; gx += 4) {
         var idx = (gy * w + gx) * 4 + 3;
-        if (traceState.hitmask[idx] > 0) totalCells++;
+        if (progressData[idx] > 0) totalCells++;
       }
     }
     traceState.totalLetterCells = totalCells;
@@ -581,8 +629,10 @@
     state.pickModeQueue = buildPickModeQueue(queue.length);
     state.currentLetterIndex = 0;
     state.sessionResults = [];
+    state.sessionTraceImages = {};
     state.currentPickState = null;
     state.currentLetter = state.letterQueue[0] || null;
+    state.lastTracedDataUrl = null;
 
     showMeetStage();
   }
@@ -983,6 +1033,28 @@
 
     if (stageName !== "celebrate") {
       stopCelebrateMascotVideo();
+    }
+
+    // Preload the next stage's video in the background for smoother transitions
+    preloadNextVideo(stageName);
+  }
+
+  /**
+   * Warm the browser cache for the next stage's mascot video.
+   * Uses fetch() so the video is cached by the time the stage loads.
+   */
+  function preloadNextVideo(currentStage) {
+    var nextVideoSrc = null;
+    if (currentStage === "home") {
+      nextVideoSrc = meetMascotVideoConfig.preferredSource;
+    } else if (currentStage === "meet") {
+      nextVideoSrc = traceMascotVideoConfig.preferredSource;
+    } else if (currentStage === "trace") {
+      nextVideoSrc = celebrateMascotVideoConfig.preferredSource;
+    }
+    if (nextVideoSrc && !preloadedVideos.has(nextVideoSrc)) {
+      preloadedVideos.add(nextVideoSrc);
+      fetch(nextVideoSrc).catch(function () { /* silent */ });
     }
   }
 

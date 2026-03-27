@@ -245,10 +245,12 @@
           />
 
         </div>
-        <div class="celebrate-letter-pair">
+        <div class="celebrate-letter-showcase">
           <img class="celebrate-traced-img" id="celebrate-traced-img" alt="Your traced letter" hidden />
-          <span class="celebrate-letter-main" id="celebrate-letter-main">S</span>
-          <span class="celebrate-letter-side" id="celebrate-letter-side">s</span>
+          <div class="celebrate-letter-pair">
+            <span class="celebrate-letter-main" id="celebrate-letter-main">S</span>
+            <span class="celebrate-letter-side" id="celebrate-letter-side">s</span>
+          </div>
         </div>
         <button id="btn-celebrate-next" class="icon-btn celebrate-next-btn" aria-label="Next letter">
           <img src="assets/icons/arrow-right.svg" alt="" />
@@ -298,68 +300,104 @@
 
     <section id="stage-settings" class="stage" aria-label="Parent settings">
       <div class="settings-card">
-        <h2>Parent Settings</h2>
-
-        <label class="settings-label" for="setting-child-name">Child name</label>
-        <input id="setting-child-name" class="settings-input" type="text" maxlength="30" />
-
-        <fieldset class="settings-group">
-          <legend>Active letters</legend>
-          <div id="settings-letter-toggles" class="letter-toggle-grid"></div>
-        </fieldset>
-
-        <fieldset class="settings-group">
-          <legend>Display case</legend>
-          <label><input name="display-case" type="radio" value="uppercase" /> Uppercase</label>
-          <label><input name="display-case" type="radio" value="lowercase" /> Lowercase</label>
-          <label><input name="display-case" type="radio" value="both" /> Both</label>
-
-          <div class="settings-subgroup">
-            <span class="settings-label">Trace practice case</span>
-            <label><input name="trace-case" type="radio" value="uppercase" /> Uppercase only (recommended)</label>
-            <label><input name="trace-case" type="radio" value="lowercase" /> Lowercase only</label>
-            <label><input name="trace-case" type="radio" value="alternate" /> Alternate each session</label>
-          </div>
-        </fieldset>
-
-        <fieldset class="settings-group">
-          <legend>Audio</legend>
-          <label><input id="setting-audio" type="checkbox" /> Speech and voice audio</label>
-          <label><input id="setting-sound-effects" type="checkbox" /> Sound effects (chimes, tones)</label>
-          <label><input id="setting-ambient" type="checkbox" /> Background music (gentle)</label>
-        </fieldset>
-
-        <fieldset class="settings-group" id="settings-speech-group">
-          <legend>Voice personalisation</legend>
-          <label><input id="setting-speech-synth" type="checkbox" /> Say child's name during praise</label>
-          <div class="settings-subgroup" id="speech-synth-options" hidden>
-            <label class="settings-label" for="setting-speech-voice">Voice</label>
-            <select id="setting-speech-voice" class="settings-input"></select>
-            <label class="settings-label" for="setting-speech-rate">Speed</label>
-            <input id="setting-speech-rate" type="range" min="0.7" max="1.3" step="0.1" value="0.9" />
-            <label class="settings-label" for="setting-speech-pitch">Pitch</label>
-            <input id="setting-speech-pitch" type="range" min="0.7" max="1.4" step="0.1" value="1.0" />
-            <button id="btn-test-speech" class="settings-btn settings-btn-secondary" type="button">Test voice</button>
-          </div>
-        </fieldset>
-
-        <fieldset class="settings-group" id="settings-recording-group">
-          <legend>Record your voice</legend>
-          <p class="settings-hint">Record praise or celebration messages in your own voice (max 3 seconds each).</p>
-          <div id="recording-slots" class="recording-slots"></div>
-        </fieldset>
-
-        <fieldset class="settings-group">
-          <legend>Other</legend>
-          <label><input id="setting-guide-default" type="checkbox" /> Formation guide default on</label>
-          <label><input id="setting-nfc-mode" type="checkbox" /> NFC mode</label>
-        </fieldset>
-
-        <div class="settings-progress" id="settings-progress"></div>
-
-        <div class="settings-actions">
-          <button id="btn-reset-progress" class="settings-btn settings-btn-secondary" type="button">Reset progress</button>
+        <div class="settings-header">
+          <h2>Settings</h2>
           <button id="btn-save-settings" class="settings-btn settings-btn-primary" type="button">Save &amp; Close</button>
+        </div>
+
+        <div class="settings-section">
+          <label class="settings-label" for="setting-child-name">Child's name</label>
+          <input id="setting-child-name" class="settings-input" type="text" maxlength="30" placeholder="Enter name..." />
+        </div>
+
+        <div class="settings-section">
+          <span class="settings-section-title">Active letters</span>
+          <div id="settings-letter-toggles" class="letter-toggle-grid"></div>
+        </div>
+
+        <details class="settings-collapsible">
+          <summary class="settings-collapsible-header">Display case</summary>
+          <div class="settings-section-body">
+            <div class="settings-radio-group">
+              <label class="settings-radio"><input name="display-case" type="radio" value="uppercase" /> <span>Uppercase</span></label>
+              <label class="settings-radio"><input name="display-case" type="radio" value="lowercase" /> <span>Lowercase</span></label>
+              <label class="settings-radio"><input name="display-case" type="radio" value="both" /> <span>Both</span></label>
+            </div>
+            <div class="settings-subsection">
+              <span class="settings-section-title">Trace practice case</span>
+              <div class="settings-radio-group">
+                <label class="settings-radio"><input name="trace-case" type="radio" value="uppercase" /> <span>Uppercase only</span></label>
+                <label class="settings-radio"><input name="trace-case" type="radio" value="lowercase" /> <span>Lowercase only</span></label>
+                <label class="settings-radio"><input name="trace-case" type="radio" value="alternate" /> <span>Alternate</span></label>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="settings-collapsible">
+          <summary class="settings-collapsible-header">Audio</summary>
+          <div class="settings-section-body">
+            <label class="toggle-row">
+              <span>Speech audio</span>
+              <span class="toggle-switch"><input id="setting-audio" type="checkbox" /><span class="toggle-track"></span></span>
+            </label>
+            <label class="toggle-row">
+              <span>Sound effects</span>
+              <span class="toggle-switch"><input id="setting-sound-effects" type="checkbox" /><span class="toggle-track"></span></span>
+            </label>
+            <label class="toggle-row">
+              <span>Background music</span>
+              <span class="toggle-switch"><input id="setting-ambient" type="checkbox" /><span class="toggle-track"></span></span>
+            </label>
+          </div>
+        </details>
+
+        <details class="settings-collapsible" id="settings-speech-group">
+          <summary class="settings-collapsible-header">Voice personalisation</summary>
+          <div class="settings-section-body">
+            <label class="toggle-row">
+              <span>Say child's name during praise</span>
+              <span class="toggle-switch"><input id="setting-speech-synth" type="checkbox" /><span class="toggle-track"></span></span>
+            </label>
+            <div class="settings-subsection" id="speech-synth-options" hidden>
+              <label class="settings-label" for="setting-speech-voice">Voice</label>
+              <select id="setting-speech-voice" class="settings-input"></select>
+              <label class="settings-label" for="setting-speech-rate">Speed</label>
+              <input id="setting-speech-rate" type="range" min="0.7" max="1.3" step="0.1" value="0.9" />
+              <label class="settings-label" for="setting-speech-pitch">Pitch</label>
+              <input id="setting-speech-pitch" type="range" min="0.7" max="1.4" step="0.1" value="1.0" />
+              <button id="btn-test-speech" class="settings-btn settings-btn-secondary" type="button">Test voice</button>
+            </div>
+          </div>
+        </details>
+
+        <details class="settings-collapsible" id="settings-recording-group">
+          <summary class="settings-collapsible-header">Record your voice</summary>
+          <div class="settings-section-body">
+            <p class="settings-hint">Record praise or celebration messages in your own voice (max 3s each).</p>
+            <div id="recording-slots" class="recording-slots"></div>
+          </div>
+        </details>
+
+        <details class="settings-collapsible">
+          <summary class="settings-collapsible-header">Other</summary>
+          <div class="settings-section-body">
+            <label class="toggle-row">
+              <span>Formation guide default on</span>
+              <span class="toggle-switch"><input id="setting-guide-default" type="checkbox" /><span class="toggle-track"></span></span>
+            </label>
+            <label class="toggle-row">
+              <span>NFC mode</span>
+              <span class="toggle-switch"><input id="setting-nfc-mode" type="checkbox" /><span class="toggle-track"></span></span>
+            </label>
+          </div>
+        </details>
+
+        <div class="settings-footer">
+          <div class="settings-progress" id="settings-progress"></div>
+          <div class="settings-footer-actions">
+            <button id="btn-reset-progress" class="settings-btn settings-btn-secondary" type="button">Reset progress</button>
+          </div>
         </div>
 
         <p id="settings-message" class="settings-message" aria-live="polite"></p>
