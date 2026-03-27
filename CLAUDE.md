@@ -1,31 +1,30 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with this repository.
 
-This is the active project directory. Never use or reference `C:\Users\TomSteuten\OneDrive - Dunbrae Group\Desktop\Quinnja Letters` — that is a legacy copy.
+**Active project directory.** Never use or reference `C:\Users\TomSteuten\OneDrive - Dunbrae Group\Desktop\Quinnja Letters` — that is a legacy copy.
+
+## What This Project Is
+
+Quinnja Letters is a tablet-first literacy game for pre-K / kindergarten children. A mascot character (Quinnja) guides children through learning letters (S, A, T, P, I, N) in a loop of: meet the letter → pick it from options → trace it on canvas → celebrate. Pure HTML/CSS/JS, no frameworks, no build step.
 
 ## Development
 
-No build step. Open `index.html` directly in a browser or serve with any static server:
-
-```bash
-npx serve .
-# or
-python -m http.server 8080
-```
-
-Test in Chrome on both desktop and tablet viewports. There are no tests, no linter, no CI.
+Open `index.html` in Chrome. No build, no tests, no linter. Test on both desktop and tablet viewports.
 
 ## File Roles
 
 | File | Purpose |
 |------|---------|
-| `index.html` | All markup. Sections map 1:1 to game stages. Script load order matters: data → audio → nfc → app. |
-| `data.js` | Letter definitions (S, A, T, P, I, N). Each letter carries colours, audio paths, trace stroke geometry, ghost paths, and formation instructions. Shared audio paths live here too. |
-| `audio.js` | Web Audio API tones + MP3 playback. Exposes `playCorrectChime()`, `playTryAgainTone()`, `playButtonTap()`, `playCelebrationSequence()`, `playMp3Sequence()`, `playRandomMp3()`. Audio context is lazy-created on first user interaction. |
-| `nfc.js` | Optional Web NFC support. Parses tags in `ql:letterId` format. `onTag` callback wired in `app.js`. |
+| `index.html` | All markup. Sections map 1:1 to game stages. Script load order: data → audio → speech → nfc → app. |
+| `data.js` | Letter definitions array (`LETTERS`). Each letter: id, cases, colours, audio paths, formation strokes, ghost paths, start dot. Shared audio paths too. |
+| `audio.js` | Web Audio API tones + MP3 playback. Key exports: `playCorrectChime()`, `playTryAgainTone()`, `playButtonTap()`, `playCelebrationSequence()`, `playMp3Sequence()`, `playRandomMp3()`. Context lazy-created on first user gesture. |
+| `speech.js` | Browser SpeechSynthesis for dynamic phrases (e.g. child's name in praise). Supplement only — core letter audio is pre-recorded MP3. |
+| `nfc.js` | Optional Web NFC. Parses tags in `ql:letterId` format. `onTag` callback wired in `app.js`. |
 | `app.js` | All game logic, stage transitions, canvas tracing, settings UI, progress tracking, mascot state, NFC integration. |
 | `styles.css` | All styling. CSS custom properties at `:root`. No preprocessor. |
+
+Other files in root (`appbu.js`, `*.zip`, `convert-greenscreen.ps1`, `summary.txt`, `tools/`) are dev artefacts — not loaded by the game.
 
 ## Game Stage Flow
 
@@ -33,51 +32,60 @@ Test in Chrome on both desktop and tablet viewports. There are no tests, no lint
 home → meet → pick → trace → celebrate → [next letter or complete]
 ```
 
-- **home**: shows active letters and progress dots; settings gear opens parent settings overlay
-- **meet**: Quinnja presents the letter with audio; continue arrow advances
-- **pick**: child taps the correct letter from 4 options; wrong taps animate and play tone
-- **trace**: canvas drawing with SVG ghost letter guide; hit-mask validation on "Done"
-- **celebrate**: sparkle animation; advancing goes to next letter in queue or complete screen
-- **complete**: shows all practised letters; replay or home
+| Stage | What happens | Key elements |
+|-------|-------------|--------------|
+| **home** | Active letters grid, progress dots, settings gear | `#home-stage` |
+| **meet** | Quinnja introduces letter with audio | `#meet-stage`, continue arrow |
+| **pick** | Child taps correct letter from 4 options | `#pick-stage`, wrong taps animate + tone |
+| **trace** | Canvas drawing over SVG ghost guide, hit-mask validation | `#trace-stage`, Clear/Done buttons, progress ring |
+| **celebrate** | Sparkle animation, then next letter or complete | `#celebrate-stage` |
+| **complete** | Shows all practised letters, replay or home | `#complete-stage` |
 
-The global Home button (`#btn-global-home`) is visible during active game stages and shows a confirmation overlay before exiting.
+Global Home button (`#btn-global-home`) shows a confirmation overlay before exiting mid-session.
+
+## Key UI Components — Where They Live
+
+| Component | HTML | CSS | JS |
+|-----------|------|-----|----|
+| **Trace progress ring** (green arc between Clear/Done) | `index.html` ~line 197: static SVG `#trace-progress-ring` with two `<circle>` elements | `styles.css` ~line 517: `.trace-progress-ring`, `.trace-progress-fill` uses `stroke-dasharray`/`stroke-dashoffset` | `app.js` ~line 1474: `updateTraceProgressRing()` sets dashoffset based on `coveredCells / totalLetterCells` |
+| **Mascot** | `#mascot-wrap` > `#mascot-img` | Stage-specific classes: `mascot-home`, `mascot-meet`, `mascot-pick`, `mascot-trace`, `mascot-celebrate` | Positioned via class swap in stage transitions |
+| **Trace canvas** | `#trace-canvas` (220×220) + `#trace-guide` SVG | `.trace-canvas-wrap` | Hit mask pixel-sampled; alignment is letter-specific (see `formation` in `data.js`) |
 
 ## State Architecture
 
-All runtime state is in `app.js` module-level variables — no global `window` properties. Key state:
+All runtime state is in `app.js` module-level variables — no `window` globals. Key state:
 
-- `letterQueue` — shuffled array of letter IDs for the session
-- `currentLetterIndex` — pointer into the queue
+- `letterQueue` — shuffled letter IDs for the session
+- `currentLetterIndex` — pointer into queue
 - `traceAttempts` — count per letter
 - `sessionProgress` — map of letterId → `{met, picked, traced}`
 
-**localStorage** is used only for parent settings (child name, active letters, display case, audio toggles, NFC mode). Read on load, written only on Settings save.
+**localStorage** stores only parent settings (child name, active letters, display case, audio toggles, NFC mode). Read on load, written on Settings save. Session state is never persisted.
 
 ## Trace System
 
-The trace canvas is 220×220. Letter strokes are defined in `data.js` as SVG-path-like arrays under each letter's `formation.strokes`. The SVG `#trace-guide` renders animated ghost paths (font-rendered guide letters, not raw SVG paths). Hit detection uses a pixel-sampled hit mask generated from the canvas; tolerance and alignment offsets are tuned per letter.
+Canvas is 220×220. Ghost letter guide is font-rendered in `#trace-guide` SVG (not raw SVG paths). Hit detection uses a pixel-sampled hit mask. The progress ring (SVG, not canvas-drawn) fills as coverage increases.
 
-Key gotcha: the hit mask alignment is letter-specific. If tracing feels broken for one letter, check its `formation` entry in `data.js` before touching canvas or hit-mask code.
+**If tracing feels broken for one letter:** check its `formation` entry in `data.js` first — hit mask alignment and tolerance are tuned per letter.
 
-## Mascot Positioning
+## Audio
 
-`assets/quinnja.png` is positioned differently in each stage via CSS classes (`mascot-home`, `mascot-meet`, `mascot-pick`, `mascot-trace`, `mascot-celebrate`). These are carefully tuned — any refactor to the mascot wrap/image structure must be visually verified in both desktop and tablet viewports.
-
-## Audio Gotchas
-
-- `AudioContext` requires a user gesture before creation (browser autoplay policy). `audio.js` defers context creation to the first call.
-- MP3 files are referenced by relative paths defined in `data.js`. Missing files fail silently (no throw); add `console.warn` if debugging audio issues.
-- Settings has separate toggles for speech audio (`setting-audio`) and sound effects (`setting-sound-effects`).
+- `AudioContext` requires a user gesture before creation (browser autoplay policy).
+- MP3 paths defined in `data.js`. Missing files fail silently.
+- Two separate settings toggles: speech audio (`setting-audio`) and sound effects (`setting-sound-effects`).
 
 ## Adding a New Letter
 
-1. Add an entry to the `LETTERS` array in `data.js` following the existing schema (id, cases, colours, audio paths, formation strokes, ghost paths, start dot).
-2. Add the corresponding MP3 files to `assets/`.
-3. The letter will automatically appear in the Settings toggle grid and be eligible for sessions.
+1. Add entry to `LETTERS` array in `data.js` (follow existing schema).
+2. Add MP3 files to `assets/audio/`.
+3. Letter auto-appears in Settings toggle grid.
 
-## Key Constraints
+## Working Style
 
-- No frameworks, no build tools — all paths must work as plain relative paths for GitHub Pages.
-- Keep game state in-memory only; never write session state to localStorage.
-- CSS specificity: check for conflicts before adding new rules — the cascade is not isolated by component.
-- Child psychology: use filling progress indicators, not countdown timers; positive reinforcement only.
+The project owner is a non-coder working on a tablet. When making changes:
+
+- Make one focused change at a time. Do not bundle unrelated fixes.
+- Always use `/plan` mode for non-trivial changes — research first, propose, then execute.
+- After each successful change, offer to update this file with what changed and where.
+- Commit after each working change so rollback is always easy.
+- When asked about a UI element, check the static HTML first before assuming it's dynamically inserted.
