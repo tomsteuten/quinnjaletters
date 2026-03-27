@@ -85,7 +85,7 @@ textarea {
 .icon-btn {
   border: none;
   border-radius: 14px;
-  background: #fff5e6;
+  background: linear-gradient(to bottom, #fff8ef 0%, #fff0db 100%);
   min-width: 64px;
   min-height: 64px;
   display: inline-flex;
@@ -93,6 +93,8 @@ textarea {
   justify-content: center;
   cursor: pointer;
   transition: transform 0.14s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 0 #e0c9a4, 0 6px 12px rgba(129, 95, 46, 0.12);
+  border-bottom: 2px solid #d9be96;
 }
 
 .icon-btn[hidden] {
@@ -107,7 +109,8 @@ textarea {
 .icon-btn:active,
 .pick-option:active,
 .start-btn:active {
-  transform: scale(0.96);
+  transform: translateY(3px) scale(0.98);
+  box-shadow: 0 1px 0 #e0c9a4, 0 2px 4px rgba(129, 95, 46, 0.1);
 }
 
 .pick-option:active:not(:disabled) {
@@ -273,7 +276,8 @@ textarea {
   font-family: inherit;
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 700;
-  box-shadow: 0 16px 32px rgba(210, 113, 36, 0.32);
+  box-shadow: 0 6px 0 #c9571a, 0 16px 32px rgba(210, 113, 36, 0.32);
+  border-bottom: 2px solid #b8491a;
   display: inline-flex;
   align-items: center;
   gap: 0.9rem;
@@ -515,30 +519,32 @@ textarea {
 }
 
 .trace-progress-ring {
-  width: 60px;
-  height: 60px;
+  width: 72px;
+  height: 72px;
   padding: 6px;
   border-radius: 999px;
   background: rgba(255, 252, 244, 0.96);
-  box-shadow: 0 6px 16px rgba(156, 126, 79, 0.12);
+  box-shadow: 0 6px 16px rgba(156, 126, 79, 0.18);
   transform: rotate(-90deg);
   opacity: 1;
+  border: 2px solid rgba(102, 187, 106, 0.3);
 }
 
 .trace-progress-bg {
   fill: none;
-  stroke: #dbc9aa;
-  stroke-width: 4.5;
+  stroke: #d4c49e;
+  stroke-width: 5.5;
 }
 
 .trace-progress-fill {
   fill: none;
-  stroke: #66bb6a;
-  stroke-width: 5;
+  stroke: #4caf50;
+  stroke-width: 6;
   stroke-linecap: round;
   stroke-dasharray: 100.53;
   stroke-dashoffset: 100.53;
   transition: stroke-dashoffset 0.15s ease;
+  filter: drop-shadow(0 0 2px rgba(76, 175, 80, 0.4));
 }
 
 .trace-controls {
@@ -614,7 +620,7 @@ textarea {
 
 .celebrate-letter-showcase {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: clamp(0.85rem, 2vw, 1.4rem);
@@ -622,7 +628,7 @@ textarea {
 
 .celebrate-letter-pair {
   display: flex;
-  align-items: flex-end;
+  align-items: baseline;
   gap: clamp(0.65rem, 1.6vw, 1rem);
 }
 
@@ -663,7 +669,8 @@ textarea {
   min-width: 110px;
   min-height: 110px;
   background: linear-gradient(135deg, #43a047 0%, #66bb6a 100%);
-  box-shadow: 0 12px 28px rgba(67, 160, 71, 0.35);
+  box-shadow: 0 5px 0 #2d8232, 0 12px 28px rgba(67, 160, 71, 0.35);
+  border-bottom: 2px solid #27722b;
   opacity: 0;
   animation: fadeInUp 0.5s ease 2.5s forwards, attentionPulse 1.2s ease-in-out 3s infinite;
 }
@@ -676,7 +683,7 @@ textarea {
 
 .sparkles {
   position: absolute;
-  inset: -16px 0 auto;
+  inset: -8px 0 auto;
   display: flex;
   justify-content: center;
   gap: 0.8rem;
@@ -796,7 +803,8 @@ textarea {
 
 #btn-replay {
   background: linear-gradient(135deg, #ff6b35 0%, #f39c12 100%);
-  box-shadow: 0 12px 28px rgba(255, 107, 53, 0.35);
+  box-shadow: 0 5px 0 #c9571a, 0 12px 28px rgba(255, 107, 53, 0.35);
+  border-bottom: 2px solid #b8491a;
 }
 
 #btn-replay img {
@@ -807,7 +815,8 @@ textarea {
 
 #btn-home {
   background: linear-gradient(135deg, #43a047 0%, #66bb6a 100%);
-  box-shadow: 0 12px 28px rgba(67, 160, 71, 0.35);
+  box-shadow: 0 5px 0 #2d8232, 0 12px 28px rgba(67, 160, 71, 0.35);
+  border-bottom: 2px solid #27722b;
 }
 
 #btn-home img {
@@ -1252,7 +1261,8 @@ textarea {
   min-width: 120px;
   min-height: 120px;
   background: linear-gradient(135deg, #43a047 0%, #66bb6a 100%);
-  box-shadow: 0 12px 28px rgba(67, 160, 71, 0.35);
+  box-shadow: 0 5px 0 #2d8232, 0 12px 28px rgba(67, 160, 71, 0.35);
+  border-bottom: 2px solid #27722b;
   animation: attentionPulse 1.2s ease-in-out infinite;
 }
 
@@ -1284,7 +1294,7 @@ textarea {
 
 .action-icon-primary:not(.trace-done-disabled) {
   animation: attentionPulse 1.4s ease-in-out infinite;
-  box-shadow: 0 8px 22px rgba(255, 107, 53, 0.35);
+  box-shadow: 0 5px 0 #c9571a, 0 8px 22px rgba(255, 107, 53, 0.35);
 }
 
 .home-progress-dots {
@@ -1542,7 +1552,7 @@ textarea {
     align-content: start;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding-top: clamp(4.1rem, 7vh, 4.8rem);
+    padding-top: clamp(4.4rem, 8vh, 5rem);
     padding-bottom: 1rem;
   }
 
@@ -1553,6 +1563,11 @@ textarea {
   .celebrate-wrap {
     width: min(100%, 520px);
     gap: 0.45rem;
+  }
+
+  .celebrate-letter-showcase {
+    flex-direction: column;
+    align-items: center;
   }
 
   .celebrate-traced-img {
@@ -1692,9 +1707,10 @@ textarea {
 
 @media (max-width: 480px) {
   .session-dots {
-    gap: 6px;
+    gap: 4px;
     left: 50px;
     right: 12px;
+    flex-wrap: nowrap;
   }
 
   .progress-dot {
@@ -1704,13 +1720,13 @@ textarea {
   }
 
   .session-dot {
-    min-width: 30px;
-    min-height: 30px;
-    padding: 0.16rem 0.28rem;
+    min-width: 26px;
+    min-height: 26px;
+    padding: 0.12rem 0.2rem;
   }
 
   .session-dot-letter {
-    font-size: 0.86rem;
+    font-size: 0.76rem;
   }
 
   .pick-option {
