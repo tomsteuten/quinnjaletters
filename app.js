@@ -268,7 +268,13 @@
 
     dom.traceClearBtn.addEventListener("click", clearTraceCanvas);
     dom.traceDoneBtn.addEventListener("click", function () {
-      if (!traceState.hasStrokes) return;
+      if (!traceState.hasStrokes) {
+        dom.traceBoard.classList.remove("trace-nudge");
+        void dom.traceBoard.offsetWidth;
+        dom.traceBoard.classList.add("trace-nudge");
+        if (state.settings.soundEffectsEnabled) audio.playTryAgainTone();
+        return;
+      }
 
       var coverage = 0;
       if (traceState.totalLetterCells > 0) {
@@ -1299,17 +1305,17 @@
 
     shuffle(pool);
 
-    if (pool.length < 2) {
+    if (pool.length < 3) {
       const backup = data.letters.filter(function (letter) {
-        return letter.id !== correctLetter.id;
+        return letter.id !== correctLetter.id && !pool.some(function (p) { return p.id === letter.id; });
       });
       shuffle(backup);
-      while (pool.length < 2 && backup.length) {
+      while (pool.length < 3 && backup.length) {
         pool.push(backup.shift());
       }
     }
 
-    const options = [correctLetter, pool[0], pool[1]].filter(Boolean);
+    const options = [correctLetter, pool[0], pool[1], pool[2]].filter(Boolean);
     return shuffle(options);
   }
 

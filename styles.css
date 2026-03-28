@@ -414,12 +414,13 @@ textarea {
 
 .pick-options {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(12px, 2vw, 20px);
 }
 
 .pick-option {
   min-height: clamp(100px, 14vh, 140px);
+  max-height: 180px;
   border: 2px solid var(--border);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.94);
@@ -745,8 +746,16 @@ textarea {
 
 #stage-complete {
   align-items: center;
+  align-content: center;
   min-height: calc(100vh - 2.4rem);
   min-height: calc(100dvh - 2.4rem);
+}
+
+.complete-heading {
+  margin: 0;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: var(--text);
+  text-align: center;
 }
 
 .complete-wrap {
@@ -829,6 +838,7 @@ textarea {
   align-content: start;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  padding-top: clamp(3.5rem, 7vh, 4.5rem);
 }
 
 .settings-card {
@@ -848,6 +858,7 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .settings-card h2 {
@@ -1499,6 +1510,18 @@ textarea {
   100% { background: #fff3e0; transform: scale(0.92) rotate(0deg); opacity: 0.5; }
 }
 
+@keyframes gentleShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+
+.trace-nudge {
+  animation: gentleShake 0.4s ease;
+}
+
 @keyframes hintGlow {
   0%, 100% { box-shadow: 0 0 0 3px rgba(137, 200, 139, 0.2); }
   50% { box-shadow: 0 0 0 6px rgba(137, 200, 139, 0.45); }
@@ -1528,7 +1551,7 @@ textarea {
 
 @media (max-width: 980px) {
   .pick-options {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .pick-option {
