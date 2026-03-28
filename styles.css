@@ -190,6 +190,7 @@ textarea {
 .mascot-home {
   height: clamp(140px, 18vh, 160px);
   width: auto;
+  margin-bottom: 0.25rem;
 }
 
 .mascot-meet {
@@ -908,6 +909,15 @@ textarea {
   gap: 0.35rem;
 }
 
+.letter-toggle-grid label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
 /* Collapsible settings sections */
 .settings-collapsible {
   border: 1.5px solid #e8dcc8;
@@ -1315,6 +1325,7 @@ textarea {
   gap: 0.4rem;
   flex-wrap: wrap;
   justify-content: center;
+  padding: 0 0.75rem;
 }
 
 .progress-dot {
