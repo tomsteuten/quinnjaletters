@@ -11,6 +11,50 @@
 
   const stageOrder = ["meet", "pick", "trace", "celebrate"];
 
+  function smoothCrossfadeLoop(video, fadeDuration, triggerBefore) {
+    var parent = video.parentElement;
+    if (getComputedStyle(parent).position === 'static') {
+      parent.style.position = 'relative';
+    }
+    var standby = document.createElement('video');
+    standby.src         = video.src;
+    standby.muted       = true;
+    standby.playsInline = true;
+    standby.style.cssText =
+      'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;pointer-events:none;';
+    parent.appendChild(standby);
+    var active = video, swap = standby, busy = false, tm = null;
+    video.loop = false;
+    function check() {
+      if (!active.duration || busy) return;
+      var rem = active.duration - active.currentTime;
+      if (rem <= triggerBefore) {
+        busy = true;
+        swap.currentTime = 0;
+        swap.play();
+        void active.offsetWidth;
+        active.style.transition = 'opacity ' + fadeDuration + 's linear';
+        swap.style.transition   = 'opacity ' + fadeDuration + 's linear';
+        active.style.opacity = '0';
+        swap.style.opacity   = '1';
+        tm = setTimeout(function () {
+          active.pause();
+          active.style.transition = 'none';
+          active.style.opacity    = '0';
+          var tmp = active; active = swap; swap = tmp;
+          busy = false;
+        }, (fadeDuration + 0.15) * 1000);
+      }
+    }
+    video.addEventListener('timeupdate', check);
+    standby.addEventListener('timeupdate', check);
+    [video, standby].forEach(function (v) {
+      v.addEventListener('ended', function () {
+        if (!busy) { active.currentTime = 0; active.play(); }
+      });
+    });
+  }
+
   // AI note: quick rollback switch for celebrate mascot video.
   // Set enabled to false to instantly restore the original PNG fallback.
   const celebrateMascotVideoConfig = {
@@ -235,6 +279,7 @@
     setupTraceMascotMedia();
     setupMeetMascotMedia();
     setupCelebrateMascotMedia();
+    smoothCrossfadeLoop(document.getElementById('complete-mascot-video'), 0.30, 1.70);
     setupSpeechUI();
 
     if (!audio.isSoundEffectsSupported()) {
@@ -1077,6 +1122,10 @@
 
     if (homeMascotVideoConfig.preferredSource) {
       dom.homeMascotVideo.src = homeMascotVideoConfig.preferredSource;
+      dom.homeMascotVideo.addEventListener('loadedmetadata', function dom_homeMascotVideo_loop() {
+        dom.homeMascotVideo.removeEventListener('loadedmetadata', dom_homeMascotVideo_loop);
+        smoothCrossfadeLoop(dom.homeMascotVideo, 0.30, 1.70);
+      }, { once: true });
     }
 
     // If the video fails to decode/load, gracefully fall back to the original PNG.
@@ -1128,6 +1177,10 @@
 
     if (traceMascotVideoConfig.preferredSource) {
       dom.traceMascotVideo.src = traceMascotVideoConfig.preferredSource;
+      dom.traceMascotVideo.addEventListener('loadedmetadata', function dom_traceMascotVideo_loop() {
+        dom.traceMascotVideo.removeEventListener('loadedmetadata', dom_traceMascotVideo_loop);
+        smoothCrossfadeLoop(dom.traceMascotVideo, 0.30, 1.70);
+      }, { once: true });
     }
 
     // If the video fails to decode/load, gracefully fall back to the original PNG.
@@ -1179,6 +1232,10 @@
 
     if (meetMascotVideoConfig.preferredSource) {
       dom.meetMascotVideo.src = meetMascotVideoConfig.preferredSource;
+      dom.meetMascotVideo.addEventListener('loadedmetadata', function dom_meetMascotVideo_loop() {
+        dom.meetMascotVideo.removeEventListener('loadedmetadata', dom_meetMascotVideo_loop);
+        smoothCrossfadeLoop(dom.meetMascotVideo, 0.30, 1.70);
+      }, { once: true });
     }
 
     // If the video fails to decode/load, gracefully fall back to the original PNG.
@@ -1230,6 +1287,10 @@
 
     if (celebrateMascotVideoConfig.preferredSource) {
       dom.celebrateMascotVideo.src = celebrateMascotVideoConfig.preferredSource;
+      dom.celebrateMascotVideo.addEventListener('loadedmetadata', function dom_celebrateMascotVideo_loop() {
+        dom.celebrateMascotVideo.removeEventListener('loadedmetadata', dom_celebrateMascotVideo_loop);
+        smoothCrossfadeLoop(dom.celebrateMascotVideo, 0.30, 1.70);
+      }, { once: true });
     }
 
     // If the video fails to decode/load, gracefully fall back to the original PNG.
