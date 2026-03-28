@@ -374,6 +374,7 @@
   }
 
   function setupDevShortcuts() {
+    // Desktop: Ctrl+Alt+N
     document.addEventListener("keydown", function (event) {
       if (!event.ctrlKey || !event.altKey || event.shiftKey || event.metaKey) {
         return;
@@ -389,6 +390,27 @@
 
       event.preventDefault();
       advanceStageForDevShortcut();
+    });
+
+    // Mobile: triple-tap top-right corner (44×44 zone)
+    var tripleTapCount = 0;
+    var tripleTapTimer = null;
+    document.addEventListener("click", function (event) {
+      var stage = event.target.closest(".stage");
+      if (!stage) return;
+      var rect = stage.getBoundingClientRect();
+      var x = event.clientX - rect.left;
+      var y = event.clientY - rect.top;
+      if (x < rect.width - 44 || y > 44) return;
+      tripleTapCount++;
+      if (tripleTapCount >= 3) {
+        tripleTapCount = 0;
+        clearTimeout(tripleTapTimer);
+        advanceStageForDevShortcut();
+        return;
+      }
+      clearTimeout(tripleTapTimer);
+      tripleTapTimer = setTimeout(function () { tripleTapCount = 0; }, 800);
     });
   }
 
@@ -819,6 +841,12 @@
         item.disabled = true;
       });
 
+      // Stop wrong-answer video if it's still playing
+      if (dom.pickWrongVideo && !dom.pickWrongVideo.hidden) {
+        dom.pickWrongVideo.pause();
+        dom.pickWrongVideo.hidden = true;
+        dom.pickMascotVideo.hidden = false;
+      }
       setMascotState(dom.pickMascotWrap, "mascot-celebrating");
       dom.pickFeedback.textContent = "Correct";
       audio.playCorrectChime();

@@ -488,7 +488,7 @@ textarea {
 
 .trace-letter {
   font-size: clamp(112px, 17vh, 172px);
-  line-height: 0.86;
+  line-height: 0.95;
   font-weight: 700;
   color: #4a3928;
   padding: 0 0.3rem;
@@ -690,6 +690,7 @@ textarea {
   display: flex;
   justify-content: center;
   gap: 0.8rem;
+  z-index: 10;
 }
 
 .sparkle {
@@ -725,10 +726,13 @@ textarea {
 /* --- Confetti burst for celebrate stage --- */
 .confetti-container {
   position: absolute;
-  inset: 0;
+  top: calc(-1 * var(--dots-clearance));
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
   pointer-events: none;
-  z-index: 2;
+  z-index: 10;
 }
 
 .confetti-piece {
