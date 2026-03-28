@@ -9,6 +9,7 @@
   --accent-2: #f39c12;
   --guide-blue: #1565c0;
   --guide-path: #c8beb0;
+  --dots-clearance: clamp(4.2rem, 7.5vh, 5rem);
 }
 
 * {
@@ -308,12 +309,13 @@ textarea {
   height: 20px;
 }
 
-/* Stages with session progress need top clearance for the absolutely-positioned tracker */
+/* Stages with session progress need top clearance for the absolutely-positioned tracker.
+   --dots-clearance is defined in :root and accounts for dot height + top offset + margin. */
 #stage-meet,
 #stage-pick,
 #stage-trace,
 #stage-celebrate {
-  padding-top: clamp(2.6rem, 4.5vh, 3rem);
+  padding-top: var(--dots-clearance);
 }
 
 #stage-meet {
@@ -364,7 +366,6 @@ textarea {
   align-items: stretch;
   min-height: calc(100vh - 2.4rem);
   min-height: calc(100dvh - 2.4rem);
-  padding-top: clamp(3.4rem, 5.8vh, 4rem);
 }
 
 .pick-layout {
@@ -1681,16 +1682,6 @@ textarea {
     padding: 0.2rem 0.35rem;
   }
 
-  /* Reduce dot-clearance padding on smaller screens */
-  #stage-meet,
-  #stage-trace {
-    padding-top: clamp(2rem, 4vh, 2.6rem);
-  }
-
-  #stage-pick {
-    padding-top: clamp(2.9rem, 4.8vh, 3.4rem);
-  }
-
   /* Meet: stack mascot above letters on narrow screens */
   .meet-layout .mascot-wrap {
     position: static;
@@ -1782,7 +1773,7 @@ textarea {
   padding: 6px 0;
   position: absolute;
   top: clamp(0.5rem, 1.2vh, 0.9rem);
-  left: clamp(50px, 9vw, 70px);
+  left: clamp(68px, 10vw, 80px);
   right: clamp(10px, 2.5vw, 18px);
   z-index: 5;
   pointer-events: none;
