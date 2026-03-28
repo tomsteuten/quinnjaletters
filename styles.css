@@ -1247,11 +1247,10 @@ textarea {
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.35s ease, visibility 0.35s ease;
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: min(272px, 100%);
-  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
   margin-top: 0.5rem;
 }
 
@@ -1284,10 +1283,6 @@ textarea {
 }
 
 .meet-hear-btn {
-  position: absolute;
-  top: 50%;
-  left: calc(50% + 74px);
-  transform: translateY(-50%);
   min-width: 56px;
   min-height: 56px;
   opacity: 0.6;
