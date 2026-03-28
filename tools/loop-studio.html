@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quinnja Loop Studio</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #12121f;
+  color: #dde2f0;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+header {
+  grid-column: 1 / -1;
+  padding: 0.85rem 1.4rem;
+  background: #1a1a30;
+  border-bottom: 1px solid #2a2a50;
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+header h1 { font-size: 1.1rem; color: #f0a04b; font-weight: 700; }
+header p  { font-size: 0.8rem; opacity: 0.55; }
+
+/* ── Controls sidebar ── */
+.sidebar {
+  padding: 1.25rem 1.1rem;
+  background: #1a1a30;
+  border-right: 1px solid #2a2a50;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.section-label {
+  display: block;
+  font-size: 0.67rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #f0a04b;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+}
+
+/* Select */
+select {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  background: #0f0f22;
+  border: 1px solid #2a2a50;
+  border-radius: 8px;
+  color: #dde2f0;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+select:focus { outline: 2px solid #f0a04b; }
+
+/* Mode radios */
+.mode-list { display: flex; flex-direction: column; gap: 0.45rem; }
+
+.mode-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  background: #0f0f22;
+  border: 2px solid transparent;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.mode-card:has(input:checked) { border-color: #f0a04b; background: #1f1a10; }
+.mode-card input[type=radio] { margin-top: 3px; accent-color: #f0a04b; flex-shrink: 0; }
+.mode-card .mt { font-size: 0.875rem; font-weight: 600; }
+.mode-card .md { font-size: 0.75rem; opacity: 0.55; margin-top: 0.15rem; line-height: 1.4; }
+
+/* Sliders */
+.slider-block { display: flex; flex-direction: column; gap: 0.35rem; }
+.slider-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.83rem;
+}
+.slider-val { font-family: monospace; color: #f0a04b; font-size: 0.9rem; font-weight: 600; }
+input[type=range] { width: 100%; accent-color: #f0a04b; cursor: pointer; }
+.slider-hints { display: flex; justify-content: space-between; font-size: 0.68rem; opacity: 0.4; }
+
+.warning {
+  font-size: 0.75rem;
+  color: #ff8a65;
+  padding: 0.4rem 0.6rem;
+  background: #2a1500;
+  border-radius: 6px;
+  border-left: 3px solid #ff8a65;
+  display: none;
+}
+
+/* Fade settings dimmed when mode=none */
+.fade-settings { display: flex; flex-direction: column; gap: 0.75rem; transition: opacity 0.2s; }
+.fade-settings.dimmed { opacity: 0.35; pointer-events: none; }
+
+/* Preview size */
+.size-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+.size-row input { flex: 1; accent-color: #f0a04b; }
+
+/* ── Preview area ── */
+.preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: repeating-conic-gradient(#1c1c2e 0% 25%, #232338 0% 50%) 0 0 / 24px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.status-bar {
+  position: absolute;
+  top: 1rem;
+  background: rgba(0,0,0,0.6);
+  padding: 0.35rem 1rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  backdrop-filter: blur(4px);
+}
+.pulse {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #4caf50;
+  flex-shrink: 0;
+  animation: blink 1.8s ease-in-out infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.video-stage {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  transition: width 0.2s, height 0.2s;
+}
+.video-stage video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.stage-label {
+  font-size: 0.8rem;
+  background: rgba(0,0,0,0.45);
+  padding: 0.2rem 0.7rem;
+  border-radius: 20px;
+  opacity: 0.7;
+}
+
+/* ── Code panel ── */
+.code-panel {
+  grid-column: 1 / -1;
+  background: #0a0a18;
+  border-top: 1px solid #2a2a50;
+  display: flex;
+  flex-direction: column;
+  max-height: 210px;
+  min-height: 120px;
+}
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 1.2rem;
+  border-bottom: 1px solid #1a1a35;
+  flex-shrink: 0;
+}
+.code-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: #f0a04b; font-weight: 600; }
+.btn-copy {
+  padding: 0.28rem 0.85rem;
+  background: #f0a04b;
+  border: none;
+  color: #12121f;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-copy:hover { background: #d4873a; }
+pre {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 1.2rem;
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.76rem;
+  line-height: 1.65;
+  color: #9ecde8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Quinnja Loop Studio</h1>
+  <p>Tune mascot loop smoothing — adjust, preview, then copy the code to paste into app.js</p>
+</header>
+
+<aside class="sidebar">
+
+  <div>
+    <label class="section-label">Mascot video</label>
+    <select id="sel-video">
+      <option value="../assets/processed/idlegreen_alpha_rgb_soft.webm">Home — idle</option>
+      <option value="../assets/processed/greenwaving_alpha_rgb_soft.webm" selected>Meet — waving</option>
+      <option value="../assets/processed/tracinggreen_alpha_rgb_soft.webm">Pick / Trace — encouraging</option>
+      <option value="../assets/processed/green_trim_alpha_rgbkey_balanced.webm">Celebrate</option>
+      <option value="../assets/processed/completegreen_alpha_rgb_balanced.webm">Complete</option>
+    </select>
+  </div>
+
+  <div>
+    <label class="section-label">Loop method</label>
+    <div class="mode-list">
+      <label class="mode-card">
+        <input type="radio" name="mode" value="none" />
+        <div>
+          <div class="mt">None (original)</div>
+          <div class="md">Native browser loop — shows the jerk for comparison</div>
+        </div>
+      </label>
+      <label class="mode-card">
+        <input type="radio" name="mode" value="fade" checked />
+        <div>
+          <div class="mt">Fade out / in</div>
+          <div class="md">Briefly fades to transparent at the seam. Simple, 1-video.</div>
+        </div>
+      </label>
+      <label class="mode-card">
+        <input type="radio" name="mode" value="crossfade" />
+        <div>
+          <div class="mt">Crossfade</div>
+          <div class="md">Dissolves into a fresh copy of the video. Most seamless, 2-video.</div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div class="fade-settings" id="fade-settings">
+    <label class="section-label">Timing</label>
+
+    <div class="slider-block">
+      <div class="slider-row">
+        <span>Fade duration</span>
+        <span class="slider-val" id="lbl-fd">0.40s</span>
+      </div>
+      <input type="range" id="sl-fd" min="0.1" max="1.5" step="0.05" value="0.40" />
+      <div class="slider-hints"><span>quick flash</span><span>slow dissolve</span></div>
+    </div>
+
+    <div class="slider-block">
+      <div class="slider-row">
+        <span>Start before end</span>
+        <span class="slider-val" id="lbl-tb">0.60s</span>
+      </div>
+      <input type="range" id="sl-tb" min="0.1" max="3.0" step="0.05" value="0.60" />
+      <div class="slider-hints"><span>late</span><span>early</span></div>
+    </div>
+
+    <div class="warning" id="warn-timing">
+      Trigger window is shorter than fade duration — the fade may not finish before the loop point.
+    </div>
+  </div>
+
+  <div>
+    <label class="section-label">Preview size</label>
+    <div class="size-row">
+      <span>S</span>
+      <input type="range" id="sl-size" min="80" max="320" step="10" value="180" />
+      <span>L</span>
+    </div>
+  </div>
+
+</aside>
+
+<main class="preview">
+  <div class="status-bar">
+    <div class="pulse"></div>
+    <span id="status">Loading…</span>
+  </div>
+  <div class="video-stage" id="video-stage">
+    <video id="va" muted playsinline></video>
+    <video id="vb" muted playsinline></video>
+  </div>
+  <div class="stage-label" id="stage-label">Meet — waving</div>
+</main>
+
+<div class="code-panel">
+  <div class="code-header">
+    <span class="code-title">Generated code — paste into app.js</span>
+    <button class="btn-copy" id="btn-copy" onclick="copyCode()">Copy</button>
+  </div>
+  <pre id="code-out"></pre>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DOM refs
+// ─────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const va = $('va');
+const vb = $('vb');
+
+// ─────────────────────────────────────────────
+// Video metadata
+// ─────────────────────────────────────────────
+const VIDEO_META = {
+  '../assets/processed/idlegreen_alpha_rgb_soft.webm':       { label: 'Home — idle',              dom: 'dom.homeMascotVideo'      },
+  '../assets/processed/greenwaving_alpha_rgb_soft.webm':     { label: 'Meet — waving',             dom: 'dom.meetMascotVideo'      },
+  '../assets/processed/tracinggreen_alpha_rgb_soft.webm':    { label: 'Pick / Trace — encouraging',dom: 'dom.traceMascotVideo'     },
+  '../assets/processed/green_trim_alpha_rgbkey_balanced.webm':{ label: 'Celebrate',                dom: 'dom.celebrateMascotVideo' },
+  '../assets/processed/completegreen_alpha_rgb_balanced.webm':{ label: 'Complete',                 dom: 'dom.completeMascotVideo'  }
+};
+
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
+function status(txt) { $('status').textContent = txt; }
+
+function resetVids() {
+  [va, vb].forEach(v => {
+    v.pause();
+    v.removeAttribute('src');
+    v.load();
+    v.style.opacity    = '';
+    v.style.transition = 'none';
+    v.loop = false;
+  });
+  va.style.opacity = '1';
+  vb.style.opacity = '0';
+}
+
+function getSettings() {
+  return {
+    mode:          document.querySelector('input[name=mode]:checked').value,
+    fadeDuration:  parseFloat($('sl-fd').value),
+    triggerBefore: parseFloat($('sl-tb').value),
+    src:           $('sel-video').value
+  };
+}
+
+// ─────────────────────────────────────────────
+// Controllers
+// ─────────────────────────────────────────────
+
+function modeNone({ src }) {
+  resetVids();
+  va.src  = src;
+  va.loop = true;
+  vb.style.opacity = '0';
+
+  va.addEventListener('loadedmetadata', function h() {
+    va.removeEventListener('loadedmetadata', h);
+    status('Native loop | ' + va.duration.toFixed(2) + 's — watch for the jump');
+    va.play().catch(() => {});
+  });
+  status('Loading…');
+
+  return function cleanup() {
+    va.pause();
+    va.loop = false;
+    va.removeAttribute('src');
+    va.load();
+  };
+}
+
+function modeFade({ src, fadeDuration, triggerBefore }) {
+  resetVids();
+  va.src  = src;
+  va.loop = false;
+  vb.style.opacity = '0';
+  let dur = 0, raf = null;
+
+  function onMeta() {
+    dur = va.duration;
+    status('Fade mode | ' + dur.toFixed(2) + 's');
+    va.play().catch(() => {});
+  }
+
+  function onTime() {
+    if (!dur) return;
+    const rem = dur - va.currentTime;
+    if (rem < triggerBefore) {
+      va.style.opacity = Math.max(0, rem / triggerBefore).toFixed(3);
+    } else if (parseFloat(va.style.opacity) < 1) {
+      va.style.opacity = '1';
+    }
+    status('Fade | ' + va.currentTime.toFixed(1) + 's / ' + dur.toFixed(1) + 's | ' + rem.toFixed(2) + 's left');
+  }
+
+  function onEnded() {
+    if (raf) cancelAnimationFrame(raf);
+    va.style.opacity = '0';
+    va.currentTime   = 0;
+    va.play().catch(() => {});
+    const t0 = performance.now();
+    (function fadeIn() {
+      const p = Math.min((performance.now() - t0) / (fadeDuration * 1000), 1);
+      va.style.opacity = p.toFixed(3);
+      if (p < 1) raf = requestAnimationFrame(fadeIn);
+      else { va.style.opacity = '1'; raf = null; }
+    })();
+  }
+
+  va.addEventListener('loadedmetadata', onMeta);
+  va.addEventListener('timeupdate',     onTime);
+  va.addEventListener('ended',          onEnded);
+  status('Loading…');
+
+  return function cleanup() {
+    va.removeEventListener('loadedmetadata', onMeta);
+    va.removeEventListener('timeupdate',     onTime);
+    va.removeEventListener('ended',          onEnded);
+    va.pause();
+    va.removeAttribute('src');
+    va.load();
+    if (raf) cancelAnimationFrame(raf);
+  };
+}
+
+function modeCrossfade({ src, fadeDuration, triggerBefore }) {
+  resetVids();
+  va.src  = src;
+  vb.src  = src;
+  va.loop = false;
+  vb.loop = false;
+  vb.style.opacity = '0';
+
+  let active = va, standby = vb, busy = false, tm = null;
+
+  function onMeta() {
+    status('Crossfade | ' + va.duration.toFixed(2) + 's');
+    active.play().catch(() => {});
+  }
+
+  function check() {
+    if (!active.duration || busy) return;
+    const rem = active.duration - active.currentTime;
+    status('Crossfade | ' + active.currentTime.toFixed(1) + 's / ' + active.duration.toFixed(1) + 's | '
+           + rem.toFixed(2) + 's left | ' + (active === va ? 'A→B' : 'B→A') + ' next');
+
+    if (rem <= triggerBefore) {
+      busy = true;
+      standby.currentTime = 0;
+      standby.play().catch(() => {});
+      // Trigger reflow so transition fires on both
+      void active.offsetWidth;
+      active.style.transition  = 'opacity ' + fadeDuration + 's linear';
+      standby.style.transition = 'opacity ' + fadeDuration + 's linear';
+      active.style.opacity  = '0';
+      standby.style.opacity = '1';
+
+      tm = setTimeout(function () {
+        active.pause();
+        active.style.transition = 'none';
+        active.style.opacity    = '0';
+        const tmp = active; active = standby; standby = tmp;
+        busy = false;
+      }, (fadeDuration + 0.15) * 1000);
+    }
+  }
+
+  function onEnded() {
+    // Fallback: if video ends and crossfade didn't trigger in time
+    if (!busy) { active.currentTime = 0; active.play().catch(() => {}); }
+  }
+
+  va.addEventListener('loadedmetadata', onMeta);
+  va.addEventListener('timeupdate', check);
+  vb.addEventListener('timeupdate', check);
+  va.addEventListener('ended', onEnded);
+  vb.addEventListener('ended', onEnded);
+  status('Loading…');
+
+  return function cleanup() {
+    va.removeEventListener('loadedmetadata', onMeta);
+    va.removeEventListener('timeupdate', check);
+    vb.removeEventListener('timeupdate', check);
+    va.removeEventListener('ended', onEnded);
+    vb.removeEventListener('ended', onEnded);
+    va.pause();
+    vb.pause();
+    va.removeAttribute('src'); vb.removeAttribute('src');
+    va.load(); vb.load();
+    if (tm) clearTimeout(tm);
+  };
+}
+
+// ─────────────────────────────────────────────
+// Code generation
+// ─────────────────────────────────────────────
+function buildCode({ mode, fadeDuration, triggerBefore, src }) {
+  const fd     = fadeDuration.toFixed(2);
+  const tb     = triggerBefore.toFixed(2);
+  const meta   = VIDEO_META[src] || { label: 'mascot video', dom: 'videoEl' };
+  const domRef = meta.dom;
+  const label  = meta.label;
+  const safeName = domRef.replace(/\W/g, '_');
+
+  if (mode === 'none') {
+    return '// No changes needed — the native loop attribute in index.html handles looping.';
+  }
+
+  if (mode === 'fade') {
+    return (
+`// ── 1. Paste this utility ONCE inside the app.js IIFE (e.g. near the top) ──
+
+function smoothLoop(video, fadeDuration, triggerBefore) {
+  video.loop = false;
+  var raf = null;
+
+  video.addEventListener('timeupdate', function () {
+    var rem = video.duration - video.currentTime;
+    if (rem < triggerBefore) {
+      video.style.opacity = Math.max(0, rem / triggerBefore).toFixed(3);
+    }
+  });
+
+  video.addEventListener('ended', function () {
+    if (raf) cancelAnimationFrame(raf);
+    video.style.opacity = '0';
+    video.currentTime   = 0;
+    video.play();
+    var t0 = performance.now();
+    (function fadeIn() {
+      var p = Math.min((performance.now() - t0) / (fadeDuration * 1000), 1);
+      video.style.opacity = p.toFixed(3);
+      if (p < 1) raf = requestAnimationFrame(fadeIn);
+    })();
+  });
+}
+
+// ── 2. Call it once for the ${label} ──
+// Paste this right after the line that sets: ${domRef}.src = ...
+
+${domRef}.addEventListener('loadedmetadata', function ${safeName}_loop() {
+  ${domRef}.removeEventListener('loadedmetadata', ${safeName}_loop);
+  smoothLoop(${domRef}, ${fd}, ${tb});
+}, { once: true });`
+    );
+  }
+
+  // crossfade
+  return (
+`// ── 1. Paste this utility ONCE inside the app.js IIFE (e.g. near the top) ──
+
+function smoothCrossfadeLoop(video, fadeDuration, triggerBefore) {
+  var parent = video.parentElement;
+  // Parent needs to be a positioning context for the standby overlay
+  if (getComputedStyle(parent).position === 'static') {
+    parent.style.position = 'relative';
+  }
+
+  // Create a hidden standby clone
+  var standby = document.createElement('video');
+  standby.src         = video.src;
+  standby.muted       = true;
+  standby.playsInline = true;
+  standby.style.cssText =
+    'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;pointer-events:none;';
+  parent.appendChild(standby);
+
+  var active = video, swap = standby, busy = false, tm = null;
+  video.loop = false;
+
+  function check() {
+    if (!active.duration || busy) return;
+    var rem = active.duration - active.currentTime;
+    if (rem <= triggerBefore) {
+      busy = true;
+      swap.currentTime = 0;
+      swap.play();
+      void active.offsetWidth; // force reflow
+      active.style.transition = 'opacity ' + fadeDuration + 's linear';
+      swap.style.transition   = 'opacity ' + fadeDuration + 's linear';
+      active.style.opacity = '0';
+      swap.style.opacity   = '1';
+      tm = setTimeout(function () {
+        active.pause();
+        active.style.transition = 'none';
+        active.style.opacity    = '0';
+        var tmp = active; active = swap; swap = tmp;
+        busy = false;
+      }, (fadeDuration + 0.15) * 1000);
+    }
+  }
+
+  video.addEventListener('timeupdate', check);
+  standby.addEventListener('timeupdate', check);
+
+  [video, standby].forEach(function (v) {
+    v.addEventListener('ended', function () {
+      if (!busy) { active.currentTime = 0; active.play(); }
+    });
+  });
+}
+
+// ── 2. Call it once for the ${label} ──
+// Paste this right after the line that sets: ${domRef}.src = ...
+
+${domRef}.addEventListener('loadedmetadata', function ${safeName}_loop() {
+  ${domRef}.removeEventListener('loadedmetadata', ${safeName}_loop);
+  smoothCrossfadeLoop(${domRef}, ${fd}, ${tb});
+}, { once: true });`
+  );
+}
+
+// ─────────────────────────────────────────────
+// Orchestrator
+// ─────────────────────────────────────────────
+let cleanup = null;
+
+function apply() {
+  if (cleanup) { cleanup(); cleanup = null; }
+
+  const s = getSettings();
+
+  // Update labels
+  const meta = VIDEO_META[s.src];
+  $('stage-label').textContent = meta ? meta.label : s.src;
+
+  // Fade settings visibility
+  const showFade = s.mode !== 'none';
+  $('fade-settings').classList.toggle('dimmed', !showFade);
+
+  // Timing warning: trigger window < fade duration
+  const warn = showFade && s.triggerBefore < s.fadeDuration;
+  $('warn-timing').style.display = warn ? 'block' : 'none';
+
+  // Start controller
+  if      (s.mode === 'none')      cleanup = modeNone(s);
+  else if (s.mode === 'fade')      cleanup = modeFade(s);
+  else if (s.mode === 'crossfade') cleanup = modeCrossfade(s);
+
+  // Generate code
+  $('code-out').textContent = buildCode(s);
+}
+
+// ─────────────────────────────────────────────
+// Copy button
+// ─────────────────────────────────────────────
+function copyCode() {
+  navigator.clipboard.writeText($('code-out').textContent).then(function () {
+    const btn = $('btn-copy');
+    btn.textContent = 'Copied!';
+    setTimeout(function () { btn.textContent = 'Copy'; }, 1800);
+  });
+}
+
+// ─────────────────────────────────────────────
+// Wire up controls
+// ─────────────────────────────────────────────
+$('sl-fd').addEventListener('input', function () {
+  $('lbl-fd').textContent = parseFloat(this.value).toFixed(2) + 's';
+  apply();
+});
+$('sl-tb').addEventListener('input', function () {
+  $('lbl-tb').textContent = parseFloat(this.value).toFixed(2) + 's';
+  apply();
+});
+$('sel-video').addEventListener('change', apply);
+document.querySelectorAll('input[name=mode]').forEach(function (r) {
+  r.addEventListener('change', apply);
+});
+$('sl-size').addEventListener('input', function () {
+  const sz = this.value + 'px';
+  $('video-stage').style.width  = sz;
+  $('video-stage').style.height = sz;
+});
+
+// ─────────────────────────────────────────────
+// Boot
+// ─────────────────────────────────────────────
+apply();
+</script>
+</body>
+</html>

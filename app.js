@@ -1541,11 +1541,11 @@
   function updateTraceProgressRing() {
     if (!dom.traceProgressFill) return;
     var circumference = 2 * Math.PI * 16; // r=16 from the SVG
-    var coverage = traceState.totalLetterCells > 0
+    var rawCoverage = traceState.totalLetterCells > 0
       ? traceState.coveredCells.size / traceState.totalLetterCells
       : 0;
-    // Cap at 1.0 for display
-    if (coverage > 1) coverage = 1;
+    // Generous ease-out curve: 45% actual → ~85% ring, 75%+ → full ring
+    var coverage = Math.min(1, Math.pow(Math.min(rawCoverage / 0.75, 1), 0.4));
     var offset = circumference * (1 - coverage);
     dom.traceProgressFill.style.strokeDashoffset = offset;
   }
@@ -2203,8 +2203,8 @@
     for (var i = 0; i < length; i++) {
       var letter = state.letterQueue[i];
       var stats = letter && state.progress.letterStats[letter.id];
-      // Use sound mode only for letters the child has seen 2+ times
-      if (stats && stats.seen >= 2 && Math.random() < 0.5) {
+      // Use sound mode only for letters the child has seen 5+ times
+      if (stats && stats.seen >= 5 && Math.random() < 0.25) {
         queue.push("sound");
       } else {
         queue.push("visual");
