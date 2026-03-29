@@ -6,7 +6,8 @@
 
   const storageKeys = {
     settings: "quinnjaLetters.settings",
-    progress: "quinnjaLetters.progress"
+    progress: "quinnjaLetters.progress",
+    numbersProgress: "quinnjaLetters.numbersProgress"
   };
 
   const stageOrder = ["meet", "pick", "trace", "celebrate"];
@@ -107,6 +108,7 @@
     sessionTraceImages: {},
     settings: loadSettings(),
     progress: loadProgress(),
+    numbersProgress: loadNumbersProgress(),
     autoTimerId: null,
     nfcSingleLetterSession: false,
     nfcListening: false,
@@ -126,8 +128,11 @@
     stageStatus: document.getElementById("stage-status"),
 
     homeMascotWrap: document.getElementById("home-mascot-wrap"),
-  homeMascotVideo: document.getElementById("home-mascot-video"),
-  homeMascotFallback: document.getElementById("home-mascot-fallback"),
+    homeMascotVideo: document.getElementById("home-mascot-video"),
+    homeMascotFallback: document.getElementById("home-mascot-fallback"),
+    modeToggle: document.getElementById("mode-toggle"),
+    modeToggleLetters: document.getElementById("mode-toggle-letters"),
+    modeToggleNumbers: document.getElementById("mode-toggle-numbers"),
     activeLettersRow: document.getElementById("home-active-letters"),
     nfcPrompt: document.getElementById("nfc-prompt"),
     startSessionBtn: document.getElementById("btn-start-session"),
@@ -175,6 +180,10 @@
 
     settingChildName: document.getElementById("setting-child-name"),
     settingsLetterToggles: document.getElementById("settings-letter-toggles"),
+    settingsNumberToggles: document.getElementById("settings-number-toggles"),
+    settingsLetterSection: document.getElementById("settings-letter-section"),
+    settingsNumberSection: document.getElementById("settings-number-section"),
+    settingsCaseSection: document.getElementById("settings-case-section"),
     letterPresetSelector: document.getElementById("letter-preset-selector"),
     customLettersCollapsible: document.getElementById("custom-letters-collapsible"),
     settingAudio: document.getElementById("setting-audio"),
@@ -187,6 +196,7 @@
     resetProgressBtn: document.getElementById("btn-reset-progress"),
 
     meetCue: document.getElementById("meet-cue"),
+    meetQuantityDots: document.getElementById("meet-quantity-dots"),
     meetPictureCue: document.getElementById("meet-picture-cue"),
     meetPictureCueImg: document.getElementById("meet-picture-cue-img"),
     meetPictureCueWord: document.getElementById("meet-picture-cue-word"),
@@ -253,7 +263,7 @@
       }
 
       html += "<span class='" + dotClass + "' style='" + style + "' aria-hidden='true'>"
-        + "<span class='session-dot-letter'>" + letter.uppercase + "</span>"
+        + "<span class='session-dot-letter'>" + getLetterCharacter(letter, "uppercase") + "</span>"
         + traceImgHtml
         + "</span>";
     }
@@ -283,6 +293,8 @@
     setupCelebrateMascotMedia();
     smoothCrossfadeLoop(document.getElementById('complete-mascot-video'), 0.30, 1.70);
     setupSpeechUI();
+    updateModeToggle();
+    updateModeVisibility();
 
     if (!audio.isSoundEffectsSupported()) {
       state.settings.soundEffectsEnabled = false;
@@ -309,6 +321,18 @@
     dom.startSessionBtn.addEventListener("click", function () {
       startSession();
     });
+
+    if (dom.modeToggleLetters) {
+      dom.modeToggleLetters.addEventListener("click", function () {
+        setMode("letters");
+      });
+    }
+
+    if (dom.modeToggleNumbers) {
+      dom.modeToggleNumbers.addEventListener("click", function () {
+        setMode("numbers");
+      });
+    }
 
     dom.openSettingsHomeBtn.addEventListener("click", openSettings);
     dom.openSettingsCompleteBtn.addEventListener("click", openSettings);
@@ -476,6 +500,9 @@
 
   function setupSettingsUI() {
     dom.settingsLetterToggles.innerHTML = "";
+    if (dom.settingsNumberToggles) {
+      dom.settingsNumberToggles.innerHTML = "";
+    }
 
     data.letters.forEach(function (letter) {
       const label = document.createElement("label");
@@ -492,6 +519,25 @@
       label.appendChild(input);
       label.appendChild(text);
       dom.settingsLetterToggles.appendChild(label);
+    });
+
+    (data.numbers || []).forEach(function (numberItem) {
+      if (!dom.settingsNumberToggles) {
+        return;
+      }
+
+      var label = document.createElement("label");
+      var input = document.createElement("input");
+      var text = document.createElement("span");
+
+      input.type = "checkbox";
+      input.value = numberItem.id;
+      input.dataset.numberToggle = "true";
+      text.textContent = numberItem.numeral;
+
+      label.appendChild(input);
+      label.appendChild(text);
+      dom.settingsNumberToggles.appendChild(label);
     });
 
     if (dom.letterPresetSelector) {
@@ -715,12 +761,12 @@
     stopNfcIfRunning();
     audio.resetShuffleTracking();
 
-    const activeLetters = getActiveLetters();
+    const activeItems = getActiveLetters();
     let queue = [];
 
     if (optionalLetterId) {
-      const match = data.letters.find(function (letter) {
-        return letter.id === optionalLetterId;
+      const match = getItemPool().find(function (item) {
+        return item.id === optionalLetterId;
       });
 
       if (match) {
@@ -730,7 +776,7 @@
     }
 
     if (!queue.length) {
-      queue = activeLetters.slice();
+      queue = activeItems.slice();
       queue = prioritiseWeakLetters(queue);
       state.nfcSingleLetterSession = false;
     }
@@ -820,7 +866,7 @@
 
     if (state.currentPickMode === "sound") {
       dom.pickTargetLetter.innerHTML = '<img src="assets/icons/speaker.svg" alt="Listen" class="pick-sound-icon" />';
-      dom.pickTargetLetter.setAttribute("aria-label", "Which letter makes this sound?");
+      dom.pickTargetLetter.setAttribute("aria-label", isNumbersMode() ? "Which number is this?" : "Which letter makes this sound?");
     } else {
       dom.pickTargetLetter.textContent = getLetterCharacter(state.currentLetter, state.currentPickCase);
       dom.pickTargetLetter.removeAttribute("aria-label");
@@ -832,9 +878,9 @@
     var promptEl = document.getElementById("pick-prompt");
     if (promptEl) {
       if (state.currentPickMode === "sound") {
-        promptEl.textContent = "Which letter?";
+        promptEl.textContent = isNumbersMode() ? "Which number?" : "Which letter?";
       } else {
-        promptEl.textContent = "Find  " + getLetterCharacter(state.currentLetter, state.currentPickCase);
+        promptEl.textContent = (isNumbersMode() ? "Find number " : "Find ") + getLetterCharacter(state.currentLetter, state.currentPickCase);
       }
     }
 
@@ -845,7 +891,7 @@
       button.type = "button";
       button.textContent = getLetterCharacter(optionLetter, state.currentPickCase);
       button.dataset.letterId = optionLetter.id;
-      button.setAttribute("aria-label", "Letter " + getLetterCharacter(optionLetter, state.currentPickCase));
+      button.setAttribute("aria-label", (isNumbersMode() ? "Number " : "Letter ") + getLetterCharacter(optionLetter, state.currentPickCase));
 
       button.addEventListener("click", function () {
         handlePickSelection(optionLetter.id, button);
@@ -983,10 +1029,12 @@
     playCelebrateMascotVideo();
     spawnConfetti();
     const tracedChar = getLetterCharacter(state.currentLetter, state.currentTraceCase);
-    const pairedChar = getLetterCharacter(
-      state.currentLetter,
-      state.currentTraceCase === "uppercase" ? "lowercase" : "uppercase"
-    );
+    const pairedChar = isNumbersMode()
+      ? (state.currentLetter.word || "")
+      : getLetterCharacter(
+        state.currentLetter,
+        state.currentTraceCase === "uppercase" ? "lowercase" : "uppercase"
+      );
     dom.celebrateLetterMain.textContent = tracedChar;
     dom.celebrateLetterSide.textContent = pairedChar;
 
@@ -1031,8 +1079,13 @@
       return;
     }
 
-    state.progress.totalSessions += 1;
-    saveProgress();
+    var activeProgress = getActiveProgress();
+    activeProgress.totalSessions += 1;
+    if (isNumbersMode()) {
+      saveNumbersProgress();
+    } else {
+      saveProgress();
+    }
     showCompleteStage();
   }
 
@@ -1041,12 +1094,13 @@
     setMascotState(dom.completeMascotWrap, "mascot-celebrating");
 
     dom.completeLetters.innerHTML = "";
-    var letterOrder = data.letters.map(function (l) { return l.id; });
+    var itemPool = getItemPool();
+    var letterOrder = itemPool.map(function (l) { return l.id; });
     var sortedResults = state.sessionResults.slice().sort(function (a, b) {
       return letterOrder.indexOf(a.letterId) - letterOrder.indexOf(b.letterId);
     });
     sortedResults.forEach(function (result) {
-      const letter = data.letters.find(function (item) {
+      const letter = itemPool.find(function (item) {
         return item.id === result.letterId;
       });
       if (!letter) {
@@ -1055,7 +1109,7 @@
 
       const chip = document.createElement("div");
       chip.className = "complete-chip";
-      chip.textContent = letter.uppercase;
+      chip.textContent = getLetterCharacter(letter, "uppercase");
 
       const tick = document.createElement("img");
       tick.src = "assets/icons/check.svg";
@@ -1073,12 +1127,25 @@
     }
 
     state.currentLetter = letter;
-    dom.meetLetterUpper.textContent = letter.uppercase;
-    dom.meetLetterLower.textContent = letter.lowercase;
+    if (isNumbersMode()) {
+      dom.meetLetterUpper.textContent = letter.numeral || letter.uppercase;
+      dom.meetLetterLower.textContent = letter.word || "";
+      if (dom.meetQuantityDots) {
+        dom.meetQuantityDots.innerHTML = renderDotPatternSVG(letter.dotPattern || []);
+        dom.meetQuantityDots.hidden = false;
+      }
+    } else {
+      dom.meetLetterUpper.textContent = letter.uppercase;
+      dom.meetLetterLower.textContent = letter.lowercase;
+      if (dom.meetQuantityDots) {
+        dom.meetQuantityDots.hidden = true;
+        dom.meetQuantityDots.innerHTML = "";
+      }
+    }
     applyStageBackground(letter.stageBackground);
 
     const pictureCueSrc = letter.pictureCueSrc || ("assets/images/cues/cue-" + letter.id + ".png");
-    if (letter.pictureCueWord) {
+    if (!isNumbersMode() && letter.pictureCueWord) {
       dom.meetPictureCueImg.onerror = function () {
         dom.meetPictureCue.hidden = true;
         dom.meetPictureCueImg.onerror = null;
@@ -1162,7 +1229,7 @@
 
   /**
    * Warm the browser cache for the next stage's mascot video.
-   * Uses fetch() so the video is cached by the time the stage loads.
+    * Uses preload links to avoid file:// fetch CORS issues.
    */
   function preloadNextVideo(currentStage) {
     var nextVideoSrc = null;
@@ -1175,7 +1242,11 @@
     }
     if (nextVideoSrc && !preloadedVideos.has(nextVideoSrc)) {
       preloadedVideos.add(nextVideoSrc);
-      fetch(nextVideoSrc).catch(function () { /* silent */ });
+      var preload = document.createElement("link");
+      preload.rel = "preload";
+      preload.as = "video";
+      preload.href = nextVideoSrc;
+      document.head.appendChild(preload);
     }
   }
 
@@ -1437,7 +1508,7 @@
     shuffle(pool);
 
     if (pool.length < 3) {
-      const backup = data.letters.filter(function (letter) {
+      const backup = getItemPool().filter(function (letter) {
         return letter.id !== correctLetter.id && !pool.some(function (p) { return p.id === letter.id; });
       });
       shuffle(backup);
@@ -1918,8 +1989,70 @@
     state.nfcListening = false;
   }
 
+  function isNumbersMode() {
+    return state.settings.mode === "numbers";
+  }
+
+  function getItemPool() {
+    return isNumbersMode() ? (data.numbers || []) : data.letters;
+  }
+
+  function getActiveItemIds() {
+    return isNumbersMode() ? state.settings.activeNumberIds : state.settings.activeLetterIds;
+  }
+
+  function renderDotPatternSVG(dotPattern) {
+    if (!dotPattern || !dotPattern.length) {
+      return "";
+    }
+    var circles = dotPattern.map(function (dot) {
+      return "<circle class='dot-pattern-dot' cx='" + dot.x + "' cy='" + dot.y + "' r='8'></circle>";
+    }).join("");
+    return "<svg class='dot-pattern-svg' viewBox='0 0 100 100' aria-hidden='true'>" + circles + "</svg>";
+  }
+
+  function setMode(mode) {
+    if (mode !== "letters" && mode !== "numbers") {
+      return;
+    }
+    state.settings.mode = mode;
+    updateModeToggle();
+    updateModeVisibility();
+    updateHomeProgressDots();
+    updateSettingsProgressSummary();
+    saveSettings();
+  }
+
+  function updateModeToggle() {
+    if (!dom.modeToggleLetters || !dom.modeToggleNumbers) {
+      return;
+    }
+    var lettersActive = !isNumbersMode();
+    dom.modeToggleLetters.classList.toggle("mode-toggle-active", lettersActive);
+    dom.modeToggleLetters.setAttribute("aria-pressed", String(lettersActive));
+    dom.modeToggleNumbers.classList.toggle("mode-toggle-active", !lettersActive);
+    dom.modeToggleNumbers.setAttribute("aria-pressed", String(!lettersActive));
+  }
+
+  function updateModeVisibility() {
+    var numbersMode = isNumbersMode();
+    if (dom.settingsLetterSection) {
+      dom.settingsLetterSection.hidden = numbersMode;
+    }
+    if (dom.settingsNumberSection) {
+      dom.settingsNumberSection.hidden = !numbersMode;
+    }
+    if (dom.settingsCaseSection) {
+      dom.settingsCaseSection.hidden = numbersMode;
+      if (numbersMode) {
+        dom.settingsCaseSection.removeAttribute("open");
+      }
+    }
+  }
+
   function populateSettingsForm() {
-    const activeSet = new Set(state.settings.activeLetterIds);
+    const activeLetterSet = new Set(state.settings.activeLetterIds);
+    const activeNumberSet = new Set(state.settings.activeNumberIds || []);
 
     dom.settingChildName.value = state.settings.childName;
     dom.settingAudio.checked = state.settings.audioEnabled;
@@ -1929,11 +2062,17 @@
     dom.settingNfcMode.checked = state.settings.nfcModeOn;
 
     document.querySelectorAll("input[data-letter-toggle='true']").forEach(function (input) {
-      input.checked = activeSet.has(input.value);
+      input.checked = activeLetterSet.has(input.value);
+    });
+
+    document.querySelectorAll("input[data-number-toggle='true']").forEach(function (input) {
+      input.checked = activeNumberSet.has(input.value);
     });
 
     syncLetterPresetHighlight();
     if (dom.customLettersCollapsible) dom.customLettersCollapsible.removeAttribute("open");
+    updateModeToggle();
+    updateModeVisibility();
 
     document.querySelectorAll("input[name='display-case']").forEach(function (input) {
       input.checked = input.value === state.settings.displayCase;
@@ -1982,8 +2121,21 @@
       return input.value;
     });
 
-    if (!selectedLetterIds.length) {
+    const selectedNumberIds = Array.from(
+      document.querySelectorAll("input[data-number-toggle='true']:checked")
+    ).map(function (input) {
+      return input.value;
+    });
+
+    var mode = isNumbersMode() ? "numbers" : "letters";
+
+    if (mode === "letters" && !selectedLetterIds.length) {
       showSettingsMessage("Please keep at least one active letter.", "error");
+      return;
+    }
+
+    if (mode === "numbers" && !selectedNumberIds.length) {
+      showSettingsMessage("Please keep at least one active number.", "error");
       return;
     }
 
@@ -1994,7 +2146,9 @@
 
     state.settings = {
       childName: dom.settingChildName.value.trim(),
+      mode: mode,
       activeLetterIds: selectedLetterIds,
+      activeNumberIds: selectedNumberIds,
       displayCase: displayCase,
       traceCase: traceCase,
       audioEnabled: dom.settingAudio.checked,
@@ -2012,6 +2166,10 @@
     syncAudioSettings();
     syncSpeechSettings();
     updateHomeLettersRow();
+    updateModeToggle();
+    updateModeVisibility();
+    updateHomeProgressDots();
+    updateSettingsProgressSummary();
     showSettingsMessage("Settings saved.", "ok");
 
     window.setTimeout(function () {
@@ -2029,31 +2187,47 @@
     }
 
     const id = state.currentLetter.id;
-    if (!state.progress.letterStats[id]) {
-      state.progress.letterStats[id] = { seen: 0, correctFirstTry: 0 };
+    var stats = getActiveStats(id);
+    if (!stats) {
+      return;
     }
 
-    state.progress.totalLettersPractised += 1;
-    state.progress.letterStats[id].seen += 1;
+    var activeProgress = getActiveProgress();
+    if (isNumbersMode()) {
+      activeProgress.totalNumbersPractised += 1;
+    } else {
+      activeProgress.totalLettersPractised += 1;
+    }
+
+    stats.seen += 1;
 
     if (state.currentPickState && state.currentPickState.correctFirstTry) {
-      state.progress.letterStats[id].correctFirstTry += 1;
+      stats.correctFirstTry += 1;
     }
 
-    saveProgress();
+    if (isNumbersMode()) {
+      saveNumbersProgress();
+    } else {
+      saveProgress();
+    }
   }
 
   function updateSettingsProgressSummary() {
+    var activeProgress = getActiveProgress();
+    var practisedCount = isNumbersMode() ? activeProgress.totalNumbersPractised : activeProgress.totalLettersPractised;
+    var label = isNumbersMode() ? "Numbers practised" : "Letters practised";
     dom.settingsProgress.textContent =
       "Sessions: " +
-      state.progress.totalSessions +
-      " | Letters practised: " +
-      state.progress.totalLettersPractised;
+      activeProgress.totalSessions +
+      " | " + label + ": " +
+      practisedCount;
   }
 
   function resetProgress() {
     state.progress = createBlankProgress();
+    state.numbersProgress = createBlankNumbersProgress();
     saveProgress();
+    saveNumbersProgress();
     updateSettingsProgressSummary();
     showSettingsMessage("Progress reset.", "ok");
   }
@@ -2072,10 +2246,17 @@
   }
 
   function getLetterCharacter(letter, displayCase) {
+    if (isNumbersMode()) {
+      return letter.numeral || letter.uppercase || letter.id;
+    }
     return displayCase === "lowercase" ? letter.lowercase : letter.uppercase;
   }
 
   function buildPickCaseQueue(length) {
+    if (isNumbersMode()) {
+      return new Array(length).fill("default");
+    }
+
     if (state.settings.displayCase === "uppercase") {
       return new Array(length).fill("uppercase");
     }
@@ -2095,10 +2276,17 @@
   }
 
   function getPickCaseForCurrentLetter() {
+    if (isNumbersMode()) {
+      return "default";
+    }
     return state.pickCaseQueue[state.currentLetterIndex] || "uppercase";
   }
 
   function resolveSessionTraceCase() {
+    if (isNumbersMode()) {
+      return "default";
+    }
+
     if (state.settings.traceCase === "uppercase") {
       return "uppercase";
     }
@@ -2111,23 +2299,27 @@
   }
 
   function getTraceCaseForCurrentLetter() {
-    return state.sessionTraceCase;
+    return isNumbersMode() ? "default" : state.sessionTraceCase;
   }
 
   function getActiveFormation(letter) {
     if (!letter || !letter.formation) {
       return null;
     }
+    if (isNumbersMode()) {
+      return letter.formation.default || null;
+    }
     return letter.formation[state.currentTraceCase];
   }
 
   function getActiveLetters() {
-    const set = new Set(state.settings.activeLetterIds);
-    const active = data.letters.filter(function (letter) {
+    const pool = getItemPool();
+    const set = new Set(getActiveItemIds());
+    const active = pool.filter(function (letter) {
       return set.has(letter.id);
     });
 
-    return active.length ? active : [data.letters[0]];
+    return active.length ? active : (pool.length ? [pool[0]] : []);
   }
 
   function clearAutoTimer() {
@@ -2149,9 +2341,13 @@
 
       return {
         childName: typeof saved.childName === "string" ? saved.childName : defaults.childName,
+        mode: ["letters", "numbers"].includes(saved.mode) ? saved.mode : defaults.mode,
         activeLetterIds: Array.isArray(saved.activeLetterIds) && saved.activeLetterIds.length
           ? saved.activeLetterIds
           : defaults.activeLetterIds,
+        activeNumberIds: Array.isArray(saved.activeNumberIds) && saved.activeNumberIds.length
+          ? saved.activeNumberIds
+          : defaults.activeNumberIds,
         displayCase: ["uppercase", "lowercase", "both"].includes(saved.displayCase)
           ? saved.displayCase
           : defaults.displayCase,
@@ -2205,6 +2401,19 @@
     };
   }
 
+  function createBlankNumbersProgress() {
+    const numberStats = {};
+    (data.numbers || []).forEach(function (numberItem) {
+      numberStats[numberItem.id] = { seen: 0, correctFirstTry: 0 };
+    });
+
+    return {
+      totalSessions: 0,
+      totalNumbersPractised: 0,
+      numberStats: numberStats
+    };
+  }
+
   function loadProgress() {
     const blank = createBlankProgress();
 
@@ -2233,6 +2442,52 @@
     localStorage.setItem(storageKeys.progress, JSON.stringify(state.progress));
   }
 
+  function loadNumbersProgress() {
+    const blank = createBlankNumbersProgress();
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKeys.numbersProgress));
+      if (!saved) {
+        return blank;
+      }
+
+      blank.totalSessions = Number(saved.totalSessions) || 0;
+      blank.totalNumbersPractised = Number(saved.totalNumbersPractised) || 0;
+
+      Object.keys(blank.numberStats).forEach(function (id) {
+        blank.numberStats[id].seen = Number(saved.numberStats?.[id]?.seen) || 0;
+        blank.numberStats[id].correctFirstTry = Number(saved.numberStats?.[id]?.correctFirstTry) || 0;
+      });
+
+      return blank;
+    } catch (error) {
+      console.warn("Could not load numbers progress:", error);
+      return blank;
+    }
+  }
+
+  function saveNumbersProgress() {
+    localStorage.setItem(storageKeys.numbersProgress, JSON.stringify(state.numbersProgress));
+  }
+
+  function getActiveProgress() {
+    return isNumbersMode() ? state.numbersProgress : state.progress;
+  }
+
+  function getActiveStats(id) {
+    var activeProgress = getActiveProgress();
+    if (isNumbersMode()) {
+      if (!activeProgress.numberStats[id]) {
+        activeProgress.numberStats[id] = { seen: 0, correctFirstTry: 0 };
+      }
+      return activeProgress.numberStats[id];
+    }
+    if (!activeProgress.letterStats[id]) {
+      activeProgress.letterStats[id] = { seen: 0, correctFirstTry: 0 };
+    }
+    return activeProgress.letterStats[id];
+  }
+
   function replayMeetAudio() {
     if (!state.currentLetter) return;
     var meetFile = state.currentLetter.audio.meet;
@@ -2258,7 +2513,7 @@
     var strong = [];
 
     queue.forEach(function (letter) {
-      var stats = state.progress.letterStats[letter.id];
+      var stats = getActiveStats(letter.id);
       if (!stats || stats.seen < 2 || (stats.correctFirstTry / stats.seen) < 0.5) {
         weak.push(letter);
       } else {
@@ -2272,10 +2527,14 @@
   }
 
   function buildPickModeQueue(length) {
+    if (isNumbersMode()) {
+      return new Array(length).fill("visual");
+    }
+
     var queue = [];
     for (var i = 0; i < length; i++) {
       var letter = state.letterQueue[i];
-      var stats = letter && state.progress.letterStats[letter.id];
+      var stats = letter && getActiveStats(letter.id);
       // Use sound mode only for letters the child has seen 5+ times
       if (stats && stats.seen >= 5 && Math.random() < 0.25) {
         queue.push("sound");
@@ -2290,13 +2549,16 @@
     dom.homeProgressDots.innerHTML = "";
 
     getActiveLetters().slice().sort(function (a, b) {
+      if (isNumbersMode()) {
+        return (a.value || 0) - (b.value || 0);
+      }
       return a.id.localeCompare(b.id);
     }).forEach(function (letter) {
       var dot = document.createElement("span");
-      var stats = state.progress.letterStats[letter.id];
+      var stats = getActiveStats(letter.id);
       var mastered = stats && stats.seen >= 2 && (stats.correctFirstTry / stats.seen) >= 0.5;
       dot.className = "progress-dot" + (mastered ? " progress-dot-filled" : "");
-      dot.textContent = letter.uppercase;
+      dot.textContent = getLetterCharacter(letter, "uppercase");
       dom.homeProgressDots.appendChild(dot);
     });
   }

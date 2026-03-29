@@ -26,6 +26,10 @@
 
       <div class="home-wrap">
         <h1 class="home-title">Quinnja Letters</h1>
+        <div class="mode-toggle" id="mode-toggle" role="group" aria-label="Learning mode">
+          <button type="button" class="mode-toggle-btn mode-toggle-active" id="mode-toggle-letters" aria-pressed="true">ABC</button>
+          <button type="button" class="mode-toggle-btn" id="mode-toggle-numbers" aria-pressed="false">123</button>
+        </div>
 
         <div class="mascot-wrap mascot-idle" id="home-mascot-wrap">
           <!-- AI note: home mascot video swap is intentionally reversible.
@@ -97,6 +101,7 @@
           <span class="meet-letter-upper" id="meet-letter-upper">S</span>
           <span class="meet-letter-lower" id="meet-letter-lower">s</span>
         </div>
+        <div class="meet-quantity-dots" id="meet-quantity-dots" hidden></div>
         <div class="meet-cue" id="meet-cue" hidden></div>
       </div>
       <div class="meet-picture-cue" id="meet-picture-cue" hidden>
@@ -311,7 +316,7 @@
           <input id="setting-child-name" class="settings-input" type="text" maxlength="30" placeholder="Enter name..." />
         </div>
 
-        <div class="settings-section">
+        <div class="settings-section" id="settings-letter-section">
           <span class="settings-section-title">Active letters</span>
           <div id="letter-preset-selector" class="letter-preset-selector">
             <button type="button" class="letter-preset-btn" data-preset="satpin">SATPIN</button>
@@ -325,7 +330,12 @@
           </details>
         </div>
 
-        <details class="settings-collapsible">
+        <div class="settings-section" id="settings-number-section" hidden>
+          <span class="settings-section-title">Active numbers</span>
+          <div id="settings-number-toggles" class="letter-toggle-grid"></div>
+        </div>
+
+        <details class="settings-collapsible" id="settings-case-section">
           <summary class="settings-collapsible-header">Display case</summary>
           <div class="settings-section-body">
             <div class="settings-radio-group">

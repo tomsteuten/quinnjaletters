@@ -1366,6 +1366,150 @@
       }
     ],
 
+    numbers: [
+      {
+        id: "1",
+        numeral: "1",
+        word: "one",
+        value: 1,
+        uppercase: "1",
+        lowercase: "1",
+        name: "1",
+        colour: "#FFF3E0",
+        colourDark: "#E89A5B",
+        stageBackground: "linear-gradient(135deg, #FFF3E0 0%, #FFF8EC 100%)",
+        dotPattern: [{ x: 50, y: 50 }],
+        audio: {
+          sound: "assets/audio/sound-1.mp3",
+          meet: "assets/audio/meet-1.mp3",
+          pick: "assets/audio/pick-1.mp3"
+        },
+        formation: {
+          default: {
+            ghostPaths: ["M110 35 L110 185"],
+            startDot: { x: 110, y: 35 },
+            arrows: [
+              { from: { x: 110, y: 35 }, to: { x: 110, y: 185 }, label: "1", labelPos: { x: 120, y: 62 } }
+            ]
+          }
+        }
+      },
+      {
+        id: "2",
+        numeral: "2",
+        word: "two",
+        value: 2,
+        uppercase: "2",
+        lowercase: "2",
+        name: "2",
+        colour: "#E8F5E9",
+        colourDark: "#7DBA84",
+        stageBackground: "linear-gradient(135deg, #E8F5E9 0%, #F1FAF2 100%)",
+        dotPattern: [{ x: 36, y: 50 }, { x: 64, y: 50 }],
+        audio: {
+          sound: "assets/audio/sound-2.mp3",
+          meet: "assets/audio/meet-2.mp3",
+          pick: "assets/audio/pick-2.mp3"
+        },
+        formation: {
+          default: {
+            ghostPaths: ["M84 64 C84 46, 136 46, 136 78 C136 102, 98 122, 86 144 L138 144"],
+            startDot: { x: 84, y: 64 },
+            arrows: [
+              { from: { x: 84, y: 64 }, to: { x: 136, y: 78 }, label: "1", labelPos: { x: 94, y: 50 } },
+              { from: { x: 136, y: 78 }, to: { x: 86, y: 144 }, label: "2", labelPos: { x: 142, y: 102 } },
+              { from: { x: 86, y: 144 }, to: { x: 138, y: 144 }, label: "3", labelPos: { x: 94, y: 136 } }
+            ]
+          }
+        }
+      },
+      {
+        id: "3",
+        numeral: "3",
+        word: "three",
+        value: 3,
+        uppercase: "3",
+        lowercase: "3",
+        name: "3",
+        colour: "#E3F2FD",
+        colourDark: "#6E9FD1",
+        stageBackground: "linear-gradient(135deg, #E3F2FD 0%, #EEF6FF 100%)",
+        dotPattern: [{ x: 50, y: 36 }, { x: 50, y: 50 }, { x: 50, y: 64 }],
+        audio: {
+          sound: "assets/audio/sound-3.mp3",
+          meet: "assets/audio/meet-3.mp3",
+          pick: "assets/audio/pick-3.mp3"
+        },
+        formation: {
+          default: {
+            ghostPaths: ["M88 62 C106 44, 140 52, 132 82 C126 100, 102 106, 92 106 M92 106 C106 106, 136 114, 136 146 C136 174, 102 182, 86 164"],
+            startDot: { x: 88, y: 62 },
+            arrows: [
+              { from: { x: 88, y: 62 }, to: { x: 132, y: 82 }, label: "1", labelPos: { x: 94, y: 48 } },
+              { from: { x: 92, y: 106 }, to: { x: 136, y: 146 }, label: "2", labelPos: { x: 98, y: 118 } }
+            ]
+          }
+        }
+      },
+      {
+        id: "4",
+        numeral: "4",
+        word: "four",
+        value: 4,
+        uppercase: "4",
+        lowercase: "4",
+        name: "4",
+        colour: "#FCE4EC",
+        colourDark: "#D88CAB",
+        stageBackground: "linear-gradient(135deg, #FCE4EC 0%, #FFF0F5 100%)",
+        dotPattern: [{ x: 36, y: 36 }, { x: 64, y: 36 }, { x: 36, y: 64 }, { x: 64, y: 64 }],
+        audio: {
+          sound: "assets/audio/sound-4.mp3",
+          meet: "assets/audio/meet-4.mp3",
+          pick: "assets/audio/pick-4.mp3"
+        },
+        formation: {
+          default: {
+            ghostPaths: ["M132 32 L82 122 L144 122", "M132 32 L132 186"],
+            startDot: { x: 132, y: 32 },
+            arrows: [
+              { from: { x: 132, y: 32 }, to: { x: 82, y: 122 }, label: "1", labelPos: { x: 120, y: 56 } },
+              { from: { x: 82, y: 122 }, to: { x: 144, y: 122 }, label: "2", labelPos: { x: 90, y: 112 } },
+              { from: { x: 132, y: 32 }, to: { x: 132, y: 186 }, label: "3", labelPos: { x: 142, y: 70 } }
+            ]
+          }
+        }
+      },
+      {
+        id: "5",
+        numeral: "5",
+        word: "five",
+        value: 5,
+        uppercase: "5",
+        lowercase: "5",
+        name: "5",
+        colour: "#E8EAF6",
+        colourDark: "#9398CE",
+        stageBackground: "linear-gradient(135deg, #E8EAF6 0%, #F1F3FF 100%)",
+        dotPattern: [{ x: 36, y: 36 }, { x: 64, y: 36 }, { x: 50, y: 50 }, { x: 36, y: 64 }, { x: 64, y: 64 }],
+        audio: {
+          sound: "assets/audio/sound-5.mp3",
+          meet: "assets/audio/meet-5.mp3",
+          pick: "assets/audio/pick-5.mp3"
+        },
+        formation: {
+          default: {
+            ghostPaths: ["M136 42 L92 42 L88 106", "M88 106 C104 90, 138 100, 138 136 C138 172, 102 182, 84 162"],
+            startDot: { x: 136, y: 42 },
+            arrows: [
+              { from: { x: 136, y: 42 }, to: { x: 88, y: 106 }, label: "1", labelPos: { x: 122, y: 52 } },
+              { from: { x: 88, y: 106 }, to: { x: 138, y: 136 }, label: "2", labelPos: { x: 96, y: 116 } }
+            ]
+          }
+        }
+      }
+    ],
+
     praiseCorrect: ["Well done!", "That's right!", "You got it!", "Great work!", "Fantastic!", "Look at you go!", "You're a star!", "Brilliant!"],
     praiseCelebrate: ["Amazing!", "Wonderful!", "Superstar!", "Brilliant!", "What a champion!", "Incredible!", "Hooray!", "You nailed it!"],
     tryAgainPrompt: "Try again!",
@@ -1390,7 +1534,9 @@
 
     defaultSettings: {
       childName: "Quinn",
+      mode: "letters",
       activeLetterIds: ["s", "a", "t", "p", "i", "n"],
+      activeNumberIds: ["1", "2", "3", "4", "5"],
       displayCase: "uppercase",
       traceCase: "lowercase",
       audioEnabled: true,
