@@ -1363,6 +1363,7 @@ textarea {
   overflow-y: hidden;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  position: relative;
 }
 
 .home-progress-dots:not(.home-progress-dots-overflow) {
@@ -1371,8 +1372,8 @@ textarea {
 }
 
 .home-progress-dots.home-progress-dots-overflow {
-  mask-image: linear-gradient(to right, black 0%, black 92%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, black 0%, black 92%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
 }
 
 .home-progress-dots::-webkit-scrollbar {
@@ -1387,6 +1388,9 @@ textarea {
 .progress-dot {
   width: 44px;
   height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  flex: 0 0 44px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -1406,6 +1410,48 @@ textarea {
   opacity: 1;
   transform: scale(1.08);
   box-shadow: 0 3px 10px rgba(106, 191, 115, 0.3);
+}
+
+.home-progress-dots.home-progress-dots-overflow::after,
+.session-dots.session-dots-overflow::after,
+.home-progress-dots.home-progress-dots-overflow::before,
+.session-dots.session-dots-overflow::before {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(84, 63, 40, 0.85);
+  background: rgba(255, 248, 231, 0.88);
+  box-shadow: 0 2px 8px rgba(60, 44, 26, 0.12);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 7;
+}
+
+.home-progress-dots.home-progress-dots-overflow::after,
+.session-dots.session-dots-overflow::after {
+  content: ">";
+  right: 2px;
+}
+
+.home-progress-dots.home-progress-dots-overflow::before,
+.session-dots.session-dots-overflow::before {
+  content: "<";
+  left: 2px;
+}
+
+.home-progress-dots.dots-has-right::after,
+.session-dots.dots-has-right::after,
+.home-progress-dots.dots-has-left::before,
+.session-dots.dots-has-left::before {
+  opacity: 1;
 }
 
 .confirm-overlay {
@@ -1798,6 +1844,9 @@ textarea {
   .progress-dot {
     width: 38px;
     height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    flex: 0 0 38px;
     font-size: 0.95rem;
   }
 
@@ -1822,21 +1871,30 @@ textarea {
 
 .session-dots {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: nowrap;
   gap: clamp(4px, 1.2vw, 10px);
   padding: 6px 0;
   position: absolute;
   top: clamp(0.5rem, 1.2vh, 0.9rem);
-  left: clamp(68px, 10vw, 80px);
+  left: clamp(76px, 12vw, 100px);
   right: clamp(10px, 2.5vw, 18px);
   z-index: 5;
-  pointer-events: none;
+  pointer-events: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.session-dots::-webkit-scrollbar {
+  display: none;
 }
 
 .session-dot {
   min-width: 40px;
   min-height: 40px;
+  flex: 0 0 auto;
   padding: 0.28rem 0.55rem;
   border-radius: 999px;
   border: 2.5px solid rgba(148, 118, 82, 0.28);

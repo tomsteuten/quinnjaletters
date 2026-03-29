@@ -274,6 +274,8 @@
         el.innerHTML = html;
       }
     }
+
+    syncSessionDotStrips();
   }
 
   init();
@@ -293,6 +295,7 @@
     setupCelebrateMascotMedia();
     smoothCrossfadeLoop(document.getElementById('complete-mascot-video'), 0.30, 1.70);
     setupSpeechUI();
+    setupDotStripOverflowTracking();
     updateModeToggle();
     updateModeVisibility();
 
@@ -2572,8 +2575,7 @@
     }
 
     window.requestAnimationFrame(function () {
-      var hasOverflow = dom.homeProgressDots.scrollWidth > dom.homeProgressDots.clientWidth + 4;
-      dom.homeProgressDots.classList.toggle("home-progress-dots-overflow", hasOverflow);
+      var hasOverflow = updateDotStripOverflowClasses(dom.homeProgressDots, "home-progress-dots-overflow");
       if (!hasOverflow) {
         dom.homeProgressDots.scrollLeft = 0;
       }
@@ -2594,7 +2596,69 @@
       var firstPending = dom.homeProgressDots.querySelector(".progress-dot:not(.progress-dot-filled)");
       if (firstPending && typeof firstPending.scrollIntoView === "function") {
         firstPending.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        window.setTimeout(updateHomeProgressOverflowState, 180);
       }
+    });
+  }
+
+  function setupDotStripOverflowTracking() {
+    var stripIds = ["session-dots-meet", "session-dots-pick", "session-dots-trace", "session-dots-celebrate"];
+
+    if (dom.homeProgressDots) {
+      dom.homeProgressDots.addEventListener("scroll", function () {
+        updateDotStripOverflowClasses(dom.homeProgressDots, "home-progress-dots-overflow");
+      });
+    }
+
+    stripIds.forEach(function (id) {
+      var strip = document.getElementById(id);
+      if (!strip) {
+        return;
+      }
+      strip.addEventListener("scroll", function () {
+        updateDotStripOverflowClasses(strip, "session-dots-overflow");
+      });
+    });
+
+    window.addEventListener("resize", function () {
+      updateHomeProgressOverflowState();
+      syncSessionDotStrips();
+    });
+  }
+
+  function updateDotStripOverflowClasses(strip, overflowClassName) {
+    if (!strip) {
+      return false;
+    }
+
+    var hasOverflow = strip.scrollWidth > strip.clientWidth + 4;
+    var hasLeft = strip.scrollLeft > 4;
+    var hasRight = strip.scrollLeft + strip.clientWidth < strip.scrollWidth - 4;
+
+    strip.classList.toggle(overflowClassName, hasOverflow);
+    strip.classList.toggle("dots-has-left", hasOverflow && hasLeft);
+    strip.classList.toggle("dots-has-right", hasOverflow && hasRight);
+
+    return hasOverflow;
+  }
+
+  function syncSessionDotStrips() {
+    var stripIds = ["session-dots-meet", "session-dots-pick", "session-dots-trace", "session-dots-celebrate"];
+
+    window.requestAnimationFrame(function () {
+      stripIds.forEach(function (id) {
+        var strip = document.getElementById(id);
+        if (!strip) {
+          return;
+        }
+
+        var currentDot = strip.querySelector(".session-dot-current");
+        if (currentDot && typeof currentDot.scrollIntoView === "function") {
+          currentDot.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        }
+
+        updateDotStripOverflowClasses(strip, "session-dots-overflow");
+      });
     });
   }
 
