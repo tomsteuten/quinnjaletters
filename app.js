@@ -175,6 +175,8 @@
 
     settingChildName: document.getElementById("setting-child-name"),
     settingsLetterToggles: document.getElementById("settings-letter-toggles"),
+    letterPresetSelector: document.getElementById("letter-preset-selector"),
+    customLettersCollapsible: document.getElementById("custom-letters-collapsible"),
     settingAudio: document.getElementById("setting-audio"),
     settingSoundEffects: document.getElementById("setting-sound-effects"),
     settingGuideDefault: document.getElementById("setting-guide-default"),
@@ -441,6 +443,37 @@
     advanceStage();
   }
 
+  var letterPresets = {
+    satpin: ["s", "a", "t", "p", "i", "n"],
+    all: data.letters.map(function (l) { return l.id; })
+  };
+
+  function syncLetterPresetHighlight() {
+    var checked = Array.from(
+      document.querySelectorAll("input[data-letter-toggle='true']:checked")
+    ).map(function (input) { return input.value; });
+    var checkedSet = new Set(checked);
+
+    document.querySelectorAll(".letter-preset-btn").forEach(function (btn) {
+      var presetIds = letterPresets[btn.dataset.preset];
+      if (!presetIds) { btn.classList.remove("active"); return; }
+      var match = presetIds.length === checked.length &&
+        presetIds.every(function (id) { return checkedSet.has(id); });
+      btn.classList.toggle("active", match);
+    });
+  }
+
+  function applyLetterPreset(presetName) {
+    var ids = letterPresets[presetName];
+    if (!ids) return;
+    var idSet = new Set(ids);
+    document.querySelectorAll("input[data-letter-toggle='true']").forEach(function (input) {
+      input.checked = idSet.has(input.value);
+    });
+    syncLetterPresetHighlight();
+    if (dom.customLettersCollapsible) dom.customLettersCollapsible.removeAttribute("open");
+  }
+
   function setupSettingsUI() {
     dom.settingsLetterToggles.innerHTML = "";
 
@@ -454,10 +487,19 @@
       input.dataset.letterToggle = "true";
       text.textContent = letter.uppercase;
 
+      input.addEventListener("change", syncLetterPresetHighlight);
+
       label.appendChild(input);
       label.appendChild(text);
       dom.settingsLetterToggles.appendChild(label);
     });
+
+    if (dom.letterPresetSelector) {
+      dom.letterPresetSelector.addEventListener("click", function (e) {
+        var btn = e.target.closest(".letter-preset-btn");
+        if (btn) applyLetterPreset(btn.dataset.preset);
+      });
+    }
   }
 
   function setupTraceCanvas() {
@@ -1890,6 +1932,9 @@
       input.checked = activeSet.has(input.value);
     });
 
+    syncLetterPresetHighlight();
+    if (dom.customLettersCollapsible) dom.customLettersCollapsible.removeAttribute("open");
+
     document.querySelectorAll("input[name='display-case']").forEach(function (input) {
       input.checked = input.value === state.settings.displayCase;
     });
@@ -2244,7 +2289,9 @@
   function updateHomeProgressDots() {
     dom.homeProgressDots.innerHTML = "";
 
-    getActiveLetters().forEach(function (letter) {
+    getActiveLetters().slice().sort(function (a, b) {
+      return a.id.localeCompare(b.id);
+    }).forEach(function (letter) {
       var dot = document.createElement("span");
       var stats = state.progress.letterStats[letter.id];
       var mastered = stats && stats.seen >= 2 && (stats.correctFirstTry / stats.seen) >= 0.5;

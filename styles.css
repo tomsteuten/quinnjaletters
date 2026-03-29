@@ -908,6 +908,32 @@ textarea {
   outline: none;
 }
 
+.letter-preset-selector {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.letter-preset-btn {
+  flex: 1;
+  padding: 0.5rem 0.6rem;
+  border: 2px solid #e8dcc8;
+  border-radius: 10px;
+  background: rgba(255, 250, 240, 0.5);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.letter-preset-btn.active {
+  background: #fff3e0;
+  border-color: #e8a050;
+  color: #c06000;
+}
+
 .letter-toggle-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));

@@ -313,7 +313,16 @@
 
         <div class="settings-section">
           <span class="settings-section-title">Active letters</span>
-          <div id="settings-letter-toggles" class="letter-toggle-grid"></div>
+          <div id="letter-preset-selector" class="letter-preset-selector">
+            <button type="button" class="letter-preset-btn" data-preset="satpin">SATPIN</button>
+            <button type="button" class="letter-preset-btn" data-preset="all">Full Alphabet</button>
+          </div>
+          <details class="settings-collapsible" id="custom-letters-collapsible">
+            <summary class="settings-collapsible-header">Customise letters</summary>
+            <div class="settings-section-body">
+              <div id="settings-letter-toggles" class="letter-toggle-grid"></div>
+            </div>
+          </details>
         </div>
 
         <details class="settings-collapsible">
