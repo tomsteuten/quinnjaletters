@@ -2561,6 +2561,41 @@
       dot.textContent = getLetterCharacter(letter, "uppercase");
       dom.homeProgressDots.appendChild(dot);
     });
+
+    updateHomeProgressOverflowState();
+    focusHomeProgressTarget();
+  }
+
+  function updateHomeProgressOverflowState() {
+    if (!dom.homeProgressDots) {
+      return;
+    }
+
+    window.requestAnimationFrame(function () {
+      var hasOverflow = dom.homeProgressDots.scrollWidth > dom.homeProgressDots.clientWidth + 4;
+      dom.homeProgressDots.classList.toggle("home-progress-dots-overflow", hasOverflow);
+      if (!hasOverflow) {
+        dom.homeProgressDots.scrollLeft = 0;
+      }
+    });
+  }
+
+  function focusHomeProgressTarget() {
+    if (!dom.homeProgressDots) {
+      return;
+    }
+
+    window.requestAnimationFrame(function () {
+      var hasOverflow = dom.homeProgressDots.classList.contains("home-progress-dots-overflow");
+      if (!hasOverflow) {
+        return;
+      }
+
+      var firstPending = dom.homeProgressDots.querySelector(".progress-dot:not(.progress-dot-filled)");
+      if (firstPending && typeof firstPending.scrollIntoView === "function") {
+        firstPending.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+      }
+    });
   }
 
   function shuffle(array) {

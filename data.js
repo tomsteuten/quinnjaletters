@@ -1434,7 +1434,7 @@
         colour: "#E3F2FD",
         colourDark: "#6E9FD1",
         stageBackground: "linear-gradient(135deg, #E3F2FD 0%, #EEF6FF 100%)",
-        dotPattern: [{ x: 50, y: 36 }, { x: 50, y: 50 }, { x: 50, y: 64 }],
+        dotPattern: [{ x: 50, y: 28 }, { x: 50, y: 52 }, { x: 50, y: 76 }],
         audio: {
           sound: "assets/audio/sound-3.mp3",
           meet: "assets/audio/meet-3.mp3",
@@ -1442,7 +1442,10 @@
         },
         formation: {
           default: {
-            ghostPaths: ["M88 62 C106 44, 140 52, 132 82 C126 100, 102 106, 92 106 M92 106 C106 106, 136 114, 136 146 C136 174, 102 182, 86 164"],
+            ghostPaths: [
+              "M88 62 C106 44, 140 52, 132 82 C126 100, 102 106, 92 106",
+              "M92 106 C106 106, 136 114, 136 146 C136 174, 102 182, 86 164"
+            ],
             startDot: { x: 88, y: 62 },
             arrows: [
               { from: { x: 88, y: 62 }, to: { x: 132, y: 82 }, label: "1", labelPos: { x: 94, y: 48 } },
