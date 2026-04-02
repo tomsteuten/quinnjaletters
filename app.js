@@ -184,7 +184,9 @@
     settingsLetterSection: document.getElementById("settings-letter-section"),
     settingsNumberSection: document.getElementById("settings-number-section"),
     settingsCaseSection: document.getElementById("settings-case-section"),
+    homeTitle: document.getElementById("home-title"),
     letterPresetSelector: document.getElementById("letter-preset-selector"),
+    numberPresetSelector: document.getElementById("number-preset-selector"),
     customLettersCollapsible: document.getElementById("custom-letters-collapsible"),
     settingAudio: document.getElementById("setting-audio"),
     settingSoundEffects: document.getElementById("setting-sound-effects"),
@@ -221,6 +223,36 @@
     settingsSpeechGroup: document.getElementById("settings-speech-group")
   };
 
+  function createTrackerView(wrapperId, stripId, countId) {
+    var wrapper = document.getElementById(wrapperId);
+    if (!wrapper) {
+      return null;
+    }
+
+    return {
+      wrapper: wrapper,
+      strip: document.getElementById(stripId),
+      count: document.getElementById(countId),
+      prevBtn: wrapper.querySelector(".tracker-nav-prev"),
+      nextBtn: wrapper.querySelector(".tracker-nav-next")
+    };
+  }
+
+  var trackerViews = {
+    home: [createTrackerView("tracker-home", "home-progress-dots", "tracker-count-home")].filter(Boolean),
+    session: [
+      createTrackerView("tracker-meet", "session-dots-meet", "tracker-count-meet"),
+      createTrackerView("tracker-pick", "session-dots-pick", "tracker-count-pick"),
+      createTrackerView("tracker-trace", "session-dots-trace", "tracker-count-trace"),
+      createTrackerView("tracker-celebrate", "session-dots-celebrate", "tracker-count-celebrate")
+    ].filter(Boolean)
+  };
+
+  var trackerState = {
+    home: { items: [], focusIndex: 0, windowStart: 0, viewportSize: 0 },
+    session: { items: [], focusIndex: 0, windowStart: 0, viewportSize: 0 }
+  };
+
   const traceState = {
     ctx: null,
     isDrawing: false,
@@ -237,8 +269,7 @@
   var preloadedVideos = new Set();
 
   function renderSessionDots() {
-    var ids = ["session-dots-meet", "session-dots-pick", "session-dots-trace", "session-dots-celebrate"];
-    var html = "";
+    var items = [];
 
     for (var i = 0; i < state.letterQueue.length; i++) {
       var letter = state.letterQueue[i];
@@ -262,20 +293,15 @@
         traceImgHtml = "<img class='session-dot-trace' src='" + traceImgSrc + "' alt='' aria-hidden='true' />";
       }
 
-      html += "<span class='" + dotClass + "' style='" + style + "' aria-hidden='true'>"
-        + "<span class='session-dot-letter'>" + getLetterCharacter(letter, "uppercase") + "</span>"
-        + traceImgHtml
-        + "</span>";
+      items.push({
+        html: "<span class='" + dotClass + "' style='" + style + "' aria-hidden='true'>"
+          + "<span class='session-dot-letter'>" + getLetterCharacter(letter, "uppercase") + "</span>"
+          + traceImgHtml
+          + "</span>"
+      });
     }
 
-    for (var j = 0; j < ids.length; j++) {
-      var el = document.getElementById(ids[j]);
-      if (el) {
-        el.innerHTML = html;
-      }
-    }
-
-    syncSessionDotStrips();
+    setTrackerItems("session", items, state.currentLetterIndex, true);
   }
 
   init();
@@ -298,6 +324,9 @@
     setupDotStripOverflowTracking();
     updateModeToggle();
     updateModeVisibility();
+    if (dom.homeTitle) {
+      dom.homeTitle.textContent = isNumbersMode() ? "Quinnja Numbers" : "Quinnja Letters";
+    }
 
     if (!audio.isSoundEffectsSupported()) {
       state.settings.soundEffectsEnabled = false;
@@ -475,6 +504,35 @@
     all: data.letters.map(function (l) { return l.id; })
   };
 
+  var numberPresets = {
+    "1to5": ["1", "2", "3", "4", "5"],
+    "0to10": (data.numbers || []).map(function (n) { return n.id; })
+  };
+
+  function syncNumberPresetHighlight() {
+    var checked = Array.from(
+      document.querySelectorAll("input[data-number-toggle='true']:checked")
+    ).map(function (input) { return input.value; });
+    var checkedSet = new Set(checked);
+    document.querySelectorAll("[data-number-preset]").forEach(function (btn) {
+      var presetIds = numberPresets[btn.dataset.numberPreset];
+      if (!presetIds) { btn.classList.remove("active"); return; }
+      var match = presetIds.length === checked.length &&
+        presetIds.every(function (id) { return checkedSet.has(id); });
+      btn.classList.toggle("active", match);
+    });
+  }
+
+  function applyNumberPreset(presetName) {
+    var ids = numberPresets[presetName];
+    if (!ids) return;
+    var idSet = new Set(ids);
+    document.querySelectorAll("input[data-number-toggle='true']").forEach(function (input) {
+      input.checked = idSet.has(input.value);
+    });
+    syncNumberPresetHighlight();
+  }
+
   function syncLetterPresetHighlight() {
     var checked = Array.from(
       document.querySelectorAll("input[data-letter-toggle='true']:checked")
@@ -538,6 +596,8 @@
       input.dataset.numberToggle = "true";
       text.textContent = numberItem.numeral;
 
+      input.addEventListener("change", syncNumberPresetHighlight);
+
       label.appendChild(input);
       label.appendChild(text);
       dom.settingsNumberToggles.appendChild(label);
@@ -547,6 +607,13 @@
       dom.letterPresetSelector.addEventListener("click", function (e) {
         var btn = e.target.closest(".letter-preset-btn");
         if (btn) applyLetterPreset(btn.dataset.preset);
+      });
+    }
+
+    if (dom.numberPresetSelector) {
+      dom.numberPresetSelector.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-number-preset]");
+        if (btn) applyNumberPreset(btn.dataset.numberPreset);
       });
     }
   }
@@ -697,11 +764,14 @@
     // Draw the letter using the same anchor coordinates as the SVG ghost text
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
-    ctx.font = (traceCase === "lowercase") ? "600 120px Fredoka, sans-serif" : "600 150px Fredoka, sans-serif";
+    var isMultiChar = ch.length > 1;
+    ctx.font = (traceCase === "lowercase")
+      ? "600 120px Fredoka, sans-serif"
+      : (isMultiChar ? "600 110px Fredoka, sans-serif" : "600 150px Fredoka, sans-serif");
 
     var guide = getActiveFormation(letter);
     var x = 110;
-    var y = 160;
+    var y = isMultiChar ? 155 : 160;
     if (traceCase === "lowercase") {
       y = (guide && guide.showDescender) ? 155 : 158;
     }
@@ -1032,14 +1102,20 @@
     playCelebrateMascotVideo();
     spawnConfetti();
     const tracedChar = getLetterCharacter(state.currentLetter, state.currentTraceCase);
-    const pairedChar = isNumbersMode()
-      ? (state.currentLetter.word || "")
-      : getLetterCharacter(
+    dom.celebrateLetterMain.textContent = tracedChar;
+    if (isNumbersMode()) {
+      // Improvement #4: show dot pattern instead of word; #5: use theme colour
+      dom.celebrateLetterSide.innerHTML = renderDotPatternSVG(
+        state.currentLetter.dotPattern || [],
+        state.currentLetter.colourDark
+      );
+    } else {
+      dom.celebrateLetterSide.innerHTML = "";
+      dom.celebrateLetterSide.textContent = getLetterCharacter(
         state.currentLetter,
         state.currentTraceCase === "uppercase" ? "lowercase" : "uppercase"
       );
-    dom.celebrateLetterMain.textContent = tracedChar;
-    dom.celebrateLetterSide.textContent = pairedChar;
+    }
 
     if (state.lastTracedDataUrl) {
       dom.celebrateTracedImg.src = state.lastTracedDataUrl;
@@ -1134,7 +1210,7 @@
       dom.meetLetterUpper.textContent = letter.numeral || letter.uppercase;
       dom.meetLetterLower.textContent = letter.word || "";
       if (dom.meetQuantityDots) {
-        dom.meetQuantityDots.innerHTML = renderDotPatternSVG(letter.dotPattern || []);
+        dom.meetQuantityDots.innerHTML = renderDotPatternSVG(letter.dotPattern || [], letter.colourDark);
         dom.meetQuantityDots.hidden = false;
       }
     } else {
@@ -1572,9 +1648,10 @@
           + ">" + traceChar + "</text>";
       }
     } else {
-      ghostText = "<text x='110' y='160' text-anchor='middle'"
+      var isMultiCharTrace = traceChar.length > 1;
+      ghostText = "<text x='110' y='" + (isMultiCharTrace ? "155" : "160") + "' text-anchor='middle'"
         + " font-family='Fredoka, sans-serif' font-weight='600'"
-        + " font-size='150px' fill='#c9b49a' opacity='0.7'"
+        + " font-size='" + (isMultiCharTrace ? "110" : "150") + "px' fill='#c9b49a' opacity='0.7'"
         + ">" + traceChar + "</text>";
     }
 
@@ -2004,12 +2081,18 @@
     return isNumbersMode() ? state.settings.activeNumberIds : state.settings.activeLetterIds;
   }
 
-  function renderDotPatternSVG(dotPattern) {
+  function renderDotPatternSVG(dotPattern, colour) {
     if (!dotPattern || !dotPattern.length) {
-      return "";
+      // Improvement #3: zero — show a bordered empty frame instead of nothing
+      return "<svg class='dot-pattern-svg dot-pattern-empty' viewBox='0 0 100 100' aria-hidden='true'>"
+        + "<rect x='5' y='5' width='90' height='90' rx='12' class='dot-pattern-zero-frame'></rect>"
+        + "</svg>";
     }
-    var circles = dotPattern.map(function (dot) {
-      return "<circle class='dot-pattern-dot' cx='" + dot.x + "' cy='" + dot.y + "' r='8'></circle>";
+    var circles = dotPattern.map(function (dot, i) {
+      // Improvement #2: stagger delay per dot; #5: optional theme colour
+      var styleStr = "animation-delay:" + (i * 0.2).toFixed(2) + "s";
+      if (colour) { styleStr += ";fill:" + colour + ";stroke:none"; }
+      return "<circle class='dot-pattern-dot' cx='" + dot.x + "' cy='" + dot.y + "' r='8' style='" + styleStr + "'></circle>";
     }).join("");
     return "<svg class='dot-pattern-svg' viewBox='0 0 100 100' aria-hidden='true'>" + circles + "</svg>";
   }
@@ -2019,6 +2102,9 @@
       return;
     }
     state.settings.mode = mode;
+    if (dom.homeTitle) {
+      dom.homeTitle.textContent = mode === "numbers" ? "Quinnja Numbers" : "Quinnja Letters";
+    }
     updateModeToggle();
     updateModeVisibility();
     updateHomeProgressDots();
@@ -2073,6 +2159,7 @@
     });
 
     syncLetterPresetHighlight();
+    syncNumberPresetHighlight();
     if (dom.customLettersCollapsible) dom.customLettersCollapsible.removeAttribute("open");
     updateModeToggle();
     updateModeVisibility();
@@ -2549,7 +2636,8 @@
   }
 
   function updateHomeProgressDots() {
-    dom.homeProgressDots.innerHTML = "";
+    var items = [];
+    var firstPendingIndex = -1;
 
     getActiveLetters().slice().sort(function (a, b) {
       if (isNumbersMode()) {
@@ -2557,108 +2645,159 @@
       }
       return a.id.localeCompare(b.id);
     }).forEach(function (letter) {
-      var dot = document.createElement("span");
       var stats = getActiveStats(letter.id);
       var mastered = stats && stats.seen >= 2 && (stats.correctFirstTry / stats.seen) >= 0.5;
-      dot.className = "progress-dot" + (mastered ? " progress-dot-filled" : "");
-      dot.textContent = getLetterCharacter(letter, "uppercase");
-      dom.homeProgressDots.appendChild(dot);
+      if (!mastered && firstPendingIndex === -1) {
+        firstPendingIndex = items.length;
+      }
+      items.push({
+        html: "<span class='progress-dot" + (mastered ? " progress-dot-filled" : "") + "' aria-hidden='true'>"
+          + getLetterCharacter(letter, "uppercase")
+          + "</span>"
+      });
     });
 
-    updateHomeProgressOverflowState();
-    focusHomeProgressTarget();
+    if (!items.length) {
+      firstPendingIndex = 0;
+    } else if (firstPendingIndex === -1) {
+      firstPendingIndex = items.length - 1;
+    }
+
+    setTrackerItems("home", items, firstPendingIndex, true);
   }
 
   function updateHomeProgressOverflowState() {
-    if (!dom.homeProgressDots) {
-      return;
-    }
-
-    window.requestAnimationFrame(function () {
-      var hasOverflow = updateDotStripOverflowClasses(dom.homeProgressDots, "home-progress-dots-overflow");
-      if (!hasOverflow) {
-        dom.homeProgressDots.scrollLeft = 0;
-      }
-    });
+    renderTrackerGroup("home");
   }
 
   function focusHomeProgressTarget() {
-    if (!dom.homeProgressDots) {
-      return;
-    }
-
-    window.requestAnimationFrame(function () {
-      var hasOverflow = dom.homeProgressDots.classList.contains("home-progress-dots-overflow");
-      if (!hasOverflow) {
-        return;
-      }
-
-      var firstPending = dom.homeProgressDots.querySelector(".progress-dot:not(.progress-dot-filled)");
-      if (firstPending && typeof firstPending.scrollIntoView === "function") {
-        firstPending.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-        window.setTimeout(updateHomeProgressOverflowState, 180);
-      }
-    });
+    centerTrackerOnFocus("home");
+    renderTrackerGroup("home");
   }
 
   function setupDotStripOverflowTracking() {
-    var stripIds = ["session-dots-meet", "session-dots-pick", "session-dots-trace", "session-dots-celebrate"];
-
-    if (dom.homeProgressDots) {
-      dom.homeProgressDots.addEventListener("scroll", function () {
-        updateDotStripOverflowClasses(dom.homeProgressDots, "home-progress-dots-overflow");
-      });
-    }
-
-    stripIds.forEach(function (id) {
-      var strip = document.getElementById(id);
-      if (!strip) {
-        return;
-      }
-      strip.addEventListener("scroll", function () {
-        updateDotStripOverflowClasses(strip, "session-dots-overflow");
-      });
-    });
-
+    setupTrackerControls();
     window.addEventListener("resize", function () {
       updateHomeProgressOverflowState();
       syncSessionDotStrips();
     });
   }
 
-  function updateDotStripOverflowClasses(strip, overflowClassName) {
-    if (!strip) {
-      return false;
-    }
-
-    var hasOverflow = strip.scrollWidth > strip.clientWidth + 4;
-    var hasLeft = strip.scrollLeft > 4;
-    var hasRight = strip.scrollLeft + strip.clientWidth < strip.scrollWidth - 4;
-
-    strip.classList.toggle(overflowClassName, hasOverflow);
-    strip.classList.toggle("dots-has-left", hasOverflow && hasLeft);
-    strip.classList.toggle("dots-has-right", hasOverflow && hasRight);
-
-    return hasOverflow;
+  function syncSessionDotStrips() {
+    centerTrackerOnFocus("session");
+    renderTrackerGroup("session");
   }
 
-  function syncSessionDotStrips() {
-    var stripIds = ["session-dots-meet", "session-dots-pick", "session-dots-trace", "session-dots-celebrate"];
-
-    window.requestAnimationFrame(function () {
-      stripIds.forEach(function (id) {
-        var strip = document.getElementById(id);
-        if (!strip) {
-          return;
+  function setupTrackerControls() {
+    Object.keys(trackerViews).forEach(function (trackerKey) {
+      trackerViews[trackerKey].forEach(function (view) {
+        if (view.prevBtn) {
+          view.prevBtn.addEventListener("click", function () {
+            shiftTrackerWindow(trackerKey, -1);
+          });
         }
-
-        var currentDot = strip.querySelector(".session-dot-current");
-        if (currentDot && typeof currentDot.scrollIntoView === "function") {
-          currentDot.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        if (view.nextBtn) {
+          view.nextBtn.addEventListener("click", function () {
+            shiftTrackerWindow(trackerKey, 1);
+          });
         }
-
-        updateDotStripOverflowClasses(strip, "session-dots-overflow");
       });
+    });
+  }
+
+  function getTrackerViewportSize(trackerKey, totalItems) {
+    var maxVisible = trackerKey === "home" ? 7 : 6;
+    if (window.innerWidth <= 768) {
+      maxVisible = trackerKey === "home" ? 6 : 5;
+    }
+    if (window.innerWidth <= 480) {
+      maxVisible = 5;
+    }
+    return Math.min(totalItems, maxVisible);
+  }
+
+  function getCenteredWindowStart(focusIndex, viewportSize, totalItems) {
+    var maxStart = Math.max(0, totalItems - viewportSize);
+    var centeredStart = focusIndex - Math.floor(viewportSize / 2);
+    return Math.max(0, Math.min(maxStart, centeredStart));
+  }
+
+  function clampTrackerWindowStart(trackerKey) {
+    var tracker = trackerState[trackerKey];
+    var maxStart = Math.max(0, tracker.items.length - tracker.viewportSize);
+    tracker.windowStart = Math.max(0, Math.min(maxStart, tracker.windowStart));
+  }
+
+  function centerTrackerOnFocus(trackerKey) {
+    var tracker = trackerState[trackerKey];
+    tracker.viewportSize = getTrackerViewportSize(trackerKey, tracker.items.length);
+    tracker.windowStart = getCenteredWindowStart(tracker.focusIndex, tracker.viewportSize, tracker.items.length);
+    clampTrackerWindowStart(trackerKey);
+  }
+
+  function setTrackerItems(trackerKey, items, focusIndex, shouldCenter) {
+    var tracker = trackerState[trackerKey];
+    tracker.items = items;
+    tracker.focusIndex = Math.max(0, Math.min(items.length - 1, focusIndex || 0));
+    tracker.viewportSize = getTrackerViewportSize(trackerKey, items.length);
+
+    if (!items.length) {
+      tracker.windowStart = 0;
+    } else if (shouldCenter || tracker.windowStart === 0) {
+      tracker.windowStart = getCenteredWindowStart(tracker.focusIndex, tracker.viewportSize, items.length);
+    }
+
+    clampTrackerWindowStart(trackerKey);
+    renderTrackerGroup(trackerKey);
+  }
+
+  function shiftTrackerWindow(trackerKey, direction) {
+    var tracker = trackerState[trackerKey];
+    tracker.viewportSize = getTrackerViewportSize(trackerKey, tracker.items.length);
+    if (tracker.items.length <= tracker.viewportSize) {
+      return;
+    }
+
+    tracker.windowStart += direction;
+    clampTrackerWindowStart(trackerKey);
+    renderTrackerGroup(trackerKey);
+  }
+
+  function renderTrackerGroup(trackerKey) {
+    var tracker = trackerState[trackerKey];
+    var views = trackerViews[trackerKey] || [];
+    var hasOverflow;
+    var visibleHtml;
+    var countText;
+
+    tracker.viewportSize = getTrackerViewportSize(trackerKey, tracker.items.length);
+    if (!tracker.items.length) {
+      tracker.windowStart = 0;
+    }
+    clampTrackerWindowStart(trackerKey);
+
+    hasOverflow = tracker.items.length > tracker.viewportSize;
+    visibleHtml = tracker.items.slice(tracker.windowStart, tracker.windowStart + tracker.viewportSize).map(function (item) {
+      return item.html;
+    }).join("");
+    countText = tracker.items.length ? ((tracker.focusIndex + 1) + " of " + tracker.items.length) : "";
+
+    views.forEach(function (view) {
+      if (view.strip) {
+        view.strip.innerHTML = visibleHtml;
+      }
+      if (view.count) {
+        view.count.textContent = countText;
+      }
+      if (view.wrapper) {
+        view.wrapper.classList.toggle("tracker-has-overflow", hasOverflow);
+      }
+      if (view.prevBtn) {
+        view.prevBtn.disabled = !hasOverflow || tracker.windowStart <= 0;
+      }
+      if (view.nextBtn) {
+        view.nextBtn.disabled = !hasOverflow || tracker.windowStart + tracker.viewportSize >= tracker.items.length;
+      }
     });
   }
 

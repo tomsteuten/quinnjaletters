@@ -1,0 +1,11 @@
+# Large binary tool directories (TTS engine - too big for GitHub)
+tools/piper/
+tools/piper_retry/
+tools/tmp-piper-run/
+tools/piper-voice-tests/*.onnx
+
+# IDE settings
+.vscode/
+
+# Local Claude settings
+.claude/settings.local.json

@@ -1368,6 +1368,33 @@
 
     numbers: [
       {
+        id: "0",
+        numeral: "0",
+        word: "zero",
+        value: 0,
+        uppercase: "0",
+        lowercase: "0",
+        name: "0",
+        colour: "#F0EEEB",
+        colourDark: "#8D8075",
+        stageBackground: "linear-gradient(135deg, #F0EEEB 0%, #F8F5F0 100%)",
+        dotPattern: [],
+        audio: {
+          sound: "assets/audio/numbers/name-0.mp3",
+          meet: "assets/audio/numbers/meet-0.mp3",
+          pick: "assets/audio/numbers/pick-0.mp3"
+        },
+        formation: {
+          default: {
+            ghostPaths: ["M110 30 C145 30, 162 60, 162 95 C162 130, 145 162, 110 162 C75 162, 58 130, 58 95 C58 60, 75 30, 110 30"],
+            startDot: { x: 110, y: 30 },
+            arrows: [
+              { from: { x: 110, y: 30 }, to: { x: 160, y: 95 }, label: "1", labelPos: { x: 168, y: 60 } }
+            ]
+          }
+        }
+      },
+      {
         id: "1",
         numeral: "1",
         word: "one",
@@ -1473,12 +1500,12 @@
         },
         formation: {
           default: {
-            ghostPaths: ["M132 32 L82 122 L144 122", "M132 32 L132 186"],
-            startDot: { x: 132, y: 32 },
+            ghostPaths: ["M118 68 L82 122", "M82 122 L144 122", "M136 64 L136 186"],
+            startDot: { x: 118, y: 68 },
             arrows: [
-              { from: { x: 132, y: 32 }, to: { x: 82, y: 122 }, label: "1", labelPos: { x: 120, y: 56 } },
+              { from: { x: 118, y: 68 }, to: { x: 82, y: 122 }, label: "1", labelPos: { x: 106, y: 80 } },
               { from: { x: 82, y: 122 }, to: { x: 144, y: 122 }, label: "2", labelPos: { x: 90, y: 112 } },
-              { from: { x: 132, y: 32 }, to: { x: 132, y: 186 }, label: "3", labelPos: { x: 142, y: 70 } }
+              { from: { x: 136, y: 64 }, to: { x: 136, y: 186 }, label: "3", labelPos: { x: 146, y: 88 } }
             ]
           }
         }
@@ -1507,6 +1534,155 @@
             arrows: [
               { from: { x: 136, y: 42 }, to: { x: 88, y: 106 }, label: "1", labelPos: { x: 122, y: 52 } },
               { from: { x: 88, y: 106 }, to: { x: 138, y: 136 }, label: "2", labelPos: { x: 96, y: 116 } }
+            ]
+          }
+        }
+      },
+      {
+        id: "6",
+        numeral: "6",
+        word: "six",
+        value: 6,
+        uppercase: "6",
+        lowercase: "6",
+        name: "6",
+        colour: "#E0F7FA",
+        colourDark: "#00838F",
+        stageBackground: "linear-gradient(135deg, #E0F7FA 0%, #F0FCFD 100%)",
+        dotPattern: [{ x: 30, y: 18 }, { x: 70, y: 18 }, { x: 30, y: 50 }, { x: 70, y: 50 }, { x: 30, y: 82 }, { x: 70, y: 82 }],
+        audio: {
+          sound: "assets/audio/numbers/name-6.mp3",
+          meet: "assets/audio/numbers/meet-6.mp3",
+          pick: "assets/audio/numbers/pick-6.mp3"
+        },
+        formation: {
+          default: {
+            ghostPaths: ["M148 38 C108 12, 52 58, 54 112 C56 152, 82 172, 112 172 C148 172, 165 148, 160 118 C155 82, 122 64, 108 68 C82 72, 62 100, 65 120"],
+            startDot: { x: 148, y: 38 },
+            arrows: [
+              { from: { x: 148, y: 38 }, to: { x: 70, y: 75 }, label: "1", labelPos: { x: 62, y: 55 } },
+              { from: { x: 65, y: 112 }, to: { x: 112, y: 172 }, label: "2", labelPos: { x: 52, y: 148 } }
+            ]
+          }
+        }
+      },
+      {
+        id: "7",
+        numeral: "7",
+        word: "seven",
+        value: 7,
+        uppercase: "7",
+        lowercase: "7",
+        name: "7",
+        colour: "#E3F2FD",
+        colourDark: "#1565C0",
+        stageBackground: "linear-gradient(135deg, #E3F2FD 0%, #F0F7FF 100%)",
+        dotPattern: [{ x: 25, y: 15 }, { x: 50, y: 15 }, { x: 75, y: 15 }, { x: 38, y: 50 }, { x: 62, y: 50 }, { x: 38, y: 82 }, { x: 62, y: 82 }],
+        audio: {
+          sound: "assets/audio/numbers/name-7.mp3",
+          meet: "assets/audio/numbers/meet-7.mp3",
+          pick: "assets/audio/numbers/pick-7.mp3"
+        },
+        formation: {
+          default: {
+            ghostPaths: ["M68 30 L148 30 L90 162"],
+            startDot: { x: 68, y: 30 },
+            arrows: [
+              { from: { x: 68, y: 30 }, to: { x: 148, y: 30 }, label: "1", labelPos: { x: 108, y: 20 } },
+              { from: { x: 148, y: 30 }, to: { x: 90, y: 162 }, label: "2", labelPos: { x: 148, y: 95 } }
+            ]
+          }
+        }
+      },
+      {
+        id: "8",
+        numeral: "8",
+        word: "eight",
+        value: 8,
+        uppercase: "8",
+        lowercase: "8",
+        name: "8",
+        colour: "#E8EAF6",
+        colourDark: "#3949AB",
+        stageBackground: "linear-gradient(135deg, #E8EAF6 0%, #F3F4FC 100%)",
+        dotPattern: [{ x: 15, y: 15 }, { x: 50, y: 15 }, { x: 85, y: 15 }, { x: 15, y: 50 }, { x: 85, y: 50 }, { x: 15, y: 85 }, { x: 50, y: 85 }, { x: 85, y: 85 }],
+        audio: {
+          sound: "assets/audio/numbers/name-8.mp3",
+          meet: "assets/audio/numbers/meet-8.mp3",
+          pick: "assets/audio/numbers/pick-8.mp3"
+        },
+        formation: {
+          default: {
+            ghostPaths: [
+              "M110 88 C80 88, 60 70, 60 50 C60 30, 80 15, 110 15 C140 15, 160 30, 160 50 C160 70, 140 88, 110 88",
+              "M110 88 C78 88, 55 110, 55 135 C55 162, 78 178, 110 178 C142 178, 165 162, 165 135 C165 110, 142 88, 110 88"
+            ],
+            startDot: { x: 110, y: 15 },
+            arrows: [
+              { from: { x: 110, y: 15 }, to: { x: 160, y: 50 }, label: "1", labelPos: { x: 165, y: 32 } },
+              { from: { x: 110, y: 88 }, to: { x: 165, y: 135 }, label: "2", labelPos: { x: 168, y: 112 } }
+            ]
+          }
+        }
+      },
+      {
+        id: "9",
+        numeral: "9",
+        word: "nine",
+        value: 9,
+        uppercase: "9",
+        lowercase: "9",
+        name: "9",
+        colour: "#F3E5F5",
+        colourDark: "#7B1FA2",
+        stageBackground: "linear-gradient(135deg, #F3E5F5 0%, #FAF2FC 100%)",
+        dotPattern: [{ x: 15, y: 15 }, { x: 50, y: 15 }, { x: 85, y: 15 }, { x: 15, y: 50 }, { x: 50, y: 50 }, { x: 85, y: 50 }, { x: 15, y: 85 }, { x: 50, y: 85 }, { x: 85, y: 85 }],
+        audio: {
+          sound: "assets/audio/numbers/name-9.mp3",
+          meet: "assets/audio/numbers/meet-9.mp3",
+          pick: "assets/audio/numbers/pick-9.mp3"
+        },
+        formation: {
+          default: {
+            ghostPaths: ["M162 52 C158 25, 138 12, 110 12 C78 12, 57 32, 57 57 C57 82, 78 93, 110 93 C142 93, 162 72, 162 52 L112 175"],
+            startDot: { x: 162, y: 52 },
+            arrows: [
+              { from: { x: 162, y: 52 }, to: { x: 57, y: 57 }, label: "1", labelPos: { x: 60, y: 30 } },
+              { from: { x: 110, y: 93 }, to: { x: 112, y: 175 }, label: "2", labelPos: { x: 122, y: 135 } }
+            ]
+          }
+        }
+      },
+      {
+        id: "10",
+        numeral: "10",
+        word: "ten",
+        value: 10,
+        uppercase: "10",
+        lowercase: "10",
+        name: "10",
+        colour: "#FBE9E7",
+        colourDark: "#BF360C",
+        stageBackground: "linear-gradient(135deg, #FBE9E7 0%, #FDF4F2 100%)",
+        dotPattern: [
+          { x: 10, y: 30 }, { x: 28, y: 30 }, { x: 46, y: 30 }, { x: 64, y: 30 }, { x: 82, y: 30 },
+          { x: 10, y: 70 }, { x: 28, y: 70 }, { x: 46, y: 70 }, { x: 64, y: 70 }, { x: 82, y: 70 }
+        ],
+        audio: {
+          sound: "assets/audio/numbers/name-10.mp3",
+          meet: "assets/audio/numbers/meet-10.mp3",
+          pick: "assets/audio/numbers/pick-10.mp3"
+        },
+        formation: {
+          default: {
+            ghostPaths: [
+              "M68 48 L82 28 L82 162",
+              "M130 28 C158 28, 172 62, 172 95 C172 130, 158 162, 130 162 C102 162, 88 130, 88 95 C88 62, 102 28, 130 28"
+            ],
+            startDot: { x: 68, y: 48 },
+            arrows: [
+              { from: { x: 82, y: 28 }, to: { x: 82, y: 162 }, label: "1", labelPos: { x: 68, y: 95 } },
+              { from: { x: 130, y: 28 }, to: { x: 168, y: 95 }, label: "2", labelPos: { x: 175, y: 55 } }
             ]
           }
         }

@@ -1,0 +1,42 @@
+[
+  {
+    "file": "meet-s.mp3",
+    "text": "This is the letter S. Big S and little s."
+  },
+  {
+    "file": "sound-s.mp3",
+    "text": "sssss"
+  },
+  {
+    "file": "pick-s.mp3",
+    "text": "Can you find S?"
+  },
+  {
+    "file": "meet-a.mp3",
+    "text": "This is the letter A. Big A and little a."
+  },
+  {
+    "file": "sound-a.mp3",
+    "text": "aaa"
+  },
+  {
+    "file": "pick-a.mp3",
+    "text": "Can you find A?"
+  },
+  {
+    "file": "trace-prompt.mp3",
+    "text": "Now trace the letter. Start at the dot."
+  },
+  {
+    "file": "praise-1.mp3",
+    "text": "Well done!"
+  },
+  {
+    "file": "try-again.mp3",
+    "text": "Try again."
+  },
+  {
+    "file": "session-complete.mp3",
+    "text": "Amazing. You practised all your letters."
+  }
+]

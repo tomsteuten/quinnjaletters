@@ -9,7 +9,9 @@
   --accent-2: #f39c12;
   --guide-blue: #1565c0;
   --guide-path: #c8beb0;
-  --dots-clearance: clamp(4.2rem, 7.5vh, 5rem);
+  --dots-clearance: clamp(5.4rem, 10vh, 6.3rem);
+  --tracker-safe-left: clamp(76px, 12vw, 100px);
+  --tracker-safe-right: clamp(10px, 2.5vw, 18px);
 }
 
 * {
@@ -1351,56 +1353,107 @@ textarea {
   box-shadow: 0 5px 0 #c9571a, 0 8px 22px rgba(255, 107, 53, 0.35);
 }
 
-.home-progress-dots {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  padding: 0 0.75rem;
-  padding-bottom: 0.35rem;
+.tracker {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0.4rem 0.55rem;
+}
+
+.tracker-home {
   width: min(100%, 760px);
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  position: relative;
+  margin: 0 auto;
 }
 
-.home-progress-dots:not(.home-progress-dots-overflow) {
+.tracker-session {
+  position: absolute;
+  top: clamp(0.45rem, 1vh, 0.9rem);
+  left: var(--tracker-safe-left);
+  right: var(--tracker-safe-right);
+  z-index: 5;
+}
+
+.tracker-viewport {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.tracker-strip {
+  display: flex;
+  align-items: center;
   justify-content: center;
-  overflow-x: hidden;
+  flex-wrap: nowrap;
 }
 
-.home-progress-dots.home-progress-dots-overflow {
-  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
-}
-
-.home-progress-dots::-webkit-scrollbar {
-  height: 4px;
-}
-
-.home-progress-dots::-webkit-scrollbar-thumb {
-  background: rgba(60, 44, 26, 0.22);
+.tracker-count {
+  grid-column: 1 / -1;
+  justify-self: center;
+  min-width: 92px;
+  padding: 0.18rem 0.7rem;
   border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 2px solid rgba(239, 216, 183, 0.92);
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(129, 95, 46, 0.08);
 }
 
-.progress-dot {
+.tracker-nav {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #fffdf8 0%, #fff1de 100%);
+  box-shadow: 0 3px 0 #e0c9a4, 0 6px 12px rgba(129, 95, 46, 0.12);
+  border-bottom-width: 2px;
+}
+
+.tracker-nav img {
+  width: 22px;
+  height: 22px;
+}
+
+.tracker-nav-prev img {
+  transform: rotate(180deg);
+}
+
+.tracker-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+  box-shadow: 0 2px 0 #e0c9a4, 0 3px 7px rgba(129, 95, 46, 0.08);
+}
+
+.home-progress-dots {
+  gap: 0.4rem;
+  min-height: 52px;
+  padding: 0.1rem 0;
+}
+
+.progress-dot,
+.session-dot {
   width: 44px;
   height: 44px;
   min-width: 44px;
   min-height: 44px;
   flex: 0 0 44px;
   border-radius: 50%;
-  display: grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 1.1rem;
   font-weight: 700;
   border: 3px solid var(--border);
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.62);
   color: var(--muted);
-  opacity: 0.55;
-  transition: all 0.3s ease;
+  opacity: 0.62;
+  transition: background 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: visible;
+  box-sizing: border-box;
 }
 
 .progress-dot-filled {
@@ -1410,48 +1463,6 @@ textarea {
   opacity: 1;
   transform: scale(1.08);
   box-shadow: 0 3px 10px rgba(106, 191, 115, 0.3);
-}
-
-.home-progress-dots.home-progress-dots-overflow::after,
-.session-dots.session-dots-overflow::after,
-.home-progress-dots.home-progress-dots-overflow::before,
-.session-dots.session-dots-overflow::before {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  font-size: 16px;
-  font-weight: 700;
-  color: rgba(84, 63, 40, 0.85);
-  background: rgba(255, 248, 231, 0.88);
-  box-shadow: 0 2px 8px rgba(60, 44, 26, 0.12);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  z-index: 7;
-}
-
-.home-progress-dots.home-progress-dots-overflow::after,
-.session-dots.session-dots-overflow::after {
-  content: ">";
-  right: 2px;
-}
-
-.home-progress-dots.home-progress-dots-overflow::before,
-.session-dots.session-dots-overflow::before {
-  content: "<";
-  left: 2px;
-}
-
-.home-progress-dots.dots-has-right::after,
-.session-dots.dots-has-right::after,
-.home-progress-dots.dots-has-left::before,
-.session-dots.dots-has-left::before {
-  opacity: 1;
 }
 
 .confirm-overlay {
@@ -1772,15 +1783,24 @@ textarea {
     padding: 6px;
   }
 
-  /* Scale down session dots on smaller screens */
-  .session-dots {
-    gap: 8px;
+  .tracker-nav {
+    min-width: 42px;
+    min-height: 42px;
   }
 
+  .home-progress-dots,
+  .session-dots {
+    gap: 0.32rem;
+  }
+
+  .progress-dot,
   .session-dot {
-    min-width: 34px;
-    min-height: 34px;
-    padding: 0.2rem 0.35rem;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    flex-basis: 40px;
+    font-size: 1rem;
   }
 
   /* Meet: stack mascot above letters on narrow screens */
@@ -1834,26 +1854,28 @@ textarea {
 }
 
 @media (max-width: 480px) {
-  .session-dots {
-    gap: 4px;
-    left: 50px;
-    right: 12px;
-    flex-wrap: nowrap;
+  :root {
+    --tracker-safe-left: 50px;
+    --tracker-safe-right: 12px;
   }
 
-  .progress-dot {
+  .tracker {
+    gap: 0.3rem 0.4rem;
+  }
+
+  .tracker-nav {
+    min-width: 38px;
+    min-height: 38px;
+  }
+
+  .progress-dot,
+  .session-dot {
     width: 38px;
     height: 38px;
     min-width: 38px;
     min-height: 38px;
     flex: 0 0 38px;
     font-size: 0.95rem;
-  }
-
-  .session-dot {
-    min-width: 26px;
-    min-height: 26px;
-    padding: 0.12rem 0.2rem;
   }
 
   .session-dot-letter {
@@ -1870,45 +1892,13 @@ textarea {
 }
 
 .session-dots {
-  display: flex;
-  justify-content: flex-start;
-  flex-wrap: nowrap;
-  gap: clamp(4px, 1.2vw, 10px);
-  padding: 6px 0;
-  position: absolute;
-  top: clamp(0.5rem, 1.2vh, 0.9rem);
-  left: clamp(76px, 12vw, 100px);
-  right: clamp(10px, 2.5vw, 18px);
-  z-index: 5;
-  pointer-events: auto;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-.session-dots::-webkit-scrollbar {
-  display: none;
+  gap: clamp(4px, 1vw, 8px);
+  min-height: 52px;
+  padding: 0.1rem 0;
 }
 
 .session-dot {
-  min-width: 40px;
-  min-height: 40px;
-  flex: 0 0 auto;
-  padding: 0.28rem 0.55rem;
-  border-radius: 999px;
-  border: 2.5px solid rgba(148, 118, 82, 0.28);
-  background: rgba(255, 255, 255, 0.72);
   color: #8e7c69;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  transition: background 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
-  opacity: 0.75;
-  position: relative;
-  overflow: visible;
 }
 
 .session-dot-letter {
@@ -2000,10 +1990,26 @@ textarea {
   height: auto;
 }
 
+@keyframes dot-pop-in {
+  0% { transform: scale(0.45); opacity: 0; }
+  70% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 .dot-pattern-dot {
   fill: rgba(60, 44, 26, 0.28);
   stroke: rgba(60, 44, 26, 0.38);
   stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: dot-pop-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.dot-pattern-zero-frame {
+  fill: none;
+  stroke: rgba(60, 44, 26, 0.22);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
 }
 
 .meet-quantity-dots {

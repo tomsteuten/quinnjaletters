@@ -1,0 +1,25 @@
+[
+  { "file": "name-0.mp3", "text": "zero" },
+  { "file": "meet-0.mp3", "text": "This is the number 0." },
+  { "file": "pick-0.mp3", "text": "Can you find the number 0?" },
+
+  { "file": "name-6.mp3", "text": "six" },
+  { "file": "meet-6.mp3", "text": "This is the number 6." },
+  { "file": "pick-6.mp3", "text": "Can you find the number 6?" },
+
+  { "file": "name-7.mp3", "text": "seven" },
+  { "file": "meet-7.mp3", "text": "This is the number 7." },
+  { "file": "pick-7.mp3", "text": "Can you find the number 7?" },
+
+  { "file": "name-8.mp3", "text": "eight" },
+  { "file": "meet-8.mp3", "text": "This is the number 8." },
+  { "file": "pick-8.mp3", "text": "Can you find the number 8?" },
+
+  { "file": "name-9.mp3", "text": "nine" },
+  { "file": "meet-9.mp3", "text": "This is the number 9." },
+  { "file": "pick-9.mp3", "text": "Can you find the number 9?" },
+
+  { "file": "name-10.mp3", "text": "ten" },
+  { "file": "meet-10.mp3", "text": "This is the number 10." },
+  { "file": "pick-10.mp3", "text": "Can you find the number 10?" }
+]

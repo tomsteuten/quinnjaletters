@@ -1,0 +1,22 @@
+Quinnja Letters is a browser-based literacy game for early learners (around 5 years old)  that teaches letter recognition, phonics, and handwriting in a linear, guided loop.
+
+What it does
+A child works through a set of letters (S, A, T, P, I, N) one at a time. For each letter, they move through four stages:
+
+Meet — A friendly mascot (Quinnja) introduces the letter with audio, showing its shape and sound.
+Pick — The child identifies the correct letter from four choices. Wrong taps give gentle audio feedback; correct taps advance the flow.
+Trace — The child draws the letter on a canvas using a ghost-letter SVG guide. A pixel-sampled hit mask validates correctness.
+Celebrate — Sparkle animation and audio reward completion before moving to the next letter.
+After all letters in the session are practised, a completion screen shows progress and offers replay or return to home.
+
+Architecture at a glance
+Pure HTML/CSS/JS — no framework, no build step. Runs as a static site (GitHub Pages compatible).
+State is in-memory only (app.js module-level variables). Parent settings (active letters, child name, audio toggles) persist to localStorage.
+Audio via Web Audio API + MP3 files, lazy-initialised on first user gesture.
+Optional NFC tag support (nfc.js) for physical letter cards.
+Letter data (colours, audio paths, stroke geometry, ghost paths) is centralised in data.js, making new letters easy to add.
+Design goals
+Game should be designed based on child psychology and keeping in mind what is best for young children.
+Positive reinforcement only — no timers, no failure states, only encouragement.
+Parent-controlled settings (which letters are active, display case, audio toggles) behind a gear icon on the home screen.
+Works on both desktop and tablet viewports.

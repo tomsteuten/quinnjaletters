@@ -25,7 +25,7 @@
       </button>
 
       <div class="home-wrap">
-        <h1 class="home-title">Quinnja Letters</h1>
+        <h1 class="home-title" id="home-title">Quinnja Letters</h1>
         <div class="mode-toggle" id="mode-toggle" role="group" aria-label="Learning mode">
           <button type="button" class="mode-toggle-btn mode-toggle-active" id="mode-toggle-letters" aria-pressed="true">ABC</button>
           <button type="button" class="mode-toggle-btn" id="mode-toggle-numbers" aria-pressed="false">123</button>
@@ -56,7 +56,18 @@
 
         <div class="active-letters-row" id="home-active-letters" aria-hidden="true" hidden></div>
 
-        <div class="home-progress-dots" id="home-progress-dots" aria-label="Letter progress"></div>
+        <div class="tracker tracker-home" id="tracker-home" data-tracker-kind="home" aria-label="Letter progress">
+          <button type="button" class="tracker-nav tracker-nav-prev" data-tracker-target="home" data-dir="-1" aria-label="Show earlier letters">
+            <img src="assets/icons/arrow-right.svg" alt="" />
+          </button>
+          <div class="tracker-viewport">
+            <div class="home-progress-dots tracker-strip" id="home-progress-dots" aria-hidden="true"></div>
+          </div>
+          <button type="button" class="tracker-nav tracker-nav-next" data-tracker-target="home" data-dir="1" aria-label="Show more letters">
+            <img src="assets/icons/arrow-right.svg" alt="" />
+          </button>
+          <div class="tracker-count" id="tracker-count-home" aria-live="polite"></div>
+        </div>
 
         <div id="home-greeting" class="home-greeting" hidden></div>
 
@@ -73,7 +84,18 @@
     </section>
 
     <section id="stage-meet" class="stage" aria-label="Meet letter">
-      <div class="session-dots" id="session-dots-meet"></div>
+      <div class="tracker tracker-session" id="tracker-meet" data-tracker-kind="session" aria-label="Session progress">
+        <button type="button" class="tracker-nav tracker-nav-prev" data-tracker-target="session" data-dir="-1" aria-label="Show earlier session letters">
+          <img src="assets/icons/arrow-right.svg" alt="" />
+        </button>
+        <div class="tracker-viewport">
+          <div class="session-dots tracker-strip" id="session-dots-meet" aria-hidden="true"></div>
+        </div>
+        <button type="button" class="tracker-nav tracker-nav-next" data-tracker-target="session" data-dir="1" aria-label="Show more session letters">
+          <img src="assets/icons/arrow-right.svg" alt="" />
+        </button>
+        <div class="tracker-count" id="tracker-count-meet" aria-live="polite"></div>
+      </div>
       <div class="meet-layout">
         <div class="mascot-wrap mascot-presenting" id="meet-mascot-wrap">
           <!-- AI note: meet mascot video swap is intentionally reversible.
@@ -119,7 +141,18 @@
     </section>
 
     <section id="stage-pick" class="stage" aria-label="Pick letter">
-      <div class="session-dots" id="session-dots-pick"></div>
+      <div class="tracker tracker-session" id="tracker-pick" data-tracker-kind="session" aria-label="Session progress">
+        <button type="button" class="tracker-nav tracker-nav-prev" data-tracker-target="session" data-dir="-1" aria-label="Show earlier session letters">
+          <img src="assets/icons/arrow-right.svg" alt="" />
+        </button>
+        <div class="tracker-viewport">
+          <div class="session-dots tracker-strip" id="session-dots-pick" aria-hidden="true"></div>
+        </div>
+        <button type="button" class="tracker-nav tracker-nav-next" data-tracker-target="session" data-dir="1" aria-label="Show more session letters">
+          <img src="assets/icons/arrow-right.svg" alt="" />
+        </button>
+        <div class="tracker-count" id="tracker-count-pick" aria-live="polite"></div>
+      </div>
       <div class="pick-layout">
         <div class="pick-top">
           <div class="pick-target-wrap">
@@ -160,7 +193,18 @@
     </section>
 
     <section id="stage-trace" class="stage" aria-label="Trace letter">
-      <div class="session-dots" id="session-dots-trace"></div>
+      <div class="tracker tracker-session" id="tracker-trace" data-tracker-kind="session" aria-label="Session progress">
+        <button type="button" class="tracker-nav tracker-nav-prev" data-tracker-target="session" data-dir="-1" aria-label="Show earlier session letters">
+          <img src="assets/icons/arrow-right.svg" alt="" />
+        </button>
+        <div class="tracker-viewport">
+          <div class="session-dots tracker-strip" id="session-dots-trace" aria-hidden="true"></div>
+        </div>
+        <button type="button" class="tracker-nav tracker-nav-next" data-tracker-target="session" data-dir="1" aria-label="Show more session letters">
+          <img src="assets/icons/arrow-right.svg" alt="" />
+        </button>
+        <div class="tracker-count" id="tracker-count-trace" aria-live="polite"></div>
+      </div>
       <div class="trace-stage-layout">
         <div class="trace-header">
           <div class="trace-letter" id="trace-letter" aria-live="polite">S</div>
@@ -212,7 +256,18 @@
     </section>
 
     <section id="stage-celebrate" class="stage" aria-label="Celebrate">
-      <div class="session-dots" id="session-dots-celebrate"></div>
+      <div class="tracker tracker-session" id="tracker-celebrate" data-tracker-kind="session" aria-label="Session progress">
+        <button type="button" class="tracker-nav tracker-nav-prev" data-tracker-target="session" data-dir="-1" aria-label="Show earlier session letters">
+          <img src="assets/icons/arrow-right.svg" alt="" />
+        </button>
+        <div class="tracker-viewport">
+          <div class="session-dots tracker-strip" id="session-dots-celebrate" aria-hidden="true"></div>
+        </div>
+        <button type="button" class="tracker-nav tracker-nav-next" data-tracker-target="session" data-dir="1" aria-label="Show more session letters">
+          <img src="assets/icons/arrow-right.svg" alt="" />
+        </button>
+        <div class="tracker-count" id="tracker-count-celebrate" aria-live="polite"></div>
+      </div>
       <div class="celebrate-wrap">
         <div class="confetti-container" id="confetti-container" aria-hidden="true"></div>
         <div class="sparkles" aria-hidden="true">
@@ -332,6 +387,10 @@
 
         <div class="settings-section" id="settings-number-section" hidden>
           <span class="settings-section-title">Active numbers</span>
+          <div id="number-preset-selector" class="letter-preset-selector">
+            <button type="button" class="letter-preset-btn" data-number-preset="1to5">1 – 5</button>
+            <button type="button" class="letter-preset-btn" data-number-preset="0to10">0 – 10</button>
+          </div>
           <div id="settings-number-toggles" class="letter-toggle-grid"></div>
         </div>
 
