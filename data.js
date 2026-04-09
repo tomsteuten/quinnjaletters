@@ -1722,6 +1722,7 @@
       soundEffectsEnabled: true,
       formationGuideDefaultOn: true,
       nfcModeOn: false,
+      adaptiveOrderEnabled: false,
       ambientEnabled: false,
       speechSynthEnabled: false,
       speechVoiceURI: "",

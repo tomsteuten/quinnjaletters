@@ -1,0 +1,14 @@
+﻿ M .claude/settings.local.json
+ D assets/audio/piper-compare/meet-s-amy.mp3
+ D assets/audio/piper-compare/meet-s-jenny-dioco.wav
+ D assets/audio/piper-compare/meet-s-lessac.mp3
+ D assets/audio/piper-trial/_python-install-test-2.wav
+ D assets/audio/piper-trial/_python-install-test.wav
+ D assets/audio/piper-trial/meet-s.mp3
+ D assets/audio/piper-trial/meet-s.wav
+ D tools/generate-audio-piper.ps1
+ D tools/generate-audio-piper.py
+ D tools/piper-voice-tests/en_GB-jenny_dioco-medium.onnx.json
+ D tools/piper-voice-tests/en_US-amy-medium.onnx.json
+ D tools/piper-voice-tests/en_US-ljspeech-medium.onnx.json
+?? implementation-snapshot-20260403-175755/

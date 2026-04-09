@@ -1,22 +1,22 @@
 [
   { "file": "meet-c.mp3", "text": "This is the letter C. Big C and little c." },
-  { "file": "sound-c.mp3", "text": "k" },
+  { "file": "sound-c.mp3", "text": "kuh" },
   { "file": "pick-c.mp3", "text": "Can you find C?" },
 
   { "file": "meet-k.mp3", "text": "This is the letter K. Big K and little k." },
-  { "file": "sound-k.mp3", "text": "k" },
+  { "file": "sound-k.mp3", "text": "kuh" },
   { "file": "pick-k.mp3", "text": "Can you find K?" },
 
   { "file": "meet-e.mp3", "text": "This is the letter E. Big E and little e." },
-  { "file": "sound-e.mp3", "text": "e" },
+  { "file": "sound-e.mp3", "text": "eh" },
   { "file": "pick-e.mp3", "text": "Can you find E?" },
 
   { "file": "meet-h.mp3", "text": "This is the letter H. Big H and little h." },
-  { "file": "sound-h.mp3", "text": "h" },
+  { "file": "sound-h.mp3", "text": "hhh" },
   { "file": "pick-h.mp3", "text": "Can you find H?" },
 
   { "file": "meet-r.mp3", "text": "This is the letter R. Big R and little r." },
-  { "file": "sound-r.mp3", "text": "r" },
+  { "file": "sound-r.mp3", "text": "rrr" },
   { "file": "pick-r.mp3", "text": "Can you find R?" },
 
   { "file": "meet-m.mp3", "text": "This is the letter M. Big M and little m." },
@@ -24,23 +24,23 @@
   { "file": "pick-m.mp3", "text": "Can you find M?" },
 
   { "file": "meet-d.mp3", "text": "This is the letter D. Big D and little d." },
-  { "file": "sound-d.mp3", "text": "d" },
+  { "file": "sound-d.mp3", "text": "duh" },
   { "file": "pick-d.mp3", "text": "Can you find D?" },
 
   { "file": "meet-g.mp3", "text": "This is the letter G. Big G and little g." },
-  { "file": "sound-g.mp3", "text": "g" },
+  { "file": "sound-g.mp3", "text": "guh" },
   { "file": "pick-g.mp3", "text": "Can you find G?" },
 
   { "file": "meet-o.mp3", "text": "This is the letter O. Big O and little o." },
-  { "file": "sound-o.mp3", "text": "o" },
+  { "file": "sound-o.mp3", "text": "ah" },
   { "file": "pick-o.mp3", "text": "Can you find O?" },
 
   { "file": "meet-u.mp3", "text": "This is the letter U. Big U and little u." },
-  { "file": "sound-u.mp3", "text": "u" },
+  { "file": "sound-u.mp3", "text": "uh" },
   { "file": "pick-u.mp3", "text": "Can you find U?" },
 
   { "file": "meet-l.mp3", "text": "This is the letter L. Big L and little l." },
-  { "file": "sound-l.mp3", "text": "l" },
+  { "file": "sound-l.mp3", "text": "lll" },
   { "file": "pick-l.mp3", "text": "Can you find L?" },
 
   { "file": "meet-f.mp3", "text": "This is the letter F. Big F and little f." },
@@ -48,19 +48,19 @@
   { "file": "pick-f.mp3", "text": "Can you find F?" },
 
   { "file": "meet-b.mp3", "text": "This is the letter B. Big B and little b." },
-  { "file": "sound-b.mp3", "text": "b" },
+  { "file": "sound-b.mp3", "text": "buh" },
   { "file": "pick-b.mp3", "text": "Can you find B?" },
 
   { "file": "meet-j.mp3", "text": "This is the letter J. Big J and little j." },
-  { "file": "sound-j.mp3", "text": "j" },
+  { "file": "sound-j.mp3", "text": "juh" },
   { "file": "pick-j.mp3", "text": "Can you find J?" },
 
-  { "file": "meet-z.mp3", "text": "This is the letter Z. Big Z and little z." },
+  { "file": "meet-z.mp3", "text": "This is the letter zed. Big Zed and little zed." },
   { "file": "sound-z.mp3", "text": "zzz" },
-  { "file": "pick-z.mp3", "text": "Can you find Z?" },
+  { "file": "pick-z.mp3", "text": "Can you find Zed" },
 
   { "file": "meet-w.mp3", "text": "This is the letter W. Big W and little w." },
-  { "file": "sound-w.mp3", "text": "w" },
+  { "file": "sound-w.mp3", "text": "wuh" },
   { "file": "pick-w.mp3", "text": "Can you find W?" },
 
   { "file": "meet-v.mp3", "text": "This is the letter V. Big V and little v." },
@@ -68,15 +68,15 @@
   { "file": "pick-v.mp3", "text": "Can you find V?" },
 
   { "file": "meet-y.mp3", "text": "This is the letter Y. Big Y and little y." },
-  { "file": "sound-y.mp3", "text": "y" },
+  { "file": "sound-y.mp3", "text": "yuh" },
   { "file": "pick-y.mp3", "text": "Can you find Y?" },
 
   { "file": "meet-x.mp3", "text": "This is the letter X. Big X and little x." },
-  { "file": "sound-x.mp3", "text": "ks" },
+  { "file": "sound-x.mp3", "text": "ksss" },
   { "file": "pick-x.mp3", "text": "Can you find X?" },
 
   { "file": "meet-q.mp3", "text": "This is the letter Q. Big Q and little q." },
-  { "file": "sound-q.mp3", "text": "kw" },
+  { "file": "sound-q.mp3", "text": "kwuh" },
   { "file": "pick-q.mp3", "text": "Can you find Q?" },
 
   { "file": "meet-1.mp3", "text": "This is the number 1." },

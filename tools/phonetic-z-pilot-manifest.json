@@ -1,0 +1,110 @@
+﻿[
+    {
+        "file":  "sound-c.mp3",
+        "text":  "kuh"
+    },
+    {
+        "file":  "sound-k.mp3",
+        "text":  "kuh"
+    },
+    {
+        "file":  "sound-e.mp3",
+        "text":  "eh"
+    },
+    {
+        "file":  "sound-h.mp3",
+        "text":  "hhh"
+    },
+    {
+        "file":  "sound-r.mp3",
+        "text":  "rrr"
+    },
+    {
+        "file":  "sound-m.mp3",
+        "text":  "mmm"
+    },
+    {
+        "file":  "sound-d.mp3",
+        "text":  "duh"
+    },
+    {
+        "file":  "sound-g.mp3",
+        "text":  "guh"
+    },
+    {
+        "file":  "sound-o.mp3",
+        "text":  "ah"
+    },
+    {
+        "file":  "sound-u.mp3",
+        "text":  "uh"
+    },
+    {
+        "file":  "sound-l.mp3",
+        "text":  "lll"
+    },
+    {
+        "file":  "sound-f.mp3",
+        "text":  "fff"
+    },
+    {
+        "file":  "sound-b.mp3",
+        "text":  "buh"
+    },
+    {
+        "file":  "sound-j.mp3",
+        "text":  "juh"
+    },
+    {
+        "file":  "meet-z.mp3",
+        "text":  "This is the letter Z, pronounced zed. Big Z and little z."
+    },
+    {
+        "file":  "sound-z.mp3",
+        "text":  "zzz"
+    },
+    {
+        "file":  "pick-z.mp3",
+        "text":  "Can you find Z, pronounced zed?"
+    },
+    {
+        "file":  "sound-w.mp3",
+        "text":  "wuh"
+    },
+    {
+        "file":  "sound-v.mp3",
+        "text":  "vvv"
+    },
+    {
+        "file":  "sound-y.mp3",
+        "text":  "yuh"
+    },
+    {
+        "file":  "sound-x.mp3",
+        "text":  "ksss"
+    },
+    {
+        "file":  "sound-q.mp3",
+        "text":  "kwuh"
+    },
+    {
+        "file":  "sound-1.mp3",
+        "text":  "one"
+    },
+    {
+        "file":  "sound-2.mp3",
+        "text":  "two"
+    },
+    {
+        "file":  "sound-3.mp3",
+        "text":  "three"
+    },
+    {
+        "file":  "sound-4.mp3",
+        "text":  "four"
+    },
+    {
+        "file":  "sound-5.mp3",
+        "text":  "five"
+    }
+]

@@ -192,6 +192,7 @@
     settingSoundEffects: document.getElementById("setting-sound-effects"),
     settingGuideDefault: document.getElementById("setting-guide-default"),
     settingNfcMode: document.getElementById("setting-nfc-mode"),
+    settingAdaptiveOrder: document.getElementById("setting-adaptive-order"),
     settingsProgress: document.getElementById("settings-progress"),
     settingsMessage: document.getElementById("settings-message"),
     saveSettingsBtn: document.getElementById("btn-save-settings"),
@@ -850,7 +851,7 @@
 
     if (!queue.length) {
       queue = activeItems.slice();
-      queue = prioritiseWeakLetters(queue);
+      queue = state.settings.adaptiveOrderEnabled ? prioritiseWeakLetters(queue) : sortLettersFixed(queue);
       state.nfcSingleLetterSession = false;
     }
 
@@ -2149,6 +2150,7 @@
     if (dom.settingAmbient) dom.settingAmbient.checked = state.settings.ambientEnabled;
     dom.settingGuideDefault.checked = state.settings.formationGuideDefaultOn;
     dom.settingNfcMode.checked = state.settings.nfcModeOn;
+    dom.settingAdaptiveOrder.checked = state.settings.adaptiveOrderEnabled;
 
     document.querySelectorAll("input[data-letter-toggle='true']").forEach(function (input) {
       input.checked = activeLetterSet.has(input.value);
@@ -2245,6 +2247,7 @@
       soundEffectsEnabled: dom.settingSoundEffects.checked && audio.isSoundEffectsSupported(),
       formationGuideDefaultOn: dom.settingGuideDefault.checked,
       nfcModeOn: dom.settingNfcMode.checked,
+      adaptiveOrderEnabled: dom.settingAdaptiveOrder.checked,
       ambientEnabled: dom.settingAmbient ? dom.settingAmbient.checked : false,
       speechSynthEnabled: dom.settingSpeechSynth ? dom.settingSpeechSynth.checked : false,
       speechVoiceURI: dom.settingSpeechVoice ? dom.settingSpeechVoice.value : "",
@@ -2452,6 +2455,7 @@
           ? saved.formationGuideDefaultOn
           : defaults.formationGuideDefaultOn,
         nfcModeOn: typeof saved.nfcModeOn === "boolean" ? saved.nfcModeOn : defaults.nfcModeOn,
+        adaptiveOrderEnabled: typeof saved.adaptiveOrderEnabled === "boolean" ? saved.adaptiveOrderEnabled : defaults.adaptiveOrderEnabled,
         ambientEnabled: typeof saved.ambientEnabled === "boolean"
           ? saved.ambientEnabled
           : defaults.ambientEnabled,
@@ -2594,6 +2598,16 @@
     } else {
       audio.playMp3(state.currentLetter.audio.pick);
     }
+  }
+
+  function sortLettersFixed(queue) {
+    var satpin = ["s", "a", "t", "p", "i", "n"];
+    var ids = queue.map(function (l) { return l.id; });
+    var isSatpin = ids.length === 6 && satpin.every(function (id) { return ids.includes(id); });
+    if (isSatpin) {
+      return satpin.map(function (id) { return queue.find(function (l) { return l.id === id; }); });
+    }
+    return queue.slice().sort(function (a, b) { return a.id.localeCompare(b.id); });
   }
 
   function prioritiseWeakLetters(queue) {
